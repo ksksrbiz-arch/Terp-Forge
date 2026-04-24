@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const timeline = [
@@ -126,29 +127,74 @@ export default function StoryPage() {
             </div>
           </div>
 
-          <div>
-            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
-              {"// THE PROBLEM WE SOLVED"}
-            </p>
-            <div className="space-y-4 text-[#64748B] font-mono text-sm leading-relaxed">
-              <p>
-                The terpene market in 2018 was saturated with products that
-                referenced molecular science without understanding it.
-                &ldquo;Terpene-enhanced&rdquo; labels were applied to products with
-                trace, unverified compound concentrations. The marketing was
-                ahead of the chemistry by years.
-              </p>
-              <p>
-                TerpForge was built to close that gap. Not by creating better
-                marketing — by creating better products, then letting the
-                specifications speak for themselves.
-              </p>
-              <p>
-                Every product in our inventory starts with a molecular brief, not
-                a brand brief. The compound comes first. The application follows
-                the chemistry. The design reflects the function.
-              </p>
+          <div className="relative overflow-hidden border border-[#C9A84C]/20">
+            <Image
+              src="/images/forge-process.jpg"
+              alt="The TerpForge extraction and forging process"
+              width={600}
+              height={400}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/60 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
+              <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">ORIGIN // THE FORGE</p>
             </div>
+          </div>
+        </section>
+
+        {/* ── STORY IMAGES ─────────────────────── */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
+            <Image
+              src="/images/lab-molecular.jpg"
+              alt="Molecular analysis at TerpForge"
+              width={600}
+              height={400}
+              className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
+              <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">LAB // MOLECULAR PRECISION</p>
+            </div>
+          </div>
+          <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
+            <Image
+              src="/images/terpene-science.jpg"
+              alt="Terpene compound science"
+              width={600}
+              height={400}
+              className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#C9A84C]/30">
+              <p className="text-[#C9A84C] text-[10px] font-mono tracking-wider">SCIENCE // COMPOUND ISOLATION</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── THE PROBLEM SECTION ─────────────────────── */}
+        <section>
+          <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
+            {"// THE PROBLEM WE SOLVED"}
+          </p>
+          <div className="space-y-4 text-[#64748B] font-mono text-sm leading-relaxed max-w-3xl">
+            <p>
+              The terpene market in 2018 was saturated with products that
+              referenced molecular science without understanding it.
+              &ldquo;Terpene-enhanced&rdquo; labels were applied to products with
+              trace, unverified compound concentrations. The marketing was
+              ahead of the chemistry by years.
+            </p>
+            <p>
+              TerpForge was built to close that gap. Not by creating better
+              marketing — by creating better products, then letting the
+              specifications speak for themselves.
+            </p>
+            <p>
+              Every product in our inventory starts with a molecular brief, not
+              a brand brief. The compound comes first. The application follows
+              the chemistry. The design reflects the function.
+            </p>
           </div>
         </section>
 
@@ -284,6 +330,52 @@ export default function StoryPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ── LIFESTYLE ──────────────────────────── */}
+        <section>
+          <div className="mb-10">
+            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+              {"// LIFESTYLE DOCUMENTATION"}
+            </p>
+            <h2
+              className="text-4xl font-black uppercase text-[#E8EDF5]"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              Tech Life
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
+              <Image
+                src="/images/tech-life-1.jpeg"
+                alt="TerpForge Tech Life"
+                width={600}
+                height={400}
+                className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4">
+                <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">LIFESTYLE // 001</p>
+                <p className="text-[#E8EDF5] text-sm font-bold uppercase" style={{ fontFamily: "var(--font-montserrat)" }}>Tech Life Collection</p>
+              </div>
+            </div>
+            <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
+              <Image
+                src="/images/tech-life-2.jpeg"
+                alt="TerpForge Tech Life collection"
+                width={600}
+                height={400}
+                className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4">
+                <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">LIFESTYLE // 002</p>
+                <p className="text-[#E8EDF5] text-sm font-bold uppercase" style={{ fontFamily: "var(--font-montserrat)" }}>Engineered For Living</p>
+              </div>
+            </div>
           </div>
         </section>
 
