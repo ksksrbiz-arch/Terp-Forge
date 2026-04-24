@@ -77,7 +77,7 @@ export default function CartDrawer() {
     // After close-out animation, reset transient stages (form/success) so
     // the next open lands on the cart list.
     window.setTimeout(() => {
-      setStage((prev) => (prev === "cart" ? prev : "cart"));
+      setStage("cart");
       if (stage === "success") {
         setForm(EMPTY_FORM);
         setOrderId("");

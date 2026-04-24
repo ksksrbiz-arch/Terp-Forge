@@ -256,8 +256,9 @@ function downloadText(filename: string, text: string) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  // Revoke after a tick to avoid Safari aborting the download.
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  // Revoke after a longer delay so Safari / Firefox have time to start the
+  // download before the URL is invalidated.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export default function LabPage() {
