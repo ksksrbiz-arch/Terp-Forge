@@ -57,27 +57,30 @@ The checkout flow is intentionally a **simulated handoff** — order data
 never leaves the browser. Swap in Stripe / Printful / Shippo by
 replacing `handlePlaceOrder` in `CartDrawer.tsx` with a real API call.
 
-## Deployment — Cloudflare Pages
+## Deployment — GitHub Pages
 
-This repo ships with `.github/workflows/deploy-cloudflare.yml`, which
-builds the static export and deploys to Cloudflare Pages on every push
-to `main` (and via manual `workflow_dispatch`).
+This repo ships with `.github/workflows/deploy-pages.yml`, which builds
+the static export and publishes it to GitHub Pages on every push to
+`main` (and via manual `workflow_dispatch`). The canonical domain is
+**`terpforge.com`**, set via `public/CNAME` so it survives every redeploy.
 
 ### One-time setup
 
-1. **Create a Cloudflare Pages project** named `terpforge` (the workflow
-   passes `--project-name=terpforge`). You can do this in the
-   Cloudflare dashboard or with `wrangler pages project create terpforge`.
-   Direct-upload mode is fine — the workflow uploads the prebuilt `out/`
-   directory.
-2. **Add two GitHub repository secrets** (Settings → Secrets and
-   variables → Actions):
-   - `CLOUDFLARE_API_TOKEN` — a token with the **"Cloudflare Pages →
-     Edit"** permission for the account that owns the project.
-   - `CLOUDFLARE_ACCOUNT_ID` — found in the Cloudflare dashboard sidebar.
-3. **Custom domain (optional)** — in the Pages project settings, attach
-   your TerpForge domain. Cloudflare already manages your DNS, so it
-   will provision an automatic A/AAAA/CNAME and a TLS certificate.
+1. **Enable Pages** in repo Settings → Pages:
+   - **Source**: *GitHub Actions*
+   - That's it — the workflow handles configuration, artifact upload,
+     and deployment via the official `actions/configure-pages` +
+     `actions/upload-pages-artifact` + `actions/deploy-pages` pipeline.
+2. **Point DNS at GitHub Pages**. In your DNS provider, set
+   `terpforge.com` to one of:
+   - **Apex (`terpforge.com`)** → four `A` records:
+     `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
+     `185.199.111.153`
+     *(or four `AAAA` records for IPv6 if preferred)*
+   - **`www.terpforge.com`** → `CNAME` to `ksksrbiz-arch.github.io`
+3. **Verify the custom domain** in Settings → Pages once DNS resolves;
+   GitHub will issue a Let's Encrypt cert and auto-enable
+   *Enforce HTTPS*.
 
 ### Deploying
 
@@ -87,11 +90,10 @@ Push to `main`:
 git push origin main
 ```
 
-…or trigger manually from the **Actions** tab → *Deploy to Cloudflare
-Pages* → *Run workflow*. The workflow lints, builds, verifies the
-static export exists, and uploads `out/` to Pages. Each push gets a
-unique preview URL; the production alias updates after the deploy
-completes.
+…or trigger from the **Actions** tab → *Deploy to GitHub Pages* →
+*Run workflow*. The workflow lints, builds the static export,
+verifies `out/CNAME` is present, uploads the Pages artifact, and
+deploys.
 
 ### Local production preview
 
