@@ -1,5 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import MolecularCanvas from "@/components/ui/MolecularCanvas";
+import Marquee from "@/components/ui/Marquee";
+import CornerBrackets from "@/components/ui/CornerBrackets";
+import Reveal from "@/components/ui/Reveal";
 
 const pillars = [
   {
@@ -89,42 +93,87 @@ export default function Home() {
   return (
     <>
       {/* HERO */}
-      <section className="relative min-h-screen flex items-center overflow-hidden schematic-grid molecular-bg pt-16">
+      <section className="relative min-h-screen flex items-center overflow-hidden hex-mesh molecular-bg pt-16 noise-overlay scanlines">
+        {/* Animated molecular network backdrop */}
+        <div className="absolute inset-0 pointer-events-none opacity-70">
+          <MolecularCanvas density={42} linkDistance={150} />
+        </div>
+
+        {/* Vignette to keep typography legible over the network */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(10,22,40,0.55)_60%,_rgba(10,22,40,0.92)_100%)]" />
+
+        {/* Decorative concentric gold rings (drifting) */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 right-1/4 w-64 h-64 border border-[#C9A84C]/10 rounded-full" />
-          <div className="absolute top-1/4 right-1/4 w-48 h-48 border border-[#C9A84C]/15 rounded-full" style={{ transform: 'translate(32px, 32px)' }} />
-          <div className="absolute top-1/4 right-1/4 w-32 h-32 border border-[#C9A84C]/20 rounded-full" style={{ transform: 'translate(64px, 64px)' }} />
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0D9488]/30 to-transparent" />
+          <div className="absolute top-1/4 right-1/4 w-72 h-72 border border-[#C9A84C]/10 rounded-full drift-slow" />
+          <div className="absolute top-1/4 right-1/4 w-52 h-52 border border-[#C9A84C]/15 rounded-full drift-slow" style={{ transform: 'translate(32px, 32px)', animationDelay: '-3s' }} />
+          <div className="absolute top-1/4 right-1/4 w-32 h-32 border border-[#C9A84C]/20 rounded-full drift-slow" style={{ transform: 'translate(64px, 64px)', animationDelay: '-6s' }} />
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0D9488]/40 to-transparent" />
+        </div>
+
+        {/* Vertical schematic readouts — desktop only */}
+        <div className="hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 flex-col items-center gap-3 pointer-events-none">
+          <span className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] [writing-mode:vertical-rl] rotate-180">
+            FOUNDRY // OPERATIONAL
+          </span>
+          <span className="w-px h-24 bg-gradient-to-b from-transparent via-[#0D9488]/50 to-transparent" />
+          <span className="text-[#C9A84C] text-[10px] font-mono tracking-[0.4em] [writing-mode:vertical-rl] rotate-180 pulse-soft">
+            BATCH 0247-A
+          </span>
+        </div>
+        <div className="hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 flex-col items-center gap-3 pointer-events-none">
+          <span className="text-[#C9A84C] text-[10px] font-mono tracking-[0.4em] [writing-mode:vertical-rl]">
+            TF-SYSTEMS // v2.6
+          </span>
+          <span className="w-px h-24 bg-gradient-to-b from-transparent via-[#C9A84C]/50 to-transparent" />
+          <span className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] [writing-mode:vertical-rl] pulse-soft">
+            EXTRACTION // LIVE
+          </span>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left */}
             <div>
-              <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
+              <p
+                className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6 line-rise"
+                style={{ animationDelay: "0ms" }}
+              >
                 {"// TERPFORGE SYSTEMS ONLINE"}
               </p>
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-none mb-6" style={{ fontFamily: 'var(--font-montserrat)' }}>
-                <span className="block text-[#E8EDF5]">ENGINEERED</span>
-                <span className="block text-[#E8EDF5]">AROMATICS.</span>
-                <span className="block gold-shimmer">FORGED</span>
-                <span className="block text-[#E8EDF5]">WELLNESS.</span>
+              <h1
+                className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-none mb-6"
+                style={{ fontFamily: 'var(--font-montserrat)' }}
+              >
+                <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "120ms" }}>ENGINEERED</span>
+                <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "220ms" }}>AROMATICS.</span>
+                <span className="block holo-gold line-rise" style={{ animationDelay: "340ms" }}>FORGED</span>
+                <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "460ms" }}>WELLNESS.</span>
               </h1>
-              <p className="text-[#64748B] text-base sm:text-lg leading-relaxed max-w-md mb-8 font-light">
+              <p
+                className="text-[#94A3B8] text-base sm:text-lg leading-relaxed max-w-md mb-8 font-light line-rise"
+                style={{ animationDelay: "640ms" }}
+              >
                 The intersection of molecular terpene precision and industrial-grade craftsmanship.
                 Built for those who demand specification-level purity.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/shop" className="inline-flex items-center justify-center px-8 py-4 bg-[#C9A84C] text-[#0A1628] text-sm font-bold tracking-widest uppercase hover:bg-[#E2C97E] transition-colors">
-                  Enter The Inventory →
+              <div
+                className="flex flex-col sm:flex-row gap-4 line-rise"
+                style={{ animationDelay: "780ms" }}
+              >
+                <Link href="/shop" className="group relative inline-flex items-center justify-center px-8 py-4 bg-[#C9A84C] text-[#0A1628] text-sm font-bold tracking-widest uppercase hover:bg-[#E2C97E] transition-colors overflow-hidden">
+                  <span className="relative z-10">Enter The Inventory →</span>
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                 </Link>
-                <Link href="/lab" className="inline-flex items-center justify-center px-8 py-4 border border-[#0D9488] text-[#0D9488] text-sm font-bold tracking-widest uppercase hover:bg-[#0D9488]/10 transition-colors">
+                <Link href="/lab" className="inline-flex items-center justify-center px-8 py-4 border border-[#0D9488] text-[#0D9488] text-sm font-bold tracking-widest uppercase hover:bg-[#0D9488]/10 hover:text-[#14B8A6] transition-colors">
                   View The Lab
                 </Link>
               </div>
 
-              <div className="mt-10 pt-8 border-t border-[#1E293B] grid grid-cols-3 gap-4">
+              <div
+                className="mt-10 pt-8 border-t border-[#1E293B] grid grid-cols-3 gap-4 line-rise"
+                style={{ animationDelay: "920ms" }}
+              >
                 {[
                   { value: "100%", label: "Batch Verified" },
                   { value: "3rd Party", label: "COA Tested" },
@@ -140,24 +189,27 @@ export default function Home() {
 
             {/* Right — Hero image */}
             <div className="hidden lg:flex items-center justify-center">
-              <div className="relative w-full max-w-lg">
-                <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
-                <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
-                <Image
-                  src="/images/hero-extraction.jpg"
-                  alt="TerpForge industrial extraction facility with glowing molecular structures"
-                  width={600}
-                  height={400}
-                  className="w-full h-auto object-cover"
-                  priority
-                />
-                <div className="absolute top-3 left-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
-                  <p className="text-[#0D9488] text-[10px] font-mono">EXTRACTION // LIVE</p>
+              <Reveal variant="right" delay={300}>
+                <div className="relative w-full max-w-lg">
+                  <CornerBrackets size={18} color="#C9A84C" inset={-9} />
+                  <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
+                  <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
+                  <Image
+                    src="/images/hero-extraction.jpg"
+                    alt="TerpForge industrial extraction facility with glowing molecular structures"
+                    width={600}
+                    height={400}
+                    className="w-full h-auto object-cover"
+                    priority
+                  />
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
+                    <p className="text-[#0D9488] text-[10px] font-mono">EXTRACTION // LIVE</p>
+                  </div>
+                  <div className="absolute bottom-3 right-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#C9A84C]/40">
+                    <p className="text-[#C9A84C] text-[10px] font-mono">TF-SYSTEMS</p>
+                  </div>
                 </div>
-                <div className="absolute bottom-3 right-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#C9A84C]/40">
-                  <p className="text-[#C9A84C] text-[10px] font-mono">TF-SYSTEMS</p>
-                </div>
-              </div>
+              </Reveal>
             </div>
           </div>
         </div>
@@ -166,6 +218,36 @@ export default function Home() {
           <p className="text-[#64748B] text-[10px] font-mono tracking-widest">SCROLL</p>
           <div className="w-px h-8 bg-gradient-to-b from-[#C9A84C]/50 to-transparent" />
         </div>
+      </section>
+
+      {/* TELEMETRY TICKER */}
+      <section
+        aria-label="Foundry telemetry"
+        className="border-y border-[#C9A84C]/20 bg-[#070F1E] py-3"
+      >
+        <Marquee durationSeconds={48}>
+          {[
+            { k: "BATCH", v: "0247-A" },
+            { k: "PURITY", v: "99.7%" },
+            { k: "EXTRACTION", v: "−40°C → +35°C" },
+            { k: "PROFILE", v: "MYRCENE-DOMINANT" },
+            { k: "COA", v: "VERIFIED" },
+            { k: "FOUNDRY", v: "OPERATIONAL" },
+            { k: "PRESSURE", v: "1.2 MPa" },
+            { k: "FLOW", v: "0.84 L/min" },
+            { k: "RH", v: "32%" },
+            { k: "INDEX", v: "TF-SYSTEMS v2.6" },
+          ].map(({ k, v }, i) => (
+            <span
+              key={`${k}-${i}`}
+              className="inline-flex items-center gap-2 text-[10px] sm:text-xs font-mono tracking-[0.3em] uppercase whitespace-nowrap"
+            >
+              <span className="text-[#0D9488]">{`// ${k}`}</span>
+              <span className="text-[#E8EDF5]">{v}</span>
+              <span aria-hidden className="text-[#C9A84C]/50 px-2">◆</span>
+            </span>
+          ))}
+        </Marquee>
       </section>
 
       {/* THE CATHEDRAL PRINCIPLE */}
