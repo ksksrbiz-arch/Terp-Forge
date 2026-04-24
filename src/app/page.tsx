@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const pillars = [
@@ -137,25 +138,25 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right — Molecular schematic */}
+            {/* Right — Hero image */}
             <div className="hidden lg:flex items-center justify-center">
-              <div className="relative w-80 h-80">
-                <div className="absolute inset-0 border border-[#C9A84C]/20 rounded-full" />
-                <div className="absolute inset-6 border border-[#0D9488]/15 rounded-full" />
-                <div className="absolute inset-12 border border-[#C9A84C]/10 rounded-full" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-28 h-28 border-2 border-[#C9A84C] flex items-center justify-center bg-[#0A1628]">
-                    <div className="text-center">
-                      <p className="text-[#C9A84C] text-sm font-mono font-bold">C₁₀H₁₆</p>
-                      <p className="text-[#E8EDF5] text-xs font-mono mt-1">Myrcene</p>
-                      <p className="text-[#0D9488] text-[10px] font-mono mt-1">MW: 136.23</p>
-                    </div>
-                  </div>
+              <div className="relative w-full max-w-lg">
+                <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
+                <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
+                <Image
+                  src="/images/hero-extraction.jpg"
+                  alt="TerpForge industrial extraction facility with glowing molecular structures"
+                  width={600}
+                  height={400}
+                  className="w-full h-auto object-cover"
+                  priority
+                />
+                <div className="absolute top-3 left-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
+                  <p className="text-[#0D9488] text-[10px] font-mono">EXTRACTION // LIVE</p>
                 </div>
-                <div className="absolute top-4 left-4 text-[#0D9488]/50 text-[10px] font-mono">BP: 167°C</div>
-                <div className="absolute top-4 right-4 text-[#C9A84C]/50 text-[10px] font-mono">TF-001</div>
-                <div className="absolute bottom-4 left-4 text-[#0D9488]/50 text-[10px] font-mono">VERIFIED</div>
-                <div className="absolute bottom-4 right-4 text-[#C9A84C]/50 text-[10px] font-mono">BATCH-01</div>
+                <div className="absolute bottom-3 right-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#C9A84C]/40">
+                  <p className="text-[#C9A84C] text-[10px] font-mono">TF-SYSTEMS</p>
+                </div>
               </div>
             </div>
           </div>
@@ -242,6 +243,74 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* VISUAL SHOWCASE */}
+      <section className="py-24 bg-[#0F1F3D] border-t border-[#C9A84C]/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">{"// VISUAL DOCUMENTATION"}</p>
+            <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase text-[#E8EDF5]" style={{ fontFamily: 'var(--font-montserrat)' }}>
+              The Forge In Action
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { src: "/images/lab-molecular.jpg", alt: "Molecular analysis in the TerpForge laboratory", label: "LAB // MOLECULAR ANALYSIS" },
+              { src: "/images/forge-process.jpg", alt: "TerpForge extraction and forging process", label: "FORGE // EXTRACTION PROCESS" },
+              { src: "/images/terpene-science.jpg", alt: "Terpene science and compound isolation", label: "SCIENCE // COMPOUND ISOLATION" },
+              { src: "/images/product-showcase.jpg", alt: "TerpForge product showcase", label: "PRODUCT // FINAL OUTPUT" },
+              { src: "/images/tech-life-1.jpeg", alt: "TerpForge Tech Life", label: "LIFESTYLE // TECH LIFE" },
+              { src: "/images/tech-life-2.jpeg", alt: "TerpForge Tech Life collection", label: "LIFESTYLE // ENGINEERED" },
+            ].map((img) => (
+              <div key={img.src} className="group relative overflow-hidden border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 transition-all duration-300">
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  width={600}
+                  height={400}
+                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
+                  <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">{img.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* BRAND VIDEO */}
+      <section className="py-24 border-t border-[#C9A84C]/20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">{"// TRANSMISSION"}</p>
+            <h2 className="text-4xl sm:text-5xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4" style={{ fontFamily: 'var(--font-montserrat)' }}>
+              From The Foundry Floor
+            </h2>
+            <p className="text-[#64748B] max-w-xl mx-auto font-mono text-sm leading-relaxed">
+              An inside look at how precision chemistry meets industrial craftsmanship.
+            </p>
+          </div>
+
+          <div className="relative border border-[#C9A84C]/30 bg-[#0A1628]">
+            <div className="absolute top-3 left-3 z-10 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
+              <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">FOUNDRY // BROADCAST</p>
+            </div>
+            <video
+              className="w-full"
+              controls
+              playsInline
+              preload="metadata"
+              poster="/images/hero-extraction.jpg"
+            >
+              <source src="/videos/brand-video.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       </section>
