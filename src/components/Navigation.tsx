@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useCart } from "./CartContext";
 
 const navLinks = [
   { href: "/shop", label: "Shop" },
@@ -14,6 +15,12 @@ const navLinks = [
 export default function Navigation() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { itemCount, openCart, hydrated } = useCart();
+
+  // Avoid showing a stale "0" badge before localStorage hydrates.
+  const showBadge = hydrated && itemCount > 0;
+  const cartLabel = `Open cart${showBadge ? ` (${itemCount} items)` : ""}`;
+  const badgeText = itemCount > 99 ? "99+" : String(itemCount);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0A1628]/95 backdrop-blur-sm border-b border-[#C9A84C]/20">
@@ -54,32 +61,73 @@ export default function Navigation() {
           ))}
         </ul>
 
-        {/* CTA */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* CTA + Cart */}
+        <div className="hidden md:flex items-center gap-3">
           <Link
             href="/shop"
             className="px-5 py-2 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-widest uppercase hover:bg-[#E2C97E] transition-colors duration-300"
           >
             The Inventory
           </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen(false);
+              openCart();
+            }}
+            aria-label={cartLabel}
+            className="relative inline-flex items-center justify-center w-10 h-10 border border-[#C9A84C]/40 text-[#C9A84C] hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors"
+          >
+            <span aria-hidden className="text-base leading-none">⬡</span>
+            {showBadge && (
+              <span
+                aria-hidden
+                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-[#C9A84C] text-[#0A1628] text-[10px] font-black font-mono rounded-full flex items-center justify-center border border-[#0A1628]"
+              >
+                {badgeText}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden flex flex-col gap-1.5 p-2"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          <span
-            className={`w-6 h-0.5 bg-[#C9A84C] transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`}
-          />
-          <span
-            className={`w-6 h-0.5 bg-[#C9A84C] transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
-          />
-          <span
-            className={`w-6 h-0.5 bg-[#C9A84C] transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`}
-          />
-        </button>
+        {/* Mobile: cart + menu */}
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen(false);
+              openCart();
+            }}
+            aria-label={cartLabel}
+            className="relative inline-flex items-center justify-center w-10 h-10 border border-[#C9A84C]/40 text-[#C9A84C] hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors"
+          >
+            <span aria-hidden className="text-base leading-none">⬡</span>
+            {showBadge && (
+              <span
+                aria-hidden
+                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-[#C9A84C] text-[#0A1628] text-[10px] font-black font-mono rounded-full flex items-center justify-center border border-[#0A1628]"
+              >
+                {badgeText}
+              </span>
+            )}
+          </button>
+          <button
+            className="flex flex-col gap-1.5 p-2"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+          >
+            <span
+              className={`w-6 h-0.5 bg-[#C9A84C] transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`}
+            />
+            <span
+              className={`w-6 h-0.5 bg-[#C9A84C] transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`w-6 h-0.5 bg-[#C9A84C] transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`}
+            />
+          </button>
+        </div>
       </nav>
 
       {/* Mobile Menu */}

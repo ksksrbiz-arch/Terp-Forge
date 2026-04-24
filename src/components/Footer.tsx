@@ -1,4 +1,5 @@
 import Link from "next/link";
+import RegistryForm from "./RegistryForm";
 
 const footerLinks = {
   Shop: [
@@ -38,19 +39,7 @@ export default function Footer() {
             Gain early access to product drops, batch COA releases, and
             exclusive member pricing.
           </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="YOUR EMAIL ADDRESS"
-              className="flex-1 bg-[#0F1F3D] border border-[#C9A84C]/30 px-4 py-3 text-sm font-mono text-[#E8EDF5] placeholder-[#64748B] focus:outline-none focus:border-[#C9A84C] transition-colors"
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-widest uppercase hover:bg-[#E2C97E] transition-colors whitespace-nowrap"
-            >
-              Enlist
-            </button>
-          </form>
+          <RegistryForm />
         </div>
       </div>
 
