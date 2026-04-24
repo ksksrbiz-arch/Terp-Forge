@@ -307,6 +307,7 @@ export default function Home() {
               playsInline
               preload="metadata"
               poster="/images/hero-extraction.jpg"
+              aria-label="TerpForge foundry and extraction process brand video"
             >
               <source src="/videos/brand-video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
