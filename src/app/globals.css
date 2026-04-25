@@ -38,7 +38,7 @@ body {
 }
 
 .skip-link:focus-visible {
-  outline-color: var(--navy);
+  outline-color: var(--off-white);
 }
 
 /* Schematic grid overlay utility */

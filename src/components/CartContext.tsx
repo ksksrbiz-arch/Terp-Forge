@@ -14,6 +14,15 @@ import { findProduct } from "@/lib/products";
 
 const STORAGE_KEY = "terpforge.cart.v1";
 
+function sanitizeAnnouncementText(text: string) {
+  return text
+    .replace(/&/g, " and ")
+    .replace(/[<>"]/g, " ")
+    .replace(/[\u0000-\u001F\u007F]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export interface CartLine {
   id: string;
   qty: number;
@@ -139,29 +148,34 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback((id: string, qty = 1) => {
     const product = findProduct(id);
     if (!product || qty <= 0) return;
+    const safeName = sanitizeAnnouncementText(product.name);
     const existingQty = state.lines.find((line) => line.id === id)?.qty ?? 0;
+    const nextQty = existingQty + qty;
     dispatch({ type: "add", id, qty });
     setAnnouncement(
       existingQty > 0
-        ? `${product.name} quantity updated to ${existingQty + qty}.`
-        : `${product.name} added to cart.`,
+        ? `${safeName} quantity updated to ${nextQty}.`
+        : `${safeName} added to cart.`,
     );
   }, [state.lines]);
   const removeItem = useCallback((id: string) => {
     dispatch({ type: "remove", id });
     const product = findProduct(id);
     if (product) {
-      setAnnouncement(`${product.name} removed from cart.`);
+      setAnnouncement(
+        `${sanitizeAnnouncementText(product.name)} removed from cart.`,
+      );
     }
   }, []);
   const setQty = useCallback((id: string, qty: number) => {
     dispatch({ type: "setQty", id, qty });
     const product = findProduct(id);
     if (!product) return;
+    const safeName = sanitizeAnnouncementText(product.name);
     setAnnouncement(
       qty <= 0
-        ? `${product.name} removed from cart.`
-        : `${product.name} quantity updated to ${qty}.`,
+        ? `${safeName} removed from cart.`
+        : `${safeName} quantity updated to ${qty}.`,
     );
   }, []);
   const clear = useCallback(() => {

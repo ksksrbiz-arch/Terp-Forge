@@ -28,6 +28,8 @@ export default function SiteShellEnhancements() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const activeSequence = useRef("");
+  const forgeTimerRef = useRef<number | null>(null);
+  const cursorVisibleRef = useRef(false);
   const pointerTarget = useRef({ x: 0, y: 0 });
   const pointerCurrent = useRef({ x: 0, y: 0 });
   const [open, setOpen] = useState(false);
@@ -131,13 +133,21 @@ export default function SiteShellEnhancements() {
 
       if (next === FORGE_SEQUENCE) {
         setForgeActive(true);
-        window.setTimeout(() => setForgeActive(false), 1600);
+        if (forgeTimerRef.current) {
+          window.clearTimeout(forgeTimerRef.current);
+        }
+        forgeTimerRef.current = window.setTimeout(() => {
+          setForgeActive(false);
+        }, 1600);
       }
     };
 
     window.addEventListener(COMMAND_EVENT, onCommand);
     window.addEventListener("keydown", onKeyDown);
     return () => {
+      if (forgeTimerRef.current) {
+        window.clearTimeout(forgeTimerRef.current);
+      }
       window.removeEventListener(COMMAND_EVENT, onCommand);
       window.removeEventListener("keydown", onKeyDown);
     };
@@ -149,9 +159,15 @@ export default function SiteShellEnhancements() {
     let frame = 0;
     const move = (event: PointerEvent) => {
       pointerTarget.current = { x: event.clientX, y: event.clientY };
-      if (!cursorVisible) setCursorVisible(true);
+      if (!cursorVisibleRef.current) {
+        cursorVisibleRef.current = true;
+        setCursorVisible(true);
+      }
     };
-    const leave = () => setCursorVisible(false);
+    const leave = () => {
+      cursorVisibleRef.current = false;
+      setCursorVisible(false);
+    };
 
     const tick = () => {
       const el = cursorRef.current;
@@ -172,7 +188,7 @@ export default function SiteShellEnhancements() {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerleave", leave);
     };
-  }, [cursorEnabled, cursorVisible]);
+  }, [cursorEnabled]);
 
   const handleSelect = (href: string) => {
     setOpen(false);

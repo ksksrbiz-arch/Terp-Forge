@@ -44,6 +44,8 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "name-asc", label: "Name: A → Z" },
 ];
 
+const PRODUCT_ID_PATTERN = /^tf-[a-z]{2}-\d{3}$/i;
+
 export default function ShopPage() {
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [profile, setProfile] = useState<ProfileFilter>("all");
@@ -83,8 +85,16 @@ export default function ShopPage() {
       }
 
       if (raw.startsWith("product=")) {
-        const id = decodeURIComponent(raw.slice("product=".length));
-        const product = products.find((entry) => entry.id === id);
+        let id = "";
+        try {
+          id = decodeURIComponent(raw.slice("product=".length));
+        } catch {
+          return;
+        }
+        if (!PRODUCT_ID_PATTERN.test(id)) return;
+        const product = products.find(
+          (entry) => PRODUCT_ID_PATTERN.test(entry.id) && entry.id === id,
+        );
         if (product) {
           setCategory(product.category);
           setProfile(product.profile ?? "all");
@@ -161,15 +171,15 @@ export default function ShopPage() {
   const productJsonLd = useMemo(
     () => ({
       "@context": "https://schema.org",
-        "@type": "ItemList",
-        name: `${siteName} Product Systems`,
-        itemListElement: products.map((product, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          url: `${siteUrl}/shop/#product=${product.id}`,
-          item: {
-            "@type": "Product",
-            name: product.name,
+      "@type": "ItemList",
+      name: `${siteName} Product Systems`,
+      itemListElement: products.map((product, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${siteUrl}/shop/#product=${product.id}`,
+        item: {
+          "@type": "Product",
+          name: product.name,
           sku: product.id,
           description: product.details,
           brand: { "@type": "Brand", name: siteName },

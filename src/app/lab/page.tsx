@@ -142,13 +142,21 @@ export default function LabPage() {
     const applyHash = () => {
       const raw = window.location.hash.replace(/^#/, "");
       if (!raw.startsWith("compound=")) return;
-      const compound = decodeURIComponent(raw.slice("compound=".length));
+      let compound = "";
+      try {
+        compound = decodeURIComponent(raw.slice("compound=".length));
+      } catch {
+        return;
+      }
+      if (!/^[a-z0-9\s-]+$/i.test(compound)) return;
       const match = terpenes.find(
         (terpene) => terpene.name.toLowerCase() === compound.toLowerCase(),
       );
       if (match) {
         setSelectedTerpeneName(match.name);
-        document.getElementById("profiles")?.scrollIntoView({
+        const section = document.getElementById("profiles");
+        section?.focus({ preventScroll: true });
+        section?.scrollIntoView({
           behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
             ? "auto"
             : "smooth",
@@ -518,7 +526,7 @@ export default function LabPage() {
         </section>
 
         {/* ── COMPOUND LIBRARY ────────────────────────────────────── */}
-        <section id="profiles">
+        <section id="profiles" tabIndex={-1}>
           <div className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE 02"}

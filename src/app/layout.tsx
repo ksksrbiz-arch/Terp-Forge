@@ -8,6 +8,8 @@ import CartDrawer from "@/components/CartDrawer";
 import SiteShellEnhancements from "@/components/SiteShellEnhancements";
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
 
+// Keep the existing CSS variable names so the current component styles do not
+// need to change, even though the font assets are now bundled locally.
 const montserrat = localFont({
   src: [
     {
