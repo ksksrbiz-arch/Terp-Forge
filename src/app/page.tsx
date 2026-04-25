@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { StreamPlayer } from "@/components/StreamPlayer";
 import Link from "next/link";
 import MolecularCanvas from "@/components/ui/MolecularCanvas";
 import Marquee from "@/components/ui/Marquee";
@@ -289,7 +290,7 @@ export default function Home() {
                   <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
                   <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
                   <Image
-                    src="/images/hero-foundry-molecular.jpg"
+                    src="/images/hero-extraction.jpg"
                     alt="TerpForge industrial extraction facility with glowing molecular structures"
                     width={600}
                     height={400}
@@ -524,7 +525,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
             {
-              src: "/images/apparel-hooded-figure.jpg",
+              src: "/images/tech-life-1.jpeg",
               alt: "TerpForge hooded figure with gold and teal molecular schematic embroidery, forge fire backdrop",
               eyebrow: "// VERTICAL 01",
               title: "Apparel",
@@ -532,7 +533,7 @@ export default function Home() {
               href: "/shop?cat=apparel#apparel",
             },
             {
-              src: "/images/lab-extraction-rig.jpg",
+              src: "/images/lab-molecular.jpg",
               alt: "Stainless and brass extraction rig with teal cryo glow inside the TerpForge lab",
               eyebrow: "// VERTICAL 02",
               title: "Hardware",
@@ -540,7 +541,7 @@ export default function Home() {
               href: "/shop?cat=hardware#hardware",
             },
             {
-              src: "/images/wellness-terp7-elixir.jpg",
+              src: "/images/product-showcase.jpg",
               alt: "TerpForge TERP-7 Elixir tincture bottle surrounded by terpene crystals and gold molecular models",
               eyebrow: "// VERTICAL 03",
               title: "CBD Wellness",
@@ -600,17 +601,14 @@ export default function Home() {
               <div className="absolute top-3 left-3 z-10 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
                 <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">FOUNDRY // BROADCAST</p>
               </div>
-              <video
+              <StreamPlayer
                 className="w-full relative z-[1]"
-                controls
-                playsInline
-                preload="metadata"
+                fallbackSrc="/videos/brand-video.mp4"
+                videoId={process.env.NEXT_PUBLIC_BRAND_STREAM_ID}
                 poster="/images/hero-extraction.jpg"
-                aria-label="TerpForge foundry and extraction process brand video"
-              >
-                <source src="/videos/brand-video.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+                ariaLabel="TerpForge foundry and extraction process brand video"
+                controls
+              />
             </div>
           </Reveal>
         </div>

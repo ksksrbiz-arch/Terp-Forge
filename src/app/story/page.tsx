@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { StreamPlayer } from "@/components/StreamPlayer";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 
@@ -165,7 +166,7 @@ export default function StoryPage() {
 
           <div className="relative overflow-hidden border border-[#C9A84C]/20">
             <Image
-              src="/images/foundry-halls.jpg"
+              src="/images/forge-process.jpg"
               alt="The TerpForge extraction and forging process"
               width={600}
               height={400}
@@ -239,17 +240,13 @@ export default function StoryPage() {
 
         {/* ── FOUNDERS CINEMATIC PLATE ───────────────────────────── */}
         <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 min-h-[24rem] border-y border-[#C9A84C]/25 overflow-hidden">
-          <video
-            loop
-            muted
-            playsInline
+          <StreamPlayer
+            className="w-full"
+            fallbackSrc="/videos/brand-video.mp4"
+            videoId={process.env.NEXT_PUBLIC_BRAND_STREAM_ID}
+            ariaLabel="TerpForge foundry origin video"
             controls
-            preload="metadata"
-            className="absolute inset-0 h-full w-full object-cover"
-            aria-label="Ambient cinematic foundry plate"
-          >
-            <source src="/videos/brand-video.mp4" type="video/mp4" />
-          </video>
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/88 via-[#0A1628]/70 to-[#0A1628]/88" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/90 via-transparent to-[#0A1628]/45" />
           <Reveal

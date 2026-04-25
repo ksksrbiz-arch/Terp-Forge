@@ -1,21 +1,37 @@
-# Drop these 5 image files here
+# Brand image upgrade map
 
-The following filenames are referenced by the site. Save the new
-brand images Keith uploaded into this folder with these exact names
-(JPEG or PNG both work — Next is configured for unoptimized images
-so format conversion isn't required):
+Every page now points at the existing `public/images/*.jpg` files so the
+site renders complete imagery today. When you upload the higher-quality
+brand images Keith generated, swap the references in the table below.
 
-| Filename | Used in | Image content |
-|----------|---------|---------------|
-| `hero-foundry-molecular.jpg` | `/` hero, brand-video poster | Industrial foundry with glowing teal molecular structures floating between distillation columns |
-| `apparel-hooded-figure.jpg` | `/` Verticals (Apparel card) | Hooded figure in TerpForge hoodie with gold/teal molecular embroidery, forge-fire backdrop |
-| `lab-extraction-rig.jpg` | `/lab` header background, `/` Verticals (Hardware card) | Stainless and brass extraction rig with teal cryo glow |
-| `wellness-terp7-elixir.jpg` | `/` Verticals (Wellness card) | TERP-7 Elixir tincture bottle surrounded by terpene crystals and gold molecular models |
-| `foundry-halls.jpg` | `/story` foundry origin section | Massive distillation halls with workers and teal molecular columns |
+## Drop in (or rename) for a visual upgrade
 
-The video `terpforge.mp4` was uploaded and lives at
-`public/videos/brand-video.mp4` — it's wired into the homepage and
-story page already.
+| Save to this filename | Replaces fallback | Used in |
+|-----------------------|-------------------|---------|
+| `hero-foundry-molecular.jpg` | `hero-extraction.jpg` | Homepage hero (right column), brand video poster |
+| `apparel-hooded-figure.jpg`  | `tech-life-1.jpeg`    | Homepage Verticals → Apparel card |
+| `lab-extraction-rig.jpg`     | `lab-molecular.jpg`   | Homepage Verticals → Hardware card, Lab page header backdrop |
+| `wellness-terp7-elixir.jpg`  | `product-showcase.jpg`| Homepage Verticals → Wellness card |
+| `foundry-halls.jpg`          | `forge-process.jpg`   | Story page foundry origin section |
 
-If you want to remove this notice from the live site, just delete
-this file. It's not linked from anywhere.
+To swap in: save the new file to `public/images/` with the upgraded filename,
+then run a quick search-and-replace on the codebase (e.g. swap
+`/images/hero-extraction.jpg` → `/images/hero-foundry-molecular.jpg` only in
+`src/app/page.tsx` for the hero spot).
+
+## Per-product images
+
+Every SKU in `src/lib/products.ts` now carries an `image` field — the shop
+cards render that image full-bleed. To upgrade a product, save a new file
+to `public/images/` and update the SKU's `image` field. Filename suggestion:
+`product-{sku-slug}.jpg`, e.g. `public/images/product-myrcene-hoodie.jpg`.
+
+## Cloudflare Images / Stream
+
+- All static images can be transformed at the edge via the helper in
+  `src/lib/cf-image.ts` — wrap any `/images/*.jpg` path with
+  `cfImage(path, { width: 800, format: "auto" })`. Cloudflare Image
+  Resizing must be on for the zone (it is — verified).
+- The brand video uses `<StreamPlayer>` from `src/components/StreamPlayer.tsx`.
+  Set `NEXT_PUBLIC_CF_STREAM_SUBDOMAIN` and `NEXT_PUBLIC_BRAND_STREAM_ID`
+  in Pages env to swap from the local mp4 to Stream's adaptive bitrate player.

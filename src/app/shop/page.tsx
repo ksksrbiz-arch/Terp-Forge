@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/components/CartContext";
 import CornerBrackets from "@/components/ui/CornerBrackets";
@@ -536,11 +537,17 @@ function ProductFront({ product }: { product: Product }) {
   const profileColor = product.profile ? profileColors[product.profile] : null;
   return (
     <div className="h-full border border-[#C9A84C]/20 bg-[#0A1628] hover:border-[#C9A84C]/50 transition-colors duration-300 flex flex-col">
-      <div className="h-40 bg-[#0F1F3D] schematic-grid flex items-center justify-center border-b border-[#C9A84C]/20 relative">
-        <div className="w-14 h-14 border border-[#C9A84C]/30 flex items-center justify-center transition-colors">
-          <span className="text-[#C9A84C]/50 text-xl transition-colors">
-            {product.icon}
-          </span>
+      <div className="h-40 bg-[#0F1F3D] schematic-grid border-b border-[#C9A84C]/20 relative overflow-hidden">
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          className="object-cover grayscale-[25%] saturate-[0.85] hover:grayscale-0 hover:saturate-100 transition-all duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/85 via-[#0A1628]/15 to-transparent pointer-events-none" />
+        <div className="absolute top-3 left-3 w-9 h-9 border border-[#C9A84C]/40 bg-[#0A1628]/70 backdrop-blur-sm flex items-center justify-center">
+          <span className="text-[#C9A84C] text-base">{product.icon}</span>
         </div>
         {product.badge && (
           <div className="absolute top-3 right-3 px-2 py-1 bg-[#C9A84C] text-[#0A1628] text-[9px] font-bold tracking-widest">
