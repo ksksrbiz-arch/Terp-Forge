@@ -74,9 +74,9 @@ static-export deployment model or pulling in heavy dependencies.
 
 ## Phase 6 — Cart & checkout ascension
 
-- [ ] Cart drawer → "manifest sheet" styling (batch IDs, COA links, terpene badges)
-- [ ] Multi-step **transmission protocol** checkout with animated step indicator
-- [ ] Order success → animated forge stamp + hex-particle confetti
+- [x] Cart drawer → "manifest sheet" styling (batch IDs, COA links, terpene badges)
+- [x] Multi-step **transmission protocol** checkout with animated step indicator
+- [x] Order success → animated forge stamp + hex-particle confetti
 
 ## Phase 7 — Site-wide cross-cutting
 
