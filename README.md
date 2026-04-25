@@ -57,47 +57,58 @@ The checkout flow is intentionally a **simulated handoff** — order data
 never leaves the browser. Swap in Stripe / Printful / Shippo by
 replacing `handlePlaceOrder` in `CartDrawer.tsx` with a real API call.
 
-## Deployment — GitHub Pages
+## Deployment
 
-This repo ships with `.github/workflows/deploy-pages.yml`, which builds
-the static export and publishes it to GitHub Pages on every push to
-`main` (and via manual `workflow_dispatch`). The canonical domain is
-**`terpforge.com`**, set via `public/CNAME` so it survives every redeploy.
-
-### One-time setup
-
-1. **Enable Pages** in repo Settings → Pages:
-   - **Source**: *GitHub Actions*
-   - That's it — the workflow handles configuration, artifact upload,
-     and deployment via the official `actions/configure-pages` +
-     `actions/upload-pages-artifact` + `actions/deploy-pages` pipeline.
-2. **Point DNS at GitHub Pages**. In your DNS provider, set
-   `terpforge.com` to one of:
-   - **Apex (`terpforge.com`)** → four `A` records:
-     `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
-     `185.199.111.153`
-     *(or four `AAAA` records for IPv6 if preferred)*
-   - **`www.terpforge.com`** → `CNAME` to `ksksrbiz-arch.github.io`
-3. **Verify the custom domain** in Settings → Pages once DNS resolves;
-   GitHub will issue a Let's Encrypt cert and auto-enable
-   *Enforce HTTPS*.
-
-### Deploying
-
-Push to `main`:
-
-```bash
+```
 git push origin main
+  ├─► Deploy to Cloudflare Pages  →  terpforge.pages.dev  →  terpforge.com / www.terpforge.com  [PRIMARY]
+  └─► Deploy to GitHub Pages      →  ksksrbiz-arch.github.io/Terp-Forge/                        [HOT FALLBACK]
 ```
 
-…or trigger from the **Actions** tab → *Deploy to GitHub Pages* →
-*Run workflow*. The workflow lints, builds the static export,
-verifies `out/CNAME` is present, uploads the Pages artifact, and
-deploys.
+Both workflows fire on every push to `main`. They build the same static artifact independently and never block each other.
 
-### Local production preview
+### Cloudflare Pages (primary)
+
+Workflow: `.github/workflows/deploy-cloudflare.yml`
+
+The workflow lints, builds the static export, and publishes to Cloudflare Pages via `wrangler pages deploy`. The `wrangler.toml` at the root pins the project name (`terpforge`) and build output dir (`./out`).
+
+#### Required GitHub Actions secrets
+
+| Secret | Value |
+|--------|-------|
+| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID (see DEPLOY.md) |
+| `CLOUDFLARE_API_TOKEN`  | API token with **Cloudflare Pages — Edit** account permission |
+
+Generate the token at **Cloudflare → My Profile → API Tokens → Create Token → Custom token** with the *Cloudflare Pages — Edit* account permission. Wrangler auto-creates the project on the first run.
+
+#### Wiring `terpforge.com` to Cloudflare Pages
+
+1. Add `terpforge.com` to Cloudflare as a zone and delegate nameservers at your registrar.
+2. Once the zone is **active**, open the `terpforge` Pages project → *Custom domains* → *Set up a custom domain* → add `terpforge.com` then `www.terpforge.com`. Cloudflare creates DNS records automatically.
+3. `www.terpforge.com` is redirected to the apex via `public/_redirects` (Netlify-syntax redirect file respected by Cloudflare Pages).
+4. Optional: enable *Always Use HTTPS* and configure an *Edge Cache TTL* on the zone.
+
+#### Local deploy
 
 ```bash
+npm ci
 npm run build
-npx serve out          # any static server works
+
+# Requires CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID in env
+npx wrangler@3 pages deploy out --project-name=terpforge --branch=preview
 ```
+
+---
+
+### GitHub Pages (hot fallback)
+
+Workflow: `.github/workflows/deploy-pages.yml`
+
+Every push to `main` also deploys to GitHub Pages. The site is always live at `https://ksksrbiz-arch.github.io/Terp-Forge/` and is pre-configured with `public/CNAME` (`terpforge.com`) so that a single DNS change at the registrar (A records pointing to GitHub's IPs) is all that's needed to fail over.
+
+**GitHub Pages DNS (fallback):**
+- Apex (`terpforge.com`) → four `A` records: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+- `www.terpforge.com` → `CNAME` to `ksksrbiz-arch.github.io`
+
+Enable *GitHub Pages* in repo Settings → Pages → **Source: GitHub Actions** once (one-time setup). The workflow handles the rest automatically.

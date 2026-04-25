@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Static export — every page is already ○ (Static), so this produces a
-  // pure HTML/CSS/JS bundle in `out/` that deploys to any static host
-  // (GitHub Pages in our case, via .github/workflows/deploy-pages.yml).
+  // pure HTML/CSS/JS bundle in `out/` that deploys to any static host.
+  // Primary: Cloudflare Pages (deploy-cloudflare.yml) → terpforge.com
+  // Fallback: GitHub Pages  (deploy-pages.yml)        → ksksrbiz-arch.github.io/Terp-Forge/
   output: "export",
 
   // Required for static export: Next's image optimizer needs a server.
