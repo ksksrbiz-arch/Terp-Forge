@@ -165,7 +165,7 @@ export default function StoryPage() {
 
           <div className="relative overflow-hidden border border-[#C9A84C]/20">
             <Image
-              src="/images/foundry-halls.jpg"
+              src="https://github.com/user-attachments/assets/9f67e424-0fed-49cd-8ac3-44791d979ff2"
               alt="The TerpForge extraction and forging process"
               width={600}
               height={400}

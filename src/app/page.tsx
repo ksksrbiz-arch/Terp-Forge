@@ -261,7 +261,7 @@ export default function Home() {
                   <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
                   <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
                   <Image
-                    src="/images/hero-foundry-molecular.jpg"
+                    src="https://github.com/user-attachments/assets/3e83a842-ba0c-493a-a120-2416db85146e"
                     alt="TerpForge industrial extraction facility with glowing molecular structures"
                     width={600}
                     height={400}
@@ -496,7 +496,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
             {
-              src: "/images/apparel-hooded-figure.jpg",
+              src: "https://github.com/user-attachments/assets/9f67e424-0fed-49cd-8ac3-44791d979ff2",
               alt: "TerpForge hooded figure with gold and teal molecular schematic embroidery, forge fire backdrop",
               eyebrow: "// VERTICAL 01",
               title: "Apparel",
@@ -504,7 +504,7 @@ export default function Home() {
               href: "/shop?cat=apparel#apparel",
             },
             {
-              src: "/images/lab-extraction-rig.jpg",
+              src: "https://github.com/user-attachments/assets/4d66e35f-ad80-4a16-ab88-19595a98d0a0",
               alt: "Stainless and brass extraction rig with teal cryo glow inside the TerpForge lab",
               eyebrow: "// VERTICAL 02",
               title: "Hardware",
@@ -512,7 +512,7 @@ export default function Home() {
               href: "/shop?cat=hardware#hardware",
             },
             {
-              src: "/images/wellness-terp7-elixir.jpg",
+              src: "https://github.com/user-attachments/assets/29bdf14d-f6fc-4404-af51-f7283c6da92e",
               alt: "TerpForge TERP-7 Elixir tincture bottle surrounded by terpene crystals and gold molecular models",
               eyebrow: "// VERTICAL 03",
               title: "CBD Wellness",
