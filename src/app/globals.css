@@ -348,6 +348,33 @@ body {
 }
 .hex-rotate { animation: hex-spin 22s linear infinite; }
 
+/* ── FlipCard ──────────────────────────────────────────────────────────────
+   Hover-triggered 3D flip. The component sets data-hover="true" when hover
+   should rotate the inner face; click/keyboard always toggles via state by
+   adding data-flipped="true". Both rotate the same `.flip-inner` container.
+   On coarse pointers we suppress the hover-rotate to avoid sticky states. */
+@media (hover: hover) and (pointer: fine) {
+  .flip-card[data-hover="true"]:hover .flip-inner,
+  .flip-card[data-hover="true"]:focus-visible .flip-inner {
+    transform: rotateY(180deg);
+  }
+}
+.flip-card[data-flipped="true"] .flip-inner {
+  transform: rotateY(180deg);
+}
+
+/* ── Profile lens ───────────────────────────────────────────────────────── */
+.profile-lens {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 500ms ease, background 500ms ease;
+  mix-blend-mode: screen;
+}
+.profile-lens[data-active="true"] { opacity: 1; }
+
 /* Reduced motion safety net — kill ALL custom animations */
 @media (prefers-reduced-motion: reduce) {
   *,

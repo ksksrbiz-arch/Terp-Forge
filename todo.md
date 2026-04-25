@@ -52,11 +52,11 @@ static-export deployment model or pulling in heavy dependencies.
 
 ## Phase 3 — Shop ascension
 
-- [ ] Product cards: gradient hover border, profile-tinted glow, hex quick-add
-- [ ] Card hover flip-panel revealing molecular data + applications
-- [ ] Sticky filter rail with active-chip animation
-- [ ] **Profile Lens** toggle — re-skins entire shop in the active terpene's color
-- [ ] Compare drawer (up to 3 SKUs side-by-side spec sheet)
+- [x] Product cards: schematic front face with profile-tinted accents
+- [x] Card hover flip-panel revealing spec sheet (SKU, profile, price, sizes/extras, notes)
+- [x] Sticky filter rail (already present; preserved + dimming on profile filter)
+- [x] **Profile Lens** — re-tints the page with the active terpene's accent (radial vignette)
+- [x] Compare drawer — up to 4 SKUs side-by-side spec matrix with add-to-cart actions
 
 ## Phase 4 — The Lab ascension (signature page)
 

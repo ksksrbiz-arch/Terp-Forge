@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/components/CartContext";
+import CornerBrackets from "@/components/ui/CornerBrackets";
+import Reveal from "@/components/ui/Reveal";
+import FlipCard from "@/components/ui/FlipCard";
+import ProfileLens from "@/components/ui/ProfileLens";
+import CompareDrawer from "@/components/ui/CompareDrawer";
 import {
   formatPrice,
   products,
@@ -15,6 +20,8 @@ import {
 type CategoryFilter = "all" | ProductCategory;
 type ProfileFilter = "all" | NonNullable<TerpeneProfile>;
 type SortKey = "featured" | "price-asc" | "price-desc" | "name-asc";
+
+const COMPARE_MAX = 4;
 
 const CATEGORY_TABS: { id: CategoryFilter; label: string }[] = [
   { id: "all", label: "All" },
@@ -41,6 +48,8 @@ export default function ShopPage() {
   const [profile, setProfile] = useState<ProfileFilter>("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("featured");
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const { addItem, openCart } = useCart();
 
   // Honor legacy deep-links: /shop#apparel, /shop#hardware, /shop#wellness,
   // /shop#cbdwellness. Run once on mount + on hashchange.
@@ -101,23 +110,67 @@ export default function ShopPage() {
     );
   }, []);
 
+  const compareProducts = useMemo(
+    () =>
+      compareIds
+        .map((id) => products.find((p) => p.id === id))
+        .filter((p): p is Product => Boolean(p)),
+    [compareIds],
+  );
+  const isCompared = (id: string) => compareIds.includes(id);
+  const toggleCompare = (id: string) => {
+    setCompareIds((curr) => {
+      if (curr.includes(id)) return curr.filter((x) => x !== id);
+      if (curr.length >= COMPARE_MAX) return curr;
+      return [...curr, id];
+    });
+  };
+  const removeCompare = (id: string) =>
+    setCompareIds((curr) => curr.filter((x) => x !== id));
+  const clearCompare = () => setCompareIds([]);
+  const handleAddFromCompare = (id: string) => {
+    addItem(id, 1);
+    openCart();
+  };
+
+  // Active accent color for the profile lens overlay
+  const lensColor = profile === "all" ? null : profileColors[profile];
+
   return (
     <div className="pt-16">
+      <ProfileLens color={lensColor} />
+
       {/* Header */}
-      <div className="bg-[#0F1F3D] border-b border-[#C9A84C]/20 py-16 schematic-grid">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
-            {"// PRODUCT CATALOG"}
-          </p>
+      <div className="relative bg-[#0F1F3D] border-b border-[#C9A84C]/20 py-16 schematic-grid overflow-hidden">
+        <CornerBrackets size={16} color="rgba(201,168,76,0.45)" inset={12} />
+        <span
+          aria-hidden
+          className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(201,168,76,0.55), rgba(13,148,136,0.55), rgba(201,168,76,0.55), transparent)",
+          }}
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 mb-4">
+            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase">
+              {"// PRODUCT CATALOG"}
+            </p>
+            <span className="text-[#C9A84C]/60 text-[10px] font-mono tracking-[0.3em]">
+              § 03 / 07
+            </span>
+          </div>
           <h1
             className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
             style={{ fontFamily: "var(--font-montserrat)" }}
           >
             The Inventory
           </h1>
-          <p className="text-[#64748B] font-mono text-sm max-w-xl">
-            Three product verticals. One engineering standard. Every item
-            specification-verified and built to last.
+          <p className="text-[#94A3B8] font-mono text-sm max-w-xl leading-relaxed">
+            Three product verticals. One engineering standard. Hover any card
+            for the spec-sheet schematic. Tap{" "}
+            <span className="text-[#C9A84C]">+ COMPARE</span> on up to four
+            SKUs to open the matrix drawer.
           </p>
         </div>
       </div>
@@ -286,20 +339,65 @@ export default function ShopPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {filtered.map((product, i) => {
+              const dimmed =
+                profile !== "all" && product.profile !== profile;
+              return (
+                <Reveal
+                  key={product.id}
+                  variant="up"
+                  delay={Math.min(i, 8) * 60}
+                  className={`transition-opacity duration-500 ${
+                    dimmed ? "opacity-40 hover:opacity-100" : "opacity-100"
+                  }`}
+                >
+                  <ProductCard
+                    product={product}
+                    compared={isCompared(product.id)}
+                    onToggleCompare={toggleCompare}
+                    compareDisabled={
+                      !isCompared(product.id) &&
+                      compareIds.length >= COMPARE_MAX
+                    }
+                  />
+                </Reveal>
+              );
+            })}
           </div>
         )}
       </div>
+
+      {/* Bottom spacer so the drawer never overlaps the last row */}
+      {compareProducts.length > 0 && (
+        <div aria-hidden className="h-[26rem] sm:h-[22rem]" />
+      )}
+
+      <CompareDrawer
+        products={compareProducts}
+        onRemove={removeCompare}
+        onClear={clearCompare}
+        onAddToCart={handleAddFromCompare}
+        max={COMPARE_MAX}
+      />
     </div>
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({
+  product,
+  compared,
+  onToggleCompare,
+  compareDisabled,
+}: {
+  product: Product;
+  compared: boolean;
+  onToggleCompare: (id: string) => void;
+  compareDisabled: boolean;
+}) {
   const { addItem, openCart } = useCart();
   const [added, setAdded] = useState(false);
   const profileColor = product.profile ? profileColors[product.profile] : null;
+  const accent = profileColor ?? "#C9A84C";
 
   const handleAdd = () => {
     addItem(product.id, 1);
@@ -309,10 +407,72 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="border border-[#C9A84C]/20 bg-[#0A1628] hover:border-[#C9A84C]/50 transition-all duration-300 group flex flex-col">
+    <div
+      className="relative group h-[26rem] flex flex-col"
+      style={{ ["--accent" as string]: accent }}
+    >
+      {/* Compare toggle floats above the flip card */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!compared && compareDisabled) return;
+          onToggleCompare(product.id);
+        }}
+        aria-pressed={compared}
+        aria-label={
+          compared
+            ? `Remove ${product.name} from comparison`
+            : `Add ${product.name} to comparison`
+        }
+        disabled={!compared && compareDisabled}
+        className={`absolute top-2 left-2 z-20 px-2 py-1 text-[9px] font-mono tracking-widest uppercase border transition-colors ${
+          compared
+            ? "bg-[#C9A84C] text-[#0A1628] border-[#C9A84C]"
+            : compareDisabled
+              ? "border-[#1E293B] text-[#1E293B] cursor-not-allowed"
+              : "bg-[#0A1628]/85 backdrop-blur-sm border-[#C9A84C]/40 text-[#C9A84C] hover:bg-[#C9A84C]/15"
+        }`}
+      >
+        {compared ? "✓ COMPARING" : "+ COMPARE"}
+      </button>
+
+      <FlipCard
+        ariaLabel={`${product.name} — flip for spec sheet`}
+        front={<ProductFront product={product} />}
+        back={<ProductBack product={product} />}
+        className="flex-1"
+      />
+
+      {/* Bottom action bar — sits outside the flip surface so price/CTA
+          remain reachable regardless of which face is showing. */}
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <span className="text-[#C9A84C] font-black font-mono text-base">
+          {formatPrice(product.price)}
+        </span>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className={`px-4 py-2 text-[10px] font-bold tracking-widest transition-colors ${
+            added
+              ? "bg-[#0D9488] text-[#0A1628]"
+              : "bg-[#C9A84C] text-[#0A1628] hover:bg-[#E2C97E]"
+          }`}
+        >
+          {added ? "✓ ADDED" : "ADD TO FORGE"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ProductFront({ product }: { product: Product }) {
+  const profileColor = product.profile ? profileColors[product.profile] : null;
+  return (
+    <div className="h-full border border-[#C9A84C]/20 bg-[#0A1628] hover:border-[#C9A84C]/50 transition-colors duration-300 flex flex-col">
       <div className="h-40 bg-[#0F1F3D] schematic-grid flex items-center justify-center border-b border-[#C9A84C]/20 relative">
-        <div className="w-14 h-14 border border-[#C9A84C]/30 flex items-center justify-center group-hover:border-[#C9A84C] transition-colors">
-          <span className="text-[#C9A84C]/50 text-xl group-hover:text-[#C9A84C] transition-colors">
+        <div className="w-14 h-14 border border-[#C9A84C]/30 flex items-center justify-center transition-colors">
+          <span className="text-[#C9A84C]/50 text-xl transition-colors">
             {product.icon}
           </span>
         </div>
@@ -329,6 +489,12 @@ function ProductCard({ product }: { product: Product }) {
             {product.profile}
           </div>
         )}
+        <span
+          aria-hidden
+          className="absolute bottom-3 right-3 text-[#C9A84C]/40 text-[9px] font-mono tracking-widest"
+        >
+          ↻ FLIP
+        </span>
       </div>
 
       <div className="p-5 flex flex-col flex-1">
@@ -341,29 +507,81 @@ function ProductCard({ product }: { product: Product }) {
         <p className="text-[#C9A84C] text-[10px] font-mono leading-relaxed mb-2">
           {product.spec}
         </p>
-        <p className="text-[#64748B] text-xs font-mono leading-relaxed mb-3 flex-1">
+        <p className="text-[#94A3B8] text-xs font-mono leading-relaxed flex-1">
           {product.details}
         </p>
-        <div className="text-[10px] font-mono text-[#64748B] mb-4">
+        <div className="text-[10px] font-mono text-[#64748B] mt-3">
           <span className="text-[#0D9488]">{product.extraLabel}: </span>
           {product.extraValue}
         </div>
-        <div className="flex justify-between items-center pt-3 border-t border-[#1E293B]">
-          <span className="text-[#C9A84C] font-black font-mono text-base">
-            {formatPrice(product.price)}
-          </span>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className={`px-4 py-2 text-[10px] font-bold tracking-widest transition-colors ${
-              added
-                ? "bg-[#0D9488] text-[#0A1628]"
-                : "bg-[#C9A84C] text-[#0A1628] hover:bg-[#E2C97E]"
-            }`}
-          >
-            {added ? "✓ ADDED" : "ADD TO FORGE"}
-          </button>
-        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductBack({ product }: { product: Product }) {
+  const profileColor = product.profile ? profileColors[product.profile] : null;
+  const accent = profileColor ?? "#C9A84C";
+  // Build a small spec table dynamically from available data
+  const rows: { k: string; v: string }[] = [
+    { k: "SKU", v: product.id.toUpperCase() },
+    { k: "CATEGORY", v: product.categoryLabel },
+    { k: "PROFILE", v: product.profile ?? "—" },
+    { k: "PRICE", v: formatPrice(product.price) },
+    { k: product.extraLabel.toUpperCase(), v: product.extraValue },
+  ];
+  return (
+    <div
+      className="h-full border bg-[#0A1628] flex flex-col relative overflow-hidden"
+      style={{ borderColor: `${accent}80` }}
+    >
+      {/* Schematic backdrop */}
+      <div
+        aria-hidden
+        className="absolute inset-0 schematic-grid opacity-60 pointer-events-none"
+      />
+      <div
+        aria-hidden
+        className="absolute -top-px left-0 right-0 h-[2px]"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+        }}
+      />
+      <CornerBrackets size={12} color={accent} inset={6} />
+
+      <div className="relative px-5 pt-5 pb-3 border-b border-[#1E293B]">
+        <p
+          className="text-[9px] font-mono tracking-[0.4em] uppercase mb-1"
+          style={{ color: accent }}
+        >
+          {"// SPEC SHEET"}
+        </p>
+        <h3 className="text-[#E8EDF5] font-bold text-sm leading-tight">
+          {product.name}
+        </h3>
+      </div>
+
+      <dl className="relative flex-1 px-5 py-4 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-2 text-[11px] font-mono content-start">
+        {rows.map((r) => (
+          <div key={r.k} className="contents">
+            <dt className="text-[#64748B] tracking-widest">{r.k}</dt>
+            <dd className="text-[#E8EDF5] truncate text-right">{r.v}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="relative px-5 py-3 border-t border-[#1E293B]">
+        <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed line-clamp-3">
+          {product.details}
+        </p>
+      </div>
+
+      <div
+        className="relative px-5 py-2 flex items-center justify-between text-[9px] font-mono tracking-widest uppercase"
+        style={{ color: accent, borderTop: `1px solid ${accent}33` }}
+      >
+        <span>{product.spec.split("·")[0]?.trim() ?? "VERIFIED"}</span>
+        <span aria-hidden>↻ FLIP BACK</span>
       </div>
     </div>
   );
