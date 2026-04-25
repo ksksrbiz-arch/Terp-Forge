@@ -212,6 +212,71 @@ export default function StoryPage() {
           </div>
         </section>
 
+        {/* ── MOLECULAR SCIENCE IMAGES ─────────────────────── */}
+        <section>
+          <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
+            {"// MOLECULAR SCIENCE DOCUMENTATION"}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
+              <Image
+                src="https://github.com/user-attachments/assets/7cfe1cff-fa46-48fa-b860-ef39aa3a0d45"
+                alt="Aromatic terpene ring structures emerging from fire"
+                width={600}
+                height={400}
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
+                <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">CHEMISTRY // AROMATIC COMPOUNDS</p>
+              </div>
+            </div>
+            <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
+              <Image
+                src="https://github.com/user-attachments/assets/baba0a39-ac63-43e6-9457-034dce1ffe27"
+                alt="Phenol molecular model before and after extraction with fire"
+                width={600}
+                height={400}
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#C9A84C]/30">
+                <p className="text-[#C9A84C] text-[10px] font-mono tracking-wider">SCIENCE // PHENOL ISOLATION</p>
+              </div>
+            </div>
+            <div className="relative overflow-hidden border border-[#C9A84C]/20 group md:col-span-2">
+              <Image
+                src="https://github.com/user-attachments/assets/a5cc906c-c9f2-472e-9d9c-8e0932e59dad"
+                alt="CBDA to CBD decarboxylation molecular conversion diagram"
+                width={1200}
+                height={600}
+                sizes="100vw"
+                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
+                <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">PROCESS // CBDA → CBD DECARBOXYLATION</p>
+              </div>
+            </div>
+            <div className="relative overflow-hidden border border-[#C9A84C]/20 group md:col-span-2">
+              <Image
+                src="https://github.com/user-attachments/assets/5c087714-b585-4974-81e1-cbfff3ee1fdc"
+                alt="Cannabinoid molecular structure forged in fire"
+                width={1200}
+                height={600}
+                sizes="100vw"
+                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#C9A84C]/30">
+                <p className="text-[#C9A84C] text-[10px] font-mono tracking-wider">COMPOUNDS // MOLECULAR FORGE</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── THE PROBLEM SECTION ─────────────────────── */}
         <section>
           <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
