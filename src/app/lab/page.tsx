@@ -207,8 +207,17 @@ export default function LabPage() {
   return (
     <div className="pt-16">
       {/* Header */}
-      <div className="bg-[#0F1F3D] border-b border-[#C9A84C]/20 py-16 schematic-grid">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative bg-[#0F1F3D] border-b border-[#C9A84C]/20 py-16 schematic-grid overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity pointer-events-none"
+          style={{ backgroundImage: "url('/images/lab-extraction-rig.jpg')" }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-[#0F1F3D]/60 via-[#0F1F3D]/30 to-[#0A1628] pointer-events-none"
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
             {"// SCIENCE & TRANSPARENCY"}
           </p>
@@ -224,7 +233,7 @@ export default function LabPage() {
             research, then verified by independent third-party analysis.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap gap-2 sm:gap-3">
             {[
               { href: "#simulator", label: "Profile Simulator" },
               { href: "#matrix", label: "Compound Matrix" },

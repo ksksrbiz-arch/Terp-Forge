@@ -254,14 +254,14 @@ export default function Home() {
             </div>
 
             {/* Right — Hero image */}
-            <div className="hidden lg:flex items-center justify-center">
+            <div className="flex items-center justify-center order-first lg:order-none">
               <Reveal variant="right" delay={300}>
-                <div className="relative w-full max-w-lg">
+                <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
                   <CornerBrackets size={18} color="#C9A84C" inset={-9} />
                   <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
                   <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
                   <Image
-                    src="/images/hero-extraction.jpg"
+                    src="/images/hero-foundry-molecular.jpg"
                     alt="TerpForge industrial extraction facility with glowing molecular structures"
                     width={600}
                     height={400}
@@ -485,12 +485,83 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* BRAND VIDEO */}
+      {/* PRODUCT VERTICALS — image-led entry to each shop category */}
+      <Section
+        eyebrow="PRODUCT VERTICALS"
+        title="Three Systems, One Foundry"
+        intro="Apparel, hardware, and CBD wellness — every line built on the same molecular precision."
+        index={{ current: 4, total: 7 }}
+        variant="navy-light"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            {
+              src: "/images/apparel-hooded-figure.jpg",
+              alt: "TerpForge hooded figure with gold and teal molecular schematic embroidery, forge fire backdrop",
+              eyebrow: "// VERTICAL 01",
+              title: "Apparel",
+              tagline: "Heavy-duty streetwear with gold-foil molecular schematics.",
+              href: "/shop?cat=apparel#apparel",
+            },
+            {
+              src: "/images/lab-extraction-rig.jpg",
+              alt: "Stainless and brass extraction rig with teal cryo glow inside the TerpForge lab",
+              eyebrow: "// VERTICAL 02",
+              title: "Hardware",
+              tagline: "Terpene preservation systems engineered for the long haul.",
+              href: "/shop?cat=hardware#hardware",
+            },
+            {
+              src: "/images/wellness-terp7-elixir.jpg",
+              alt: "TerpForge TERP-7 Elixir tincture bottle surrounded by terpene crystals and gold molecular models",
+              eyebrow: "// VERTICAL 03",
+              title: "CBD Wellness",
+              tagline: "Lab-certified tinctures and gummies tuned to specific terpene profiles.",
+              href: "/shop?cat=wellness#wellness",
+            },
+          ].map((v, i) => (
+            <Reveal key={v.href} variant={i % 2 === 0 ? "left" : "right"} delay={i * 90}>
+              <Link
+                href={v.href}
+                className="group relative block overflow-hidden border border-[#C9A84C]/25 hover:border-[#C9A84C]/70 transition-colors duration-300 bg-[#0A1628]"
+              >
+                <div className="aspect-[4/5] relative">
+                  <Image
+                    src={v.src}
+                    alt={v.alt}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover grayscale-[20%] saturate-[0.95] group-hover:grayscale-0 group-hover:saturate-100 group-hover:scale-[1.03] transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/35 to-transparent pointer-events-none" />
+                  <CornerBrackets size={14} color="rgba(201,168,76,0.7)" inset={8} />
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
+                    <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">{v.eyebrow}</p>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <h3 className="text-2xl font-black uppercase text-[#E8EDF5] mb-1" style={{ fontFamily: "var(--font-montserrat)" }}>
+                    {v.title}
+                  </h3>
+                  <p className="text-[#94A3B8] text-sm leading-relaxed font-light mb-3">
+                    {v.tagline}
+                  </p>
+                  <p className="text-[#C9A84C] text-xs font-mono tracking-[0.3em] uppercase group-hover:translate-x-1 transition-transform duration-300">
+                    Enter →
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+            {/* BRAND VIDEO */}
       <Section
         eyebrow="TRANSMISSION"
         title="From The Foundry Floor"
         intro="An inside look at how precision chemistry meets industrial craftsmanship."
-        index={{ current: 4, total: 7 }}
+        index={{ current: 5, total: 7 }}
         variant="navy"
         className="!border-t-0"
       >

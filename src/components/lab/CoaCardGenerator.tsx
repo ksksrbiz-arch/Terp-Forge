@@ -183,8 +183,8 @@ export function CoaCardGenerator({ defaultEntry }: { defaultEntry?: CoaInput }) 
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-      <div className="border border-[#C9A84C]/40 bg-[#0A1628] overflow-hidden">
-        <canvas ref={canvasRef} width={780} height={580} className="w-full block" />
+      <div className="border border-[#C9A84C]/40 bg-[#0A1628] overflow-x-auto">
+        <canvas ref={canvasRef} width={780} height={580} className="w-full block min-w-[320px]" />
       </div>
 
       <div className="space-y-3">

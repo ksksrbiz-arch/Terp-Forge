@@ -148,7 +148,7 @@ export default function Navigation() {
             type="button"
             onClick={openCommandPalette}
             aria-label="Open command palette"
-            className="inline-flex h-10 w-10 items-center justify-center border border-[#0D9488]/35 text-[#0D9488] hover:border-[#0D9488] hover:bg-[#0D9488]/10 transition-colors"
+            className="inline-flex h-11 w-11 items-center justify-center border border-[#0D9488]/35 text-[#0D9488] hover:border-[#0D9488] hover:bg-[#0D9488]/10 transition-colors"
           >
             ⌕
           </button>
@@ -159,7 +159,7 @@ export default function Navigation() {
               openCart();
             }}
             aria-label={cartLabel}
-            className="relative inline-flex items-center justify-center w-10 h-10 border border-[#C9A84C]/40 text-[#C9A84C] hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors"
+            className="relative inline-flex items-center justify-center w-11 h-11 border border-[#C9A84C]/40 text-[#C9A84C] hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors"
           >
             <span aria-hidden className="text-base leading-none">⬡</span>
             {showBadge && (
@@ -172,7 +172,7 @@ export default function Navigation() {
             )}
           </button>
           <button
-            className="flex flex-col gap-1.5 p-2"
+            className="flex flex-col gap-1.5 p-2.5 -mr-1.5"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
