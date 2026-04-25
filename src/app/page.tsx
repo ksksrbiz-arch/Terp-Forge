@@ -265,6 +265,7 @@ export default function Home() {
                     alt="TerpForge industrial extraction facility with glowing molecular structures"
                     width={600}
                     height={400}
+                    sizes="(min-width: 1024px) 32rem, 100vw"
                     className="w-full h-auto object-cover"
                     priority
                   />
@@ -462,6 +463,7 @@ export default function Home() {
                 alt={img.alt}
                 width={1200}
                 height={800}
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                 className={`w-full ${img.height} object-cover grayscale-[35%] saturate-50 contrast-110 group-hover:grayscale-0 group-hover:saturate-100 group-hover:scale-[1.04] transition-all duration-700`}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/85 via-[#0A1628]/10 to-transparent pointer-events-none" />
@@ -527,6 +529,7 @@ export default function Home() {
             <Reveal key={product.name} variant="up" delay={i * 100}>
               <Link
                 href={product.href}
+                prefetch={false}
                 className="group relative block border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 bg-[#0A1628] transition-all duration-300 overflow-hidden h-full"
               >
                 <div className="h-48 bg-[#0F1F3D] schematic-grid flex items-center justify-center border-b border-[#C9A84C]/20 relative overflow-hidden">

@@ -80,19 +80,19 @@ static-export deployment model or pulling in heavy dependencies.
 
 ## Phase 7 — Site-wide cross-cutting
 
-- [ ] **Command palette** (⌘K): jump to product, lab compound, page section
-- [ ] Cursor companion — subtle hex glow follower (pointer + motion-safe only)
-- [ ] Schematic boot-sequence loading state ("INITIALIZING TF-SYSTEMS…")
-- [ ] Themed **404** ("OFFLINE TRANSMISSION") with animated noise
-- [ ] Easter egg: type `forge` → gold-foil shimmer wash
-- [ ] SEO: dynamic OG image route, sitemap.xml, robots.txt, JSON-LD product schema
-- [ ] A11y pass: gold focus rings, skip-link, aria-live cart updates, full reduced-motion audit
-- [ ] Perf pass: image priority audit, `next/font` migration, route-level prefetch tuning
+- [x] **Command palette** (⌘K): jump to product, lab compound, page section
+- [x] Cursor companion — subtle hex glow follower (pointer + motion-safe only)
+- [x] Schematic boot-sequence loading state ("INITIALIZING TF-SYSTEMS…")
+- [x] Themed **404** ("OFFLINE TRANSMISSION") with animated noise
+- [x] Easter egg: type `forge` → gold-foil shimmer wash
+- [x] SEO: dynamic OG image route, sitemap.xml, robots.txt, JSON-LD product schema
+- [x] A11y pass: gold focus rings, skip-link, aria-live cart updates, full reduced-motion audit
+- [x] Perf pass: image priority audit, `next/font` migration, route-level prefetch tuning
 
 ---
 
 ## Validation gate (every phase)
 
-- [ ] `npm run lint` — green
-- [ ] `npm run build` — static export still produces all 8 routes
+- [x] `npm run lint` — green
+- [x] `npm run build` — static export still produces all 8 routes
 - [ ] Manual reduced-motion check (system preference toggle)

@@ -88,6 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     hydrated: false,
   });
   const [isOpen, setIsOpen] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
 
   // Hydrate from localStorage on mount.
   useEffect(() => {
@@ -129,17 +130,44 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [state.lines, state.hydrated]);
 
+  useEffect(() => {
+    if (!announcement) return;
+    const timer = window.setTimeout(() => setAnnouncement(""), 1200);
+    return () => window.clearTimeout(timer);
+  }, [announcement]);
+
   const addItem = useCallback((id: string, qty = 1) => {
-    if (!findProduct(id) || qty <= 0) return;
+    const product = findProduct(id);
+    if (!product || qty <= 0) return;
+    const existingQty = state.lines.find((line) => line.id === id)?.qty ?? 0;
     dispatch({ type: "add", id, qty });
-  }, []);
+    setAnnouncement(
+      existingQty > 0
+        ? `${product.name} quantity updated to ${existingQty + qty}.`
+        : `${product.name} added to cart.`,
+    );
+  }, [state.lines]);
   const removeItem = useCallback((id: string) => {
     dispatch({ type: "remove", id });
+    const product = findProduct(id);
+    if (product) {
+      setAnnouncement(`${product.name} removed from cart.`);
+    }
   }, []);
   const setQty = useCallback((id: string, qty: number) => {
     dispatch({ type: "setQty", id, qty });
+    const product = findProduct(id);
+    if (!product) return;
+    setAnnouncement(
+      qty <= 0
+        ? `${product.name} removed from cart.`
+        : `${product.name} quantity updated to ${qty}.`,
+    );
   }, []);
-  const clear = useCallback(() => dispatch({ type: "clear" }), []);
+  const clear = useCallback(() => {
+    dispatch({ type: "clear" });
+    setAnnouncement("Cart cleared.");
+  }, []);
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 
@@ -169,7 +197,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clear,
   };
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+      </div>
+    </CartContext.Provider>
+  );
 }
 
 export function useCart(): CartContextValue {

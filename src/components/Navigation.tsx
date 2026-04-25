@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "./CartContext";
+import { openCommandPalette } from "./SiteShellEnhancements";
 
 const navLinks = [
   { href: "/shop", label: "Shop" },
@@ -99,6 +100,15 @@ export default function Navigation() {
 
         {/* CTA + Cart */}
         <div className="hidden md:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            className="inline-flex items-center gap-2 border border-[#0D9488]/35 px-3 py-2 text-[10px] font-mono tracking-[0.3em] uppercase text-[#0D9488] hover:border-[#0D9488] hover:bg-[#0D9488]/10"
+            aria-label="Open command palette"
+          >
+            <span>Jump</span>
+            <span className="border border-current px-1.5 py-0.5 text-[9px] leading-none">⌘K</span>
+          </button>
           <Link
             href="/shop"
             className="px-5 py-2 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-widest uppercase hover:bg-[#E2C97E] transition-colors duration-300"
@@ -134,6 +144,14 @@ export default function Navigation() {
 
         {/* Mobile: cart + menu */}
         <div className="md:hidden flex items-center gap-2">
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette"
+            className="inline-flex h-10 w-10 items-center justify-center border border-[#0D9488]/35 text-[#0D9488] hover:border-[#0D9488] hover:bg-[#0D9488]/10 transition-colors"
+          >
+            ⌕
+          </button>
           <button
             type="button"
             onClick={() => {
@@ -192,6 +210,16 @@ export default function Navigation() {
               </li>
             ))}
             <li className="p-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  openCommandPalette();
+                }}
+                className="mb-3 block w-full border border-[#0D9488]/35 px-5 py-3 text-center text-xs font-mono tracking-[0.3em] uppercase text-[#0D9488] hover:border-[#0D9488] hover:bg-[#0D9488]/10 transition-colors"
+              >
+                Open Command Palette
+              </button>
               <Link
                 href="/shop"
                 className="block text-center px-5 py-3 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-widest uppercase hover:bg-[#E2C97E] transition-colors duration-300"

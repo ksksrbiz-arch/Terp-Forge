@@ -169,6 +169,7 @@ export default function StoryPage() {
               alt="The TerpForge extraction and forging process"
               width={600}
               height={400}
+              sizes="(min-width: 1024px) 32rem, 100vw"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/60 via-transparent to-transparent" />
@@ -186,6 +187,7 @@ export default function StoryPage() {
               alt="Molecular analysis at TerpForge"
               width={600}
               height={400}
+              sizes="(min-width: 768px) 50vw, 100vw"
               className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
@@ -199,6 +201,7 @@ export default function StoryPage() {
               alt="Terpene compound science"
               width={600}
               height={400}
+              sizes="(min-width: 768px) 50vw, 100vw"
               className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />

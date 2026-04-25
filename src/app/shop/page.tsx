@@ -16,6 +16,7 @@ import {
   type ProductCategory,
   type TerpeneProfile,
 } from "@/lib/products";
+import { siteName, siteUrl } from "@/lib/site";
 
 type CategoryFilter = "all" | ProductCategory;
 type ProfileFilter = "all" | NonNullable<TerpeneProfile>;
@@ -57,7 +58,6 @@ export default function ShopPage() {
     if (typeof window === "undefined") return;
     const applyHash = () => {
       const raw = window.location.hash.replace(/^#/, "").toLowerCase();
-      if (!raw) return;
       const map: Record<string, CategoryFilter> = {
         all: "all",
         apparel: "apparel",
@@ -66,8 +66,31 @@ export default function ShopPage() {
         cbdwellness: "wellness",
         "cbd-wellness": "wellness",
       };
+
+      if (!raw) {
+        setCategory("all");
+        setQuery("");
+        setProfile("all");
+        return;
+      }
+
       const next = map[raw];
-      if (next) setCategory(next);
+      if (next) {
+        setCategory(next);
+        setQuery("");
+        setProfile("all");
+        return;
+      }
+
+      if (raw.startsWith("product=")) {
+        const id = decodeURIComponent(raw.slice("product=".length));
+        const product = products.find((entry) => entry.id === id);
+        if (product) {
+          setCategory(product.category);
+          setProfile(product.profile ?? "all");
+          setQuery(product.name);
+        }
+      }
     };
     applyHash();
     window.addEventListener("hashchange", applyHash);
@@ -135,9 +158,42 @@ export default function ShopPage() {
 
   // Active accent color for the profile lens overlay
   const lensColor = profile === "all" ? null : profileColors[profile];
+  const productJsonLd = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `${siteName} Product Systems`,
+        itemListElement: products.map((product, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          url: `${siteUrl}/shop/#product=${product.id}`,
+          item: {
+            "@type": "Product",
+            name: product.name,
+          sku: product.id,
+          description: product.details,
+          brand: { "@type": "Brand", name: siteName },
+          category: product.categoryLabel,
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "USD",
+            price: product.price.toFixed(2),
+            availability: "https://schema.org/InStock",
+            url: `${siteUrl}/shop/#product=${product.id}`,
+          },
+        },
+      })),
+    }),
+    [],
+  );
 
   return (
     <div className="pt-16">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <ProfileLens color={lensColor} />
 
       {/* Header */}

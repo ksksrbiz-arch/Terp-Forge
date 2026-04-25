@@ -251,6 +251,7 @@ function CartView({
         </p>
         <Link
           href="/shop"
+          prefetch={false}
           onClick={onClose}
           className="inline-flex items-center justify-center px-6 py-3 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-widest uppercase hover:bg-[#E2C97E] transition-colors"
         >
@@ -300,6 +301,7 @@ function CartView({
                     )}
                     <Link
                       href="/lab"
+                      prefetch={false}
                       className="px-2 py-1 border border-[#0D9488]/35 text-[9px] text-[#0D9488] font-mono tracking-widest uppercase hover:bg-[#0D9488]/10 transition-colors"
                     >
                       COA LINK ↗
