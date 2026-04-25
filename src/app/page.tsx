@@ -123,6 +123,20 @@ const showcaseCells = [
     span: "lg:col-span-1",
     height: "h-48 sm:h-56",
   },
+  {
+    src: "https://github.com/user-attachments/assets/a4c4e848-023a-46f6-8ad9-ee3fdefae379",
+    alt: "Benzene molecular model with teal double-bond connectors on a marble block",
+    label: "SCIENCE // MOLECULAR MODEL",
+    span: "lg:col-span-2",
+    height: "h-48 sm:h-56",
+  },
+  {
+    src: "https://github.com/user-attachments/assets/9aa6da2e-db24-43bb-9ef7-ee7ceaa8cbd9",
+    alt: "Metallic molecular model with gold connectors and hydrogen labels in a lab setting",
+    label: "LAB // COMPOUND STRUCTURE",
+    span: "lg:col-span-2",
+    height: "h-48 sm:h-56",
+  },
 ];
 
 const featuredProducts = [
