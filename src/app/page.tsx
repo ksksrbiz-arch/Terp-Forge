@@ -123,6 +123,34 @@ const showcaseCells = [
     span: "lg:col-span-1",
     height: "h-48 sm:h-56",
   },
+  {
+    src: "https://github.com/user-attachments/assets/7cfe1cff-fa46-48fa-b860-ef39aa3a0d45",
+    alt: "Aromatic terpene ring structures emerging from fire",
+    label: "CHEMISTRY // AROMATIC COMPOUNDS",
+    span: "lg:col-span-1",
+    height: "h-48 sm:h-56",
+  },
+  {
+    src: "https://github.com/user-attachments/assets/baba0a39-ac63-43e6-9457-034dce1ffe27",
+    alt: "Phenol molecular model before and after extraction with fire",
+    label: "SCIENCE // PHENOL ISOLATION",
+    span: "lg:col-span-1",
+    height: "h-48 sm:h-56",
+  },
+  {
+    src: "https://github.com/user-attachments/assets/a5cc906c-c9f2-472e-9d9c-8e0932e59dad",
+    alt: "CBDA to CBD decarboxylation molecular conversion diagram",
+    label: "PROCESS // CBDA → CBD",
+    span: "lg:col-span-2",
+    height: "h-48 sm:h-56",
+  },
+  {
+    src: "https://github.com/user-attachments/assets/5c087714-b585-4974-81e1-cbfff3ee1fdc",
+    alt: "Cannabinoid molecular structure forged in fire",
+    label: "COMPOUNDS // MOLECULAR FORGE",
+    span: "lg:col-span-2",
+    height: "h-48 sm:h-56",
+  },
 ];
 
 const featuredProducts = [
