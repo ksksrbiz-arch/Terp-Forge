@@ -151,6 +151,34 @@ const showcaseCells = [
     span: "lg:col-span-2",
     height: "h-48 sm:h-56",
   },
+  {
+    src: "https://github.com/user-attachments/assets/0311d697-ae0e-41bb-a816-6f72b4eda5c4",
+    alt: "Glowing molecular model resting on dark velvet with terpene compound structures",
+    label: "COMPOUND // MOLECULAR MODEL",
+    span: "lg:col-span-1",
+    height: "h-48 sm:h-56",
+  },
+  {
+    src: "https://github.com/user-attachments/assets/431c0427-3ad9-41d2-819c-2b9ed56c7e1e",
+    alt: "Molecular model on forge anvil with industrial sparks flying",
+    label: "FORGE // COMPOUND STRUCTURE",
+    span: "lg:col-span-1",
+    height: "h-48 sm:h-56",
+  },
+  {
+    src: "https://github.com/user-attachments/assets/612e3419-fda6-4ce9-9931-c12683131f7a",
+    alt: "Iridescent metallic molecular model in front of forge fire and sparks",
+    label: "SCIENCE // IRIDESCENT STRUCTURE",
+    span: "lg:col-span-2",
+    height: "h-48 sm:h-56",
+  },
+  {
+    src: "https://github.com/user-attachments/assets/0d6145d7-257a-452c-b997-2f99c25ccca9",
+    alt: "Complex organic molecular model on forge anvil with fire backdrop",
+    label: "FOUNDRY // ORGANIC COMPOUND",
+    span: "lg:col-span-4",
+    height: "h-56 sm:h-64",
+  },
 ];
 
 const featuredProducts = [
