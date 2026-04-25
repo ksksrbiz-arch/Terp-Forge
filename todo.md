@@ -44,11 +44,11 @@ static-export deployment model or pulling in heavy dependencies.
 
 ## Phase 2 — Section system & page showcases
 
-- [ ] Reusable `Section` component (clip-path angled dividers, corner brackets, "§ NN / NN" index)
-- [ ] Cathedral pillars → 3D-tilt cards, conic gold rings, animated stat count-up on reveal
-- [ ] Terpene Profiles → interactive **molecular orbit selector** (central hex + orbiting nodes)
-- [ ] Visual Showcase → bento asymmetric grid, grayscale → color hover, label slide-in
-- [ ] Manifesto → full-bleed parallax with kinetic typography
+- [x] Reusable `Section` component (clip-path angled dividers, corner brackets, "§ NN / NN" index)
+- [x] Cathedral pillars → 3D-tilt cards, conic gold rings, animated stat count-up on reveal
+- [x] Terpene Profiles → interactive **molecular orbit selector** (central hex + orbiting nodes)
+- [x] Visual Showcase → bento asymmetric grid, grayscale → color hover, label slide-in
+- [x] Manifesto → full-bleed parallax with kinetic typography
 
 ## Phase 3 — Shop ascension
 
