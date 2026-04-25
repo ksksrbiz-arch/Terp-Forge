@@ -84,6 +84,7 @@ export default function Footer() {
                   <li key={href}>
                     <Link
                       href={href}
+                      prefetch={false}
                       className="text-sm text-[#64748B] hover:text-[#E8EDF5] transition-colors font-mono"
                     >
                       {label}

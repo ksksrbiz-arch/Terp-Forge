@@ -1,14 +1,57 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import SiteShellEnhancements from "@/components/SiteShellEnhancements";
+import { siteDescription, siteName, siteUrl } from "@/lib/site";
+
+// Keep the existing CSS variable names so the current component styles do not
+// need to change, even though the font assets are now bundled locally.
+const montserrat = localFont({
+  src: [
+    {
+      path: "./fonts/TerpForgeSans-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/TerpForgeSans-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
+const robotoMono = localFont({
+  src: [
+    {
+      path: "./fonts/TerpForgeMono-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/TerpForgeMono-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-roboto-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "TerpForge — Engineered Aromatics. Forged Wellness.",
-  description:
-    "The intersection of molecular terpene precision and industrial-grade craftsmanship. Premium terpene-infused apparel, hardware, and CBD wellness products.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${siteName} — Engineered Aromatics. Forged Wellness.`,
+    template: `%s · ${siteName}`,
+  },
+  description: siteDescription,
+  applicationName: siteName,
   keywords: [
     "terpenes",
     "CBD",
@@ -17,6 +60,30 @@ export const metadata: Metadata = {
     "wellness",
     "terpforge",
   ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    title: `${siteName} — Engineered Aromatics. Forged Wellness.`,
+    description: siteDescription,
+    siteName,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: `${siteName} open graph image`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteName} — Engineered Aromatics. Forged Wellness.`,
+    description: siteDescription,
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function RootLayout({
@@ -25,11 +92,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html
+      lang="en"
+      className={`${montserrat.variable} ${robotoMono.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col bg-[#0A1628] text-[#E8EDF5]">
+        <a
+          href="#main-content"
+          className="skip-link fixed left-4 top-4 z-[95] -translate-y-24 px-4 py-2 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-[0.3em] uppercase transition-transform focus:translate-y-0"
+        >
+          Skip to content
+        </a>
         <CartProvider>
+          <SiteShellEnhancements />
           <Navigation />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
           <Footer />
           <CartDrawer />
         </CartProvider>
