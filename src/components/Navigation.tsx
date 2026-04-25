@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "./CartContext";
 
 const navLinks = [
@@ -15,6 +15,7 @@ const navLinks = [
 export default function Navigation() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { itemCount, openCart, hydrated } = useCart();
 
   // Avoid showing a stale "0" badge before localStorage hydrates.
@@ -22,14 +23,52 @@ export default function Navigation() {
   const cartLabel = `Open cart${showBadge ? ` (${itemCount} items)` : ""}`;
   const badgeText = itemCount > 99 ? "99+" : String(itemCount);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0A1628]/95 backdrop-blur-sm border-b border-[#C9A84C]/20">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-sm border-b ${
+        scrolled
+          ? "bg-[#0A1628]/95 border-[#C9A84C]/30 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.6)]"
+          : "bg-[#0A1628]/70 border-[#C9A84C]/15"
+      }`}
+    >
+      <nav
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300 ${
+          scrolled ? "h-14" : "h-16"
+        }`}
+      >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 border border-[#C9A84C] flex items-center justify-center">
-            <span className="text-[#C9A84C] text-xs font-bold font-mono">TF</span>
-          </div>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <span className="relative inline-flex w-9 h-9 items-center justify-center">
+            <svg
+              viewBox="0 0 36 36"
+              className="absolute inset-0 w-full h-full hex-rotate text-[#C9A84C]/60 group-hover:text-[#C9A84C] transition-colors"
+              aria-hidden="true"
+            >
+              <polygon
+                points="18,2 33,10.5 33,25.5 18,34 3,25.5 3,10.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+              />
+              <polygon
+                points="18,6 29.5,12.5 29.5,23.5 18,30 6.5,23.5 6.5,12.5"
+                fill="none"
+                stroke="currentColor"
+                strokeOpacity="0.4"
+                strokeWidth="0.6"
+              />
+            </svg>
+            <span className="relative text-[#C9A84C] text-[10px] font-bold font-mono tracking-widest">
+              TF
+            </span>
+          </span>
           <span
             className="text-lg font-black tracking-widest uppercase text-[#E8EDF5] group-hover:text-[#C9A84C] transition-colors duration-300"
             style={{ fontFamily: "var(--font-montserrat)" }}
@@ -40,25 +79,22 @@ export default function Navigation() {
 
         {/* Desktop Nav */}
         <ul className="hidden md:flex items-center gap-8">
-          {navLinks.map(({ href, label }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                className={`text-sm font-semibold tracking-widest uppercase transition-colors duration-300 relative group ${
-                  pathname === href
-                    ? "text-[#C9A84C]"
-                    : "text-[#E8EDF5]/70 hover:text-[#C9A84C]"
-                }`}
-              >
-                {label}
-                <span
-                  className={`absolute -bottom-1 left-0 h-px bg-[#C9A84C] transition-all duration-300 ${
-                    pathname === href ? "w-full" : "w-0 group-hover:w-full"
+          {navLinks.map(({ href, label }) => {
+            const active = pathname === href;
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  data-active={active}
+                  className={`ink-sweep text-sm font-semibold tracking-widest uppercase transition-colors duration-300 ${
+                    active ? "text-[#C9A84C]" : "text-[#E8EDF5]/70 hover:text-[#C9A84C]"
                   }`}
-                />
-              </Link>
-            </li>
-          ))}
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         {/* CTA + Cart */}
@@ -80,12 +116,18 @@ export default function Navigation() {
           >
             <span aria-hidden className="text-base leading-none">⬡</span>
             {showBadge && (
-              <span
-                aria-hidden
-                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-[#C9A84C] text-[#0A1628] text-[10px] font-black font-mono rounded-full flex items-center justify-center border border-[#0A1628]"
-              >
-                {badgeText}
-              </span>
+              <>
+                <span
+                  aria-hidden
+                  className="absolute inset-0 border border-[#C9A84C]/60 pulse-soft pointer-events-none"
+                />
+                <span
+                  aria-hidden
+                  className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-[#C9A84C] text-[#0A1628] text-[10px] font-black font-mono rounded-full flex items-center justify-center border border-[#0A1628]"
+                >
+                  {badgeText}
+                </span>
+              </>
             )}
           </button>
         </div>

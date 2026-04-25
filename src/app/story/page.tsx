@@ -1,5 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import Reveal from "@/components/ui/Reveal";
+
+type ValueIconKind = "durability" | "spec" | "shield";
 
 const timeline = [
   {
@@ -34,24 +37,32 @@ const timeline = [
   },
 ];
 
-const values = [
+const values: {
+  title: string;
+  description: string;
+  spec: string;
+  icon: ValueIconKind;
+}[] = [
   {
     title: "Made-to-Last",
     description:
       "We build for years, not seasons. Every piece of hardware is specified to outlast the trends that surround it. Every wellness formulation is validated against a consistent batch standard. No shortcuts in manufacturing or testing.",
     spec: "Durability Rating: INDUSTRIAL",
+    icon: "durability",
   },
   {
     title: "Specification-First",
     description:
       "Product descriptions are engineering specs, not copy. If we cannot verify a claim with data, we do not make the claim. Every compound has a verified molecular profile. Every batch has a COA. Everything is traceable.",
     spec: "Standard: ISO/IEC 17025",
+    icon: "spec",
   },
   {
     title: "Zero THC",
     description:
       "A non-negotiable specification. Not a marketing position — an engineering requirement. Our formulation systems are built around terpene-CBD synergy, not cannabinoid intoxication. The science does not require THC to work.",
     spec: "THC: <0.001% (Non-Detect)",
+    icon: "shield",
   },
 ];
 
@@ -77,6 +88,31 @@ const team = [
     spec: "ISO 17025 · Third-party lab coordination",
   },
 ];
+
+function ValueIcon({ kind }: { kind: ValueIconKind }) {
+  if (kind === "durability") {
+    return (
+      <svg viewBox="0 0 48 48" className="w-10 h-10">
+        <circle cx="24" cy="24" r="16" className="value-icon-stroke" />
+        <path d="M16 24h16M24 16v16" className="value-icon-stroke" />
+      </svg>
+    );
+  }
+  if (kind === "spec") {
+    return (
+      <svg viewBox="0 0 48 48" className="w-10 h-10">
+        <rect x="11" y="9" width="26" height="30" rx="1.5" className="value-icon-stroke" />
+        <path d="M17 19h14M17 25h14M17 31h9" className="value-icon-stroke" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 48 48" className="w-10 h-10">
+      <path d="M24 8l12 5v10c0 8-5 13-12 17-7-4-12-9-12-17V13l12-5z" className="value-icon-stroke" />
+      <path d="M18.5 24l4 4 7-8" className="value-icon-stroke" />
+    </svg>
+  );
+}
 
 export default function StoryPage() {
   return (
@@ -198,9 +234,49 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* ── TIMELINE ────────────────────────────── */}
+        {/* ── FOUNDERS CINEMATIC PLATE ───────────────────────────── */}
+        <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 min-h-[24rem] border-y border-[#C9A84C]/25 overflow-hidden">
+          <video
+            loop
+            muted
+            playsInline
+            controls
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover"
+            aria-label="Ambient cinematic foundry plate"
+          >
+            <source src="/videos/brand-video.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/88 via-[#0A1628]/70 to-[#0A1628]/88" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/90 via-transparent to-[#0A1628]/45" />
+          <Reveal
+            as="section"
+            variant="up"
+            className="relative h-full max-w-7xl mx-auto px-6 py-14 flex items-end"
+          >
+            <div className="max-w-2xl">
+              <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-3">
+                {"// FOUNDER ORIGIN PLATE"}
+              </p>
+              <h2
+                className="text-3xl sm:text-4xl font-black uppercase text-[#E8EDF5] leading-tight mb-4"
+                style={{ fontFamily: "var(--font-montserrat)" }}
+              >
+                Born In A Lab, Tempered In The Foundry
+              </h2>
+              <p className="text-[#94A3B8] font-mono text-sm leading-relaxed">
+                Our origin was not a campaign launch. It was a systems response
+                led by extraction operators, formulation chemists, and QA
+                engineers who decided every claim had to map to a measurable
+                specification.
+              </p>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* ── TIMELINE (HORIZONTAL BLUEPRINT) ───────────────────── */}
         <section>
-          <div className="mb-10">
+          <div className="mb-8">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// BUILD LOG"}
             </p>
@@ -208,50 +284,49 @@ export default function StoryPage() {
               className="text-4xl font-black uppercase text-[#E8EDF5]"
               style={{ fontFamily: "var(--font-montserrat)" }}
             >
-              Development Timeline
+              Foundry Timeline
             </h2>
           </div>
-
-          <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-[72px] top-0 bottom-0 w-px bg-gradient-to-b from-[#C9A84C]/50 via-[#C9A84C]/20 to-transparent hidden sm:block" />
-
-            <div className="space-y-0">
-              {timeline.map((entry, i) => (
-                <div
-                  key={entry.year}
-                  className={`flex gap-8 items-start p-6 border-b border-[#1E293B] hover:bg-[#0F1F3D] transition-colors ${
-                    i === 0 ? "border-t border-[#1E293B]" : ""
-                  }`}
-                >
-                  {/* Year */}
-                  <div className="shrink-0 w-16 text-center hidden sm:block">
-                    <p className="text-[#C9A84C] font-black font-mono text-sm">
-                      {entry.year}
-                    </p>
-                    <div className="w-3 h-3 border border-[#C9A84C] bg-[#0A1628] mx-auto mt-2 relative z-10" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[#C9A84C] font-mono text-xs font-bold sm:hidden mb-1">
-                      {entry.year}
-                    </p>
-                    <h3
-                      className="text-lg font-black uppercase text-[#E8EDF5] mb-2"
-                      style={{ fontFamily: "var(--font-montserrat)" }}
-                    >
-                      {entry.title}
-                    </h3>
-                    <p className="text-[#64748B] font-mono text-sm leading-relaxed">
-                      {entry.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+          <div className="relative border border-[#C9A84C]/20 bg-[#0F1F3D] blueprint-grid p-4 sm:p-6">
+            <div className="absolute left-0 right-0 top-[4.5rem] h-px bg-gradient-to-r from-transparent via-[#C9A84C]/50 to-transparent" />
+            <div className="overflow-x-auto pb-3">
+              <div className="flex gap-4 sm:gap-6 min-w-max snap-x snap-mandatory">
+                {timeline.map((entry, i) => (
+                  <Reveal key={entry.year} variant="up" delay={Math.min(i, 6) * 70}>
+                    <article className="snap-start w-[18rem] sm:w-[19rem] shrink-0 border border-[#1E293B] bg-[#0A1628]/95 p-5 hover:border-[#C9A84C]/45 transition-colors">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="relative w-5 h-5 shrink-0">
+                          <span
+                            aria-hidden
+                            className="absolute inset-0 border border-[#C9A84C] rotate-45 bg-[#0A1628]"
+                          />
+                          <span
+                            aria-hidden
+                            className="absolute inset-1 bg-[#C9A84C]/70 rotate-45 pulse-soft"
+                          />
+                        </div>
+                        <p className="text-[#C9A84C] font-black font-mono text-sm tracking-widest">
+                          {entry.year}
+                        </p>
+                      </div>
+                      <h3
+                        className="text-lg font-black uppercase text-[#E8EDF5] mb-2"
+                        style={{ fontFamily: "var(--font-montserrat)" }}
+                      >
+                        {entry.title}
+                      </h3>
+                      <p className="text-[#94A3B8] font-mono text-sm leading-relaxed">
+                        {entry.description}
+                      </p>
+                    </article>
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ── VALUES ──────────────────────────────── */}
+        {/* ── VALUES (STROKE-DRAW ICON SYSTEM) ─────────────────── */}
         <section>
           <div className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
@@ -267,28 +342,32 @@ export default function StoryPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {values.map((v, i) => (
-              <div
-                key={v.title}
-                className="p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] hover:border-[#C9A84C]/50 transition-all duration-300"
-              >
-                <p className="text-[#C9A84C]/30 text-5xl font-black font-mono mb-4">
-                  0{i + 1}
-                </p>
-                <h3
-                  className="text-xl font-black uppercase text-[#E8EDF5] mb-3"
-                  style={{ fontFamily: "var(--font-montserrat)" }}
-                >
-                  {v.title}
-                </h3>
-                <p className="text-[#64748B] font-mono text-sm leading-relaxed mb-4">
-                  {v.description}
-                </p>
-                <div className="pt-4 border-t border-[#1E293B]">
-                  <p className="text-[#0D9488] text-[10px] font-mono tracking-widest">
-                    {v.spec}
+              <Reveal key={v.title} variant="up" delay={i * 90}>
+                <article className="p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] hover:border-[#C9A84C]/50 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-[#C9A84C]">
+                      <ValueIcon kind={v.icon} />
+                    </div>
+                    <p className="text-[#C9A84C]/30 text-4xl font-black font-mono">
+                      0{i + 1}
+                    </p>
+                  </div>
+                  <h3
+                    className="text-xl font-black uppercase text-[#E8EDF5] mb-3"
+                    style={{ fontFamily: "var(--font-montserrat)" }}
+                  >
+                    {v.title}
+                  </h3>
+                  <p className="text-[#64748B] font-mono text-sm leading-relaxed mb-4">
+                    {v.description}
                   </p>
-                </div>
-              </div>
+                  <div className="pt-4 border-t border-[#1E293B]">
+                    <p className="text-[#0D9488] text-[10px] font-mono tracking-widest">
+                      {v.spec}
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
             ))}
           </div>
         </section>
