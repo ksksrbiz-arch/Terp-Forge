@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { terpenes } from "@/lib/compounds";
+import { CompoundMatrix } from "@/components/lab/CompoundMatrix";
+import { MoleculeViewer } from "@/components/lab/MoleculeViewer";
+import { PropertyBars } from "@/components/lab/PropertyBars";
+import { SynergyBuilder } from "@/components/lab/SynergyBuilder";
+import { CoaCardGenerator } from "@/components/lab/CoaCardGenerator";
 
 const DESCRIPTION_PREVIEW_LENGTH = 100;
 
@@ -222,8 +227,10 @@ export default function LabPage() {
           <div className="mt-8 flex flex-wrap gap-3">
             {[
               { href: "#simulator", label: "Profile Simulator" },
+              { href: "#matrix", label: "Compound Matrix" },
               { href: "#science", label: "Terpene Science" },
               { href: "#profiles", label: "Compound Library" },
+              { href: "#synergy", label: "Synergy Builder" },
               { href: "#coa", label: "COA Portal" },
             ].map(({ href, label }) => (
               <a
@@ -526,6 +533,80 @@ export default function LabPage() {
         </section>
 
         {/* ── COMPOUND LIBRARY ────────────────────────────────────── */}
+        <section id="matrix" tabIndex={-1}>
+          <div className="mb-10">
+            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+              {"// MODULE 01.5 · INTERACTIVE"}
+            </p>
+            <h2
+              className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              Compound Matrix
+            </h2>
+            <p className="text-[#64748B] font-mono text-sm max-w-xl">
+              Periodic-style index of TerpForge&apos;s compound library. Hover any
+              cell for the structural sketch; click to load it into the
+              ball-and-stick viewer with property telemetry.
+            </p>
+          </div>
+
+          <div className="space-y-10">
+            <CompoundMatrix
+              activeSlug={selected.slug}
+              onSelect={(c) => setSelectedTerpeneName(c.name)}
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
+              <div className="border border-[#1E293B] bg-[#0A1628]">
+                <MoleculeViewer compound={selected} />
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[10px] font-mono tracking-[0.4em] uppercase mb-2"
+                     style={{ color: selected.profileColor }}>
+                    Active compound
+                  </p>
+                  <h3 className="text-3xl font-black text-[#E8EDF5]"
+                      style={{ fontFamily: "var(--font-montserrat)" }}>
+                    {selected.name}
+                  </h3>
+                  <p className="text-[#64748B] text-xs font-mono mt-1">
+                    {selected.aroma}
+                  </p>
+                </div>
+
+                <PropertyBars compound={selected} />
+
+                <div className="border-t border-[#1E293B] pt-4">
+                  <p className="text-[10px] font-mono tracking-[0.4em] uppercase text-[#64748B] mb-2">
+                    Telemetry
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                    <div className="bg-[#0F1F3D] p-2">
+                      <p className="text-[#64748B] text-[9px] tracking-widest uppercase">Formula</p>
+                      <p className="text-[#E8EDF5] font-bold">{selected.formula}</p>
+                    </div>
+                    <div className="bg-[#0F1F3D] p-2">
+                      <p className="text-[#64748B] text-[9px] tracking-widest uppercase">MW</p>
+                      <p className="text-[#E8EDF5] font-bold">{selected.mw}</p>
+                    </div>
+                    <div className="bg-[#0F1F3D] p-2">
+                      <p className="text-[#64748B] text-[9px] tracking-widest uppercase">Boiling</p>
+                      <p className="text-[#E8EDF5] font-bold">{selected.bp}</p>
+                    </div>
+                    <div className="bg-[#0F1F3D] p-2">
+                      <p className="text-[#64748B] text-[9px] tracking-widest uppercase">LogP</p>
+                      <p className="text-[#E8EDF5] font-bold">{selected.logP}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="profiles" tabIndex={-1}>
           <div className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
@@ -672,6 +753,27 @@ export default function LabPage() {
           </div>
         </section>
 
+        <section id="synergy" tabIndex={-1}>
+          <div className="mb-10">
+            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+              {"// MODULE 02.5 · INTERACTIVE"}
+            </p>
+            <h2
+              className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              Synergy Builder
+            </h2>
+            <p className="text-[#64748B] font-mono text-sm max-w-xl">
+              Pick two compounds and see the combined effect profile as an
+              overlapping radar — the dashed gold hull marks the synergy
+              ceiling, capped at 100% per axis with a small overlap bonus
+              when both contributors clear 50%.
+            </p>
+          </div>
+          <SynergyBuilder />
+        </section>
+
         {/* ── COA PORTAL ──────────────────────────────────────────── */}
         <section id="coa">
           <div className="mb-10">
@@ -787,6 +889,22 @@ export default function LabPage() {
             >
               Shop Verified Wellness Products
             </Link>
+          </div>
+
+          <div className="mt-12 pt-12 border-t border-[#C9A84C]/20">
+            <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase mb-3">
+              {"// SCHEMATIC COA CARD"}
+            </p>
+            <h3 className="text-2xl font-black text-[#E8EDF5] mb-2"
+                style={{ fontFamily: "var(--font-montserrat)" }}>
+              Generate a printable card
+            </h3>
+            <p className="text-[#64748B] font-mono text-xs max-w-xl mb-6">
+              Type any batch — or let the default load — and download a
+              schematic-style PNG. The datamatrix stamp on the card is
+              deterministic per batch ID.
+            </p>
+            <CoaCardGenerator />
           </div>
         </section>
       </div>

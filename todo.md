@@ -60,11 +60,11 @@ static-export deployment model or pulling in heavy dependencies.
 
 ## Phase 4 — The Lab ascension (signature page)
 
-- [ ] **Compound Matrix** — periodic-table-style grid with structure-on-hover
-- [ ] Click cell → expanded spec sheet with animated property bars
-- [ ] Auto-rotating ball-and-stick **molecule viewer** (SVG/Canvas) with drag
-- [ ] Schematic-style COA generator (canvas → blob, batch ID + SVG QR)
-- [ ] **Synergy Builder** — pick two terpenes, animated radar chart of effect profile
+- [x] **Compound Matrix** — periodic-table-style grid with structure-on-hover
+- [x] Click cell → expanded spec sheet with animated property bars
+- [x] Auto-rotating ball-and-stick **molecule viewer** (SVG/Canvas) with drag
+- [x] Schematic-style COA generator (canvas → blob, batch ID + datamatrix stamp)
+- [x] **Synergy Builder** — pick two terpenes, animated radar chart of effect profile
 
 ## Phase 5 — Story / Foundry timeline
 
