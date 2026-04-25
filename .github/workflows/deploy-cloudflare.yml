@@ -1,0 +1,55 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Run alongside GitHub Pages deploys. Don't cancel mid-flight — Pages
+# deployments are idempotent but interrupted ones can leave orphan builds.
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (static export)
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Verify static export output
+        run: |
+          if [ ! -d "out" ]; then
+            echo "::error::next build did not produce an 'out' directory."
+            exit 1
+          fi
+          echo "Static export contains $(find out -type f | wc -l) files."
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Wrangler will create the project on the first run if it
+          # doesn't already exist, provided the API token has the
+          # "Cloudflare Pages — Edit" account permission.
+          command: pages deploy out --project-name=terpforge --branch=main --commit-dirty=true

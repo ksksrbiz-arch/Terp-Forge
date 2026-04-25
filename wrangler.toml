@@ -1,0 +1,15 @@
+# Cloudflare Pages project config for TerpForge.
+#
+# Read by `wrangler pages deploy` so contributors can run the same deploy
+# locally as the GitHub Actions workflow.
+#
+# Required environment for local deploys:
+#   CLOUDFLARE_API_TOKEN  — token with `Cloudflare Pages — Edit` scope
+#   CLOUDFLARE_ACCOUNT_ID — 371afa6149061390a094cfbf8a184aff
+#
+# Custom domain `terpforge.com` is attached via the Pages dashboard once
+# the zone is added to Cloudflare and DNS is delegated. See DEPLOY.md.
+
+name = "terpforge"
+pages_build_output_dir = "./out"
+compatibility_date = "2026-04-01"
