@@ -183,7 +183,7 @@ export default function StoryPage() {
           <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
             <Image
               src="/images/lab-molecular.jpg"
-              alt="Molecular analysis at TerpForge"
+              alt="Hooded figure wearing molecular-print TerpForge hoodie against forge backdrop"
               width={600}
               height={400}
               sizes="(min-width: 768px) 50vw, 100vw"
@@ -191,13 +191,13 @@ export default function StoryPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
             <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
-              <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">LAB // MOLECULAR PRECISION</p>
+              <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">FIELD // MOLECULAR FOIL</p>
             </div>
           </div>
           <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
             <Image
               src="/images/terpene-science.jpg"
-              alt="Terpene compound science"
+              alt="TERP-7 Elixir tincture surrounded by emerald terpene crystals"
               width={600}
               height={400}
               sizes="(min-width: 768px) 50vw, 100vw"
@@ -205,7 +205,7 @@ export default function StoryPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
             <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#C9A84C]/30">
-              <p className="text-[#C9A84C] text-[10px] font-mono tracking-wider">SCIENCE // COMPOUND ISOLATION</p>
+              <p className="text-[#C9A84C] text-[10px] font-mono tracking-wider">WELLNESS // TERP-7 ELIXIR</p>
             </div>
           </div>
         </section>
@@ -404,16 +404,16 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* ── LIFESTYLE ──────────────────────────── */}
+        {/* ── COMPOUND STUDIES ──────────────────────────── */}
         <section>
           <div className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
-              {"// LIFESTYLE DOCUMENTATION"}
+              {"// COMPOUND DOCUMENTATION"}
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5]"
             >
-              Tech Life
+              Compound Studies
             </h2>
           </div>
 
@@ -421,29 +421,29 @@ export default function StoryPage() {
             <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
               <Image
                 src="/images/tech-life-1.jpeg"
-                alt="TerpForge Tech Life"
+                alt="Limonene C₁₀H₁₆ terpene oil cascade with glowing schematic backdrop"
                 width={600}
                 height={400}
                 className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
-                <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">LIFESTYLE // 001</p>
-                <p className="text-[#E8EDF5] text-sm font-bold uppercase">Tech Life Collection</p>
+                <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">COMPOUND // LIMONENE</p>
+                <p className="text-[#E8EDF5] text-sm font-bold uppercase">C₁₀H₁₆ — Focus Profile</p>
               </div>
             </div>
             <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
               <Image
                 src="/images/tech-life-2.jpeg"
-                alt="TerpForge Tech Life collection"
+                alt="Limonene molecular schematic with terpene oil isolation and ring structure"
                 width={600}
                 height={400}
                 className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
-                <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">LIFESTYLE // 002</p>
-                <p className="text-[#E8EDF5] text-sm font-bold uppercase">Engineered For Living</p>
+                <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">SCHEMATIC // C₁₀H₁₆</p>
+                <p className="text-[#E8EDF5] text-sm font-bold uppercase">Isolation &amp; Verification</p>
               </div>
             </div>
           </div>
