@@ -68,9 +68,9 @@ static-export deployment model or pulling in heavy dependencies.
 
 ## Phase 5 — Story / Foundry timeline
 
-- [ ] Horizontal scroll-driven foundry-blueprint timeline with hex milestone nodes
-- [ ] Engineering Values — stroke-draw icon system on reveal
-- [ ] Founder/origin cinematic full-bleed section with looping ambient plate
+- [x] Horizontal scroll-driven foundry-blueprint timeline with hex milestone nodes
+- [x] Engineering Values — stroke-draw icon system on reveal
+- [x] Founder/origin cinematic full-bleed section with looping ambient plate
 
 ## Phase 6 — Cart & checkout ascension
 
