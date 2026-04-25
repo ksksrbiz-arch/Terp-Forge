@@ -1,0 +1,3 @@
+# Cloudflare Pages redirect rules.
+# Enforces the apex domain as canonical: www.terpforge.com → terpforge.com
+https://www.terpforge.com/* https://terpforge.com/:splat 301
