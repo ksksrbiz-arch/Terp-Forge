@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"
+     role="img" aria-label="The Forge Snapback — TerpForge technical schematic"
+     preserveAspectRatio="xMidYMid slice">
+  <!-- BACKGROUND -->
+  <rect width="800" height="600" fill="#0A1628" />
+  <defs>
+    <pattern id="grid-tf-ap-004" x="0" y="0" width="40" height="40"
+             patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none"
+            stroke="#0D9488" stroke-opacity="0.08" stroke-width="1" />
+    </pattern>
+    <radialGradient id="vignette-tf-ap-004" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#0F1F3D" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#0A1628" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accent-tf-ap-004" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#C9A84C" stop-opacity="0.55" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#grid-tf-ap-004)" />
+  <rect width="800" height="600" fill="url(#vignette-tf-ap-004)" />
+
+  <!-- CORNER REGISTRATION BRACKETS -->
+  <g stroke="#C9A84C" stroke-width="2" fill="none">
+    <path d="M 24 24 L 24 56 M 24 24 L 56 24" />
+    <path d="M 776 24 L 776 56 M 776 24 L 744 24" />
+    <path d="M 24 576 L 24 544 M 24 576 L 56 576" />
+    <path d="M 776 576 L 776 544 M 776 576 L 744 576" />
+  </g>
+
+  <!-- HEADER STRIP -->
+  <g font-family="ui-monospace, 'SF Mono', monospace" letter-spacing="2">
+    <text x="36" y="50" font-size="10" font-weight="700" fill="#C9A84C">
+      TF-SCHEMATIC // TF-AP-004
+    </text>
+    <text x="36" y="68" font-size="10" fill="#64748B">
+      6-Panel Structured · Laser-Engraved TF Logo
+    </text>
+  </g>
+
+  <!-- ICON STAMP -->
+  <g transform="translate(36, 90)">
+    <rect width="36" height="36" fill="none" stroke="#C9A84C" stroke-opacity="0.4" />
+    <text x="18" y="26" text-anchor="middle" font-size="20" fill="#C9A84C">◈</text>
+  </g>
+
+  <!-- PRODUCT SILHOUETTE -->
+  
+  <g transform="translate(200, 200)" stroke="#C9A84C" stroke-width="2.2"
+     fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- CROWN (6-panel) -->
+    <path d="M 120 30 Q 240 -40 360 30 L 360 130 L 120 130 Z" />
+    <!-- PANEL DIVIDERS -->
+    <line x1="160" y1="20" x2="160" y2="130" stroke-opacity="0.6" />
+    <line x1="200" y1="-2" x2="200" y2="130" stroke-opacity="0.6" />
+    <line x1="240" y1="-12" x2="240" y2="130" stroke-opacity="0.6" />
+    <line x1="280" y1="-2" x2="280" y2="130" stroke-opacity="0.6" />
+    <line x1="320" y1="20" x2="320" y2="130" stroke-opacity="0.6" />
+    <!-- BRIM -->
+    <path d="M 80 130 L 400 130 Q 420 168 240 178 Q 60 168 80 130 Z" />
+    <!-- LASER-ENGRAVED TF BADGE -->
+    <rect x="216" y="50" width="48" height="32" stroke="#C9A84C" stroke-width="1.5" />
+    <text x="240" y="73" text-anchor="middle"
+          font-family="'Helvetica Neue', Arial, sans-serif"
+          font-weight="800" font-size="14" fill="#C9A84C"
+          letter-spacing="2">TF</text>
+    <!-- SNAP CLOSURE BACK -->
+    <circle cx="240" cy="130" r="3" fill="#C9A84C" />
+  </g>
+
+  <g font-family="ui-monospace, 'SF Mono', monospace" font-size="10"
+     letter-spacing="1.4">
+    <text x="540" y="200" fill="#C9A84C">6-PANEL STRUCTURED</text>
+    <text x="540" y="225" fill="#64748B">COTTON TWILL · BLACK</text>
+    <text x="540" y="255" fill="#C9A84C">LASER-ENGRAVED</text>
+    <text x="540" y="275" fill="#64748B">ALUMINUM TF BADGE</text>
+    <text x="540" y="305" fill="#64748B">SNAP CLOSURE</text>
+    <text x="540" y="325" fill="#64748B">OSFA</text>
+  </g>
+
+
+  <!-- FOOTER STRIP -->
+  <g font-family="ui-monospace, 'SF Mono', monospace" letter-spacing="2">
+    <text x="36" y="514" font-size="9" fill="#64748B">
+      ENGINEERED // FORGED // VERIFIED
+    </text>
+  </g>
+
+  <!-- TF MONOGRAM -->
+  <g transform="translate(710, 530)">
+    <rect width="54" height="36" fill="none" stroke="#C9A84C" stroke-opacity="0.6" />
+    <text x="27" y="24" text-anchor="middle"
+          font-family="'Helvetica Neue', Arial, sans-serif"
+          font-size="14" font-weight="800" letter-spacing="3"
+          fill="#C9A84C">TF</text>
+  </g>
+
+  <!-- DIM LINE TICKERS -->
+  <g stroke="#0D9488" stroke-opacity="0.35" stroke-width="1">
+    <line x1="36" y1="140" x2="36" y2="490" />
+    <line x1="32" y1="140" x2="40" y2="140" />
+    <line x1="32" y1="315" x2="40" y2="315" />
+    <line x1="32" y1="490" x2="40" y2="490" />
+    <line x1="764" y1="140" x2="764" y2="490" />
+    <line x1="760" y1="140" x2="768" y2="140" />
+    <line x1="760" y1="315" x2="768" y2="315" />
+    <line x1="760" y1="490" x2="768" y2="490" />
+  </g>
+</svg>

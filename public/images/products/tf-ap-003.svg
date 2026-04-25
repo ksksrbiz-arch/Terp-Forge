@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"
+     role="img" aria-label="Linalool Stealth Hoodie — TerpForge technical schematic"
+     preserveAspectRatio="xMidYMid slice">
+  <!-- BACKGROUND -->
+  <rect width="800" height="600" fill="#0A1628" />
+  <defs>
+    <pattern id="grid-tf-ap-003" x="0" y="0" width="40" height="40"
+             patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none"
+            stroke="#0D9488" stroke-opacity="0.08" stroke-width="1" />
+    </pattern>
+    <radialGradient id="vignette-tf-ap-003" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#0F1F3D" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#0A1628" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accent-tf-ap-003" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0.55" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#grid-tf-ap-003)" />
+  <rect width="800" height="600" fill="url(#vignette-tf-ap-003)" />
+
+  <!-- CORNER REGISTRATION BRACKETS -->
+  <g stroke="#C9A84C" stroke-width="2" fill="none">
+    <path d="M 24 24 L 24 56 M 24 24 L 56 24" />
+    <path d="M 776 24 L 776 56 M 776 24 L 744 24" />
+    <path d="M 24 576 L 24 544 M 24 576 L 56 576" />
+    <path d="M 776 576 L 776 544 M 776 576 L 744 576" />
+  </g>
+
+  <!-- HEADER STRIP -->
+  <g font-family="ui-monospace, 'SF Mono', monospace" letter-spacing="2">
+    <text x="36" y="50" font-size="10" font-weight="700" fill="#C9A84C">
+      TF-SCHEMATIC // TF-AP-003
+    </text>
+    <text x="36" y="68" font-size="10" fill="#64748B">
+      GSM-420 Cotton Fleece · Tonal Navy Print · Minimal
+    </text>
+  </g>
+  <g transform="translate(640, 36)">
+    <rect width="124" height="22" fill="#C9A84C" />
+    <text x="62" y="15" text-anchor="middle"
+          font-family="ui-monospace, 'SF Mono', monospace"
+          font-size="10" font-weight="700" letter-spacing="1.6"
+          fill="#0A1628">LIMITED</text>
+  </g>
+
+  <!-- ICON STAMP -->
+  <g transform="translate(36, 90)">
+    <rect width="36" height="36" fill="none" stroke="#C9A84C" stroke-opacity="0.4" />
+    <text x="18" y="26" text-anchor="middle" font-size="20" fill="#C9A84C">◈</text>
+  </g>
+
+  <!-- PRODUCT SILHOUETTE -->
+  
+  <g transform="translate(220, 130)" stroke="#3a4d68" stroke-width="2.2"
+     fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- HOOD -->
+    <path d="M 130 0 Q 180 -10 230 0 L 244 70 Q 180 56 116 70 Z" />
+    <!-- BODY -->
+    <path d="M 60 80 L 116 70 L 130 110 L 230 110 L 244 70 L 300 80
+             L 320 220 L 290 230 L 290 360 L 70 360 L 70 230 L 40 220 Z" />
+    <!-- KANGAROO POCKET -->
+    <path d="M 110 220 L 130 200 L 230 200 L 250 220 L 240 260 L 120 260 Z" />
+    <!-- SLEEVE CUFFS -->
+    <path d="M 290 230 L 320 220 L 330 360 L 310 360 Z" />
+    <path d="M 70 230 L 40 220 L 30 360 L 50 360 Z" />
+    <!-- DRAW STRINGS -->
+    <line x1="170" y1="62" x2="166" y2="98" stroke="#E2C97E" stroke-width="1.4" />
+    <line x1="190" y1="62" x2="194" y2="98" stroke="#E2C97E" stroke-width="1.4" />
+  </g>
+
+  <!-- MOLECULAR PRINT (back panel) -->
+  <g transform="translate(310, 250)" stroke="#2563EB" stroke-width="1.8"
+     fill="none" stroke-opacity="0.95">
+    <circle cx="0" cy="0" r="6" fill="#2563EB" />
+    <circle cx="44" cy="-20" r="5" fill="#2563EB" />
+    <circle cx="86" cy="0" r="6" fill="#2563EB" />
+    <circle cx="86" cy="44" r="5" fill="#2563EB" />
+    <circle cx="44" cy="64" r="6" fill="#2563EB" />
+    <circle cx="0" cy="44" r="5" fill="#2563EB" />
+    <circle cx="-40" cy="22" r="5" fill="#2563EB" />
+    <circle cx="130" cy="22" r="5" fill="#2563EB" />
+    <line x1="0" y1="0" x2="44" y2="-20" />
+    <line x1="44" y1="-20" x2="86" y2="0" />
+    <line x1="86" y1="0" x2="86" y2="44" />
+    <line x1="86" y1="44" x2="44" y2="64" />
+    <line x1="44" y1="64" x2="0" y2="44" />
+    <line x1="0" y1="44" x2="0" y2="0" />
+    <line x1="0" y1="0" x2="-40" y2="22" />
+    <line x1="86" y1="0" x2="130" y2="22" />
+  </g>
+
+  <!-- ANNOTATIONS -->
+  <g font-family="ui-monospace, 'SF Mono', monospace" font-size="10"
+     letter-spacing="1.4">
+    <text x="540" y="200" fill="#2563EB">SECTION A-A</text>
+    <line x1="450" y1="210" x2="540" y2="210" stroke="#2563EB" stroke-opacity="0.6" />
+    <text x="540" y="240" fill="#64748B">420 GSM FLEECE</text>
+    <text x="540" y="260" fill="#64748B">OVERLOCK SEAM</text>
+    <text x="540" y="290" fill="#2563EB">LINALOOL C₁₀H₁₈O</text>
+    <line x1="430" y1="280" x2="540" y2="280" stroke="#2563EB" stroke-opacity="0.6" />
+    <text x="540" y="310" fill="#64748B">TONAL FOIL PRINT</text>
+    <text x="540" y="340" fill="#64748B">RIBBED CUFF · WELT</text>
+  </g>
+
+
+  <!-- FOOTER STRIP -->
+  <g font-family="ui-monospace, 'SF Mono', monospace" letter-spacing="2">
+    <text x="36" y="514" font-size="9" fill="#64748B">
+      ENGINEERED // FORGED // VERIFIED
+    </text>
+  </g>
+  <g transform="translate(36, 540)">
+    <rect width="86" height="20" fill="none" stroke="#2563EB" stroke-opacity="0.5" />
+    <text x="43" y="14" text-anchor="middle"
+          font-family="ui-monospace, 'SF Mono', monospace"
+          font-size="10" font-weight="700" letter-spacing="2"
+          fill="#2563EB">CALM</text>
+  </g>
+
+  <!-- TF MONOGRAM -->
+  <g transform="translate(710, 530)">
+    <rect width="54" height="36" fill="none" stroke="#C9A84C" stroke-opacity="0.6" />
+    <text x="27" y="24" text-anchor="middle"
+          font-family="'Helvetica Neue', Arial, sans-serif"
+          font-size="14" font-weight="800" letter-spacing="3"
+          fill="#C9A84C">TF</text>
+  </g>
+
+  <!-- DIM LINE TICKERS -->
+  <g stroke="#0D9488" stroke-opacity="0.35" stroke-width="1">
+    <line x1="36" y1="140" x2="36" y2="490" />
+    <line x1="32" y1="140" x2="40" y2="140" />
+    <line x1="32" y1="315" x2="40" y2="315" />
+    <line x1="32" y1="490" x2="40" y2="490" />
+    <line x1="764" y1="140" x2="764" y2="490" />
+    <line x1="760" y1="140" x2="768" y2="140" />
+    <line x1="760" y1="315" x2="768" y2="315" />
+    <line x1="760" y1="490" x2="768" y2="490" />
+  </g>
+</svg>

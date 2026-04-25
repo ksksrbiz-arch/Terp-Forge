@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"
+     role="img" aria-label="Terpene Vault — UV Series — TerpForge technical schematic"
+     preserveAspectRatio="xMidYMid slice">
+  <!-- BACKGROUND -->
+  <rect width="800" height="600" fill="#0A1628" />
+  <defs>
+    <pattern id="grid-tf-hw-001" x="0" y="0" width="40" height="40"
+             patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none"
+            stroke="#0D9488" stroke-opacity="0.08" stroke-width="1" />
+    </pattern>
+    <radialGradient id="vignette-tf-hw-001" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#0F1F3D" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#0A1628" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accent-tf-hw-001" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#C9A84C" stop-opacity="0.55" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#grid-tf-hw-001)" />
+  <rect width="800" height="600" fill="url(#vignette-tf-hw-001)" />
+
+  <!-- CORNER REGISTRATION BRACKETS -->
+  <g stroke="#C9A84C" stroke-width="2" fill="none">
+    <path d="M 24 24 L 24 56 M 24 24 L 56 24" />
+    <path d="M 776 24 L 776 56 M 776 24 L 744 24" />
+    <path d="M 24 576 L 24 544 M 24 576 L 56 576" />
+    <path d="M 776 576 L 776 544 M 776 576 L 744 576" />
+  </g>
+
+  <!-- HEADER STRIP -->
+  <g font-family="ui-monospace, 'SF Mono', monospace" letter-spacing="2">
+    <text x="36" y="50" font-size="10" font-weight="700" fill="#C9A84C">
+      TF-SCHEMATIC // TF-HW-001
+    </text>
+    <text x="36" y="68" font-size="10" fill="#64748B">
+      Borosilicate Glass · Airtight Silicone Seal · UV-400 Shield
+    </text>
+  </g>
+  <g transform="translate(640, 36)">
+    <rect width="124" height="22" fill="#C9A84C" />
+    <text x="62" y="15" text-anchor="middle"
+          font-family="ui-monospace, 'SF Mono', monospace"
+          font-size="10" font-weight="700" letter-spacing="1.6"
+          fill="#0A1628">BESTSELLER</text>
+  </g>
+
+  <!-- ICON STAMP -->
+  <g transform="translate(36, 90)">
+    <rect width="36" height="36" fill="none" stroke="#C9A84C" stroke-opacity="0.4" />
+    <text x="18" y="26" text-anchor="middle" font-size="20" fill="#C9A84C">⬡</text>
+  </g>
+
+  <!-- PRODUCT SILHOUETTE -->
+  
+  <!-- CROSS-SECTION DIM LINES -->
+  <g stroke="#0D9488" stroke-opacity="0.35" stroke-width="1">
+    <line x1="280" y1="160" x2="220" y2="160" stroke-dasharray="4 3" />
+    <line x1="520" y1="160" x2="580" y2="160" stroke-dasharray="4 3" />
+    <text x="160" y="164" font-family="ui-monospace, 'SF Mono', monospace"
+          font-size="10" fill="#0D9488">Ø60mm</text>
+  </g>
+
+  <g transform="translate(290, 150)" stroke="#C9A84C" stroke-width="2.2"
+     fill="none" stroke-linejoin="round">
+    <!-- SCREW LID -->
+    <rect x="20" y="0" width="180" height="34" />
+    <line x1="20" y1="14" x2="200" y2="14" stroke-opacity="0.4" />
+    <line x1="36" y1="0" x2="36" y2="34" stroke-opacity="0.4" />
+    <line x1="60" y1="0" x2="60" y2="34" stroke-opacity="0.4" />
+    <line x1="84" y1="0" x2="84" y2="34" stroke-opacity="0.4" />
+    <line x1="108" y1="0" x2="108" y2="34" stroke-opacity="0.4" />
+    <line x1="132" y1="0" x2="132" y2="34" stroke-opacity="0.4" />
+    <line x1="156" y1="0" x2="156" y2="34" stroke-opacity="0.4" />
+    <line x1="184" y1="0" x2="184" y2="34" stroke-opacity="0.4" />
+    <!-- NECK -->
+    <rect x="40" y="34" width="140" height="20" />
+    <!-- BODY (UV amber tint) -->
+    <path d="M 0 54 L 20 54 L 20 280 Q 110 310 200 280 L 200 54 L 220 54
+             L 220 290 Q 110 322 0 290 Z" fill="#C9A84C" fill-opacity="0.08" />
+    <!-- CONTENT LINE -->
+    <path d="M 30 230 Q 110 246 190 230" stroke="#E2C97E"
+          stroke-opacity="0.7" stroke-dasharray="3 3" />
+    <!-- TF BADGE -->
+    <circle cx="110" cy="180" r="22" fill="none" stroke="#C9A84C" stroke-width="1.6" />
+    <text x="110" y="186" text-anchor="middle"
+          font-family="'Helvetica Neue', Arial, sans-serif"
+          font-weight="800" font-size="14" fill="#C9A84C" letter-spacing="2">TF</text>
+  </g>
+
+  <g font-family="ui-monospace, 'SF Mono', monospace" font-size="10"
+     letter-spacing="1.4">
+    <text x="540" y="200" fill="#C9A84C">UV-400 BOROSILICATE</text>
+    <text x="540" y="220" fill="#64748B">PHARMA SILICONE GASKET</text>
+    <text x="540" y="250" fill="#C9A84C">AIRTIGHT · SHELF 18mo</text>
+    <text x="540" y="280" fill="#64748B">CHEM-RESIST GRADE A</text>
+    <text x="540" y="310" fill="#64748B">60 / 120 mL</text>
+  </g>
+
+
+  <!-- FOOTER STRIP -->
+  <g font-family="ui-monospace, 'SF Mono', monospace" letter-spacing="2">
+    <text x="36" y="514" font-size="9" fill="#64748B">
+      ENGINEERED // FORGED // VERIFIED
+    </text>
+  </g>
+
+  <!-- TF MONOGRAM -->
+  <g transform="translate(710, 530)">
+    <rect width="54" height="36" fill="none" stroke="#C9A84C" stroke-opacity="0.6" />
+    <text x="27" y="24" text-anchor="middle"
+          font-family="'Helvetica Neue', Arial, sans-serif"
+          font-size="14" font-weight="800" letter-spacing="3"
+          fill="#C9A84C">TF</text>
+  </g>
+
+  <!-- DIM LINE TICKERS -->
+  <g stroke="#0D9488" stroke-opacity="0.35" stroke-width="1">
+    <line x1="36" y1="140" x2="36" y2="490" />
+    <line x1="32" y1="140" x2="40" y2="140" />
+    <line x1="32" y1="315" x2="40" y2="315" />
+    <line x1="32" y1="490" x2="40" y2="490" />
+    <line x1="764" y1="140" x2="764" y2="490" />
+    <line x1="760" y1="140" x2="768" y2="140" />
+    <line x1="760" y1="315" x2="768" y2="315" />
+    <line x1="760" y1="490" x2="768" y2="490" />
+  </g>
+</svg>
