@@ -97,7 +97,7 @@ const showcaseCells = [
     height: "h-48 sm:h-56",
   },
   {
-    src: "/images/terpene-science.jpg",
+    src: "/images/terpene-science-aromatic.jpg",
     alt: "Terpene science and compound isolation",
     label: "SCIENCE // ISOLATION",
     span: "lg:col-span-1",
@@ -125,71 +125,71 @@ const showcaseCells = [
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/7cfe1cff-fa46-48fa-b860-ef39aa3a0d45",
-    alt: "Aromatic terpene ring structures emerging from fire",
+    src: "/images/terpene-science.jpg",
+    alt: "Terpene science and compound isolation",
     label: "CHEMISTRY // AROMATIC COMPOUNDS",
     span: "lg:col-span-1",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/baba0a39-ac63-43e6-9457-034dce1ffe27",
-    alt: "Phenol molecular model before and after extraction with fire",
+    src: "/images/lab-molecular-phenol.jpg",
+    alt: "Molecular analysis in the TerpForge laboratory",
     label: "SCIENCE // PHENOL ISOLATION",
     span: "lg:col-span-1",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/a5cc906c-c9f2-472e-9d9c-8e0932e59dad",
+    src: "/images/forge-process-cbda.jpg",
     alt: "CBDA to CBD decarboxylation molecular conversion diagram",
     label: "PROCESS // CBDA → CBD",
     span: "lg:col-span-2",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/5c087714-b585-4974-81e1-cbfff3ee1fdc",
+    src: "/images/hero-extraction.jpg",
     alt: "Cannabinoid molecular structure forged in fire",
     label: "COMPOUNDS // MOLECULAR FORGE",
     span: "lg:col-span-2",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/0311d697-ae0e-41bb-a816-6f72b4eda5c4",
+    src: "/images/product-showcase.jpg",
     alt: "Glowing molecular model resting on dark velvet with terpene compound structures",
     label: "COMPOUND // MOLECULAR MODEL",
     span: "lg:col-span-1",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/431c0427-3ad9-41d2-819c-2b9ed56c7e1e",
+    src: "/images/tech-life-1.jpeg",
     alt: "Molecular model on forge anvil with industrial sparks flying",
     label: "FORGE // COMPOUND STRUCTURE",
     span: "lg:col-span-1",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/612e3419-fda6-4ce9-9931-c12683131f7a",
+    src: "/images/tech-life-iridescent.jpeg",
     alt: "Iridescent metallic molecular model in front of forge fire and sparks",
     label: "SCIENCE // IRIDESCENT STRUCTURE",
     span: "lg:col-span-2",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/0d6145d7-257a-452c-b997-2f99c25ccca9",
-    alt: "Complex organic molecular model on forge anvil with fire backdrop",
+    src: "/images/forge-process-organic.jpg",
+    alt: "TerpForge extraction and forging process",
     label: "FOUNDRY // ORGANIC COMPOUND",
     span: "lg:col-span-4",
     height: "h-56 sm:h-64",
   },
   {
-    src: "https://github.com/user-attachments/assets/a4c4e848-023a-46f6-8ad9-ee3fdefae379",
-    alt: "Benzene molecular model with teal double-bond connectors on a marble block",
+    src: "/images/lab-molecular-benzene.jpg",
+    alt: "Molecular analysis in the TerpForge laboratory",
     label: "SCIENCE // MOLECULAR MODEL",
     span: "lg:col-span-2",
     height: "h-48 sm:h-56",
   },
   {
-    src: "https://github.com/user-attachments/assets/9aa6da2e-db24-43bb-9ef7-ee7ceaa8cbd9",
-    alt: "Metallic molecular model with gold connectors and hydrogen labels in a lab setting",
+    src: "/images/terpene-science-compound-structure.jpg",
+    alt: "Terpene science and compound isolation",
     label: "LAB // COMPOUND STRUCTURE",
     span: "lg:col-span-2",
     height: "h-48 sm:h-56",
@@ -332,7 +332,7 @@ export default function Home() {
                   <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
                   <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
                   <Image
-                    src="https://github.com/user-attachments/assets/3e83a842-ba0c-493a-a120-2416db85146e"
+                    src="/images/hero-extraction.jpg"
                     alt="TerpForge industrial extraction facility with glowing molecular structures"
                     width={600}
                     height={400}
@@ -567,24 +567,24 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
             {
-              src: "https://github.com/user-attachments/assets/9f67e424-0fed-49cd-8ac3-44791d979ff2",
-              alt: "TerpForge hooded figure with gold and teal molecular schematic embroidery, forge fire backdrop",
+              src: "/images/tech-life-1.jpeg",
+              alt: "TerpForge Tech Life",
               eyebrow: "// VERTICAL 01",
               title: "Apparel",
               tagline: "Heavy-duty streetwear with gold-foil molecular schematics.",
               href: "/shop?cat=apparel#apparel",
             },
             {
-              src: "https://github.com/user-attachments/assets/4d66e35f-ad80-4a16-ab88-19595a98d0a0",
-              alt: "Stainless and brass extraction rig with teal cryo glow inside the TerpForge lab",
+              src: "/images/lab-molecular.jpg",
+              alt: "Molecular analysis in the TerpForge laboratory",
               eyebrow: "// VERTICAL 02",
               title: "Hardware",
               tagline: "Terpene preservation systems engineered for the long haul.",
               href: "/shop?cat=hardware#hardware",
             },
             {
-              src: "https://github.com/user-attachments/assets/29bdf14d-f6fc-4404-af51-f7283c6da92e",
-              alt: "TerpForge TERP-7 Elixir tincture bottle surrounded by terpene crystals and gold molecular models",
+              src: "/images/product-showcase.jpg",
+              alt: "TerpForge product showcase",
               eyebrow: "// VERTICAL 03",
               title: "CBD Wellness",
               tagline: "Lab-certified tinctures and gummies tuned to specific terpene profiles.",
