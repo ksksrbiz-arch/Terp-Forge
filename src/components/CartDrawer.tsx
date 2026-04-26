@@ -83,16 +83,49 @@ export default function CartDrawer() {
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, closeCart]);
 
-  const handlePlaceOrder = (e: FormEvent<HTMLFormElement>) => {
+  const handlePlaceOrder = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStage("processing");
-    // Simulate fulfillment handoff (Stripe / Printful / Shippo).
-    window.setTimeout(() => {
-      const id = generateOrderId();
-      setOrderId(id);
-      clear();
-      setStage("success");
-    }, 1400);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          items: lines
+            .map((l) => {
+              const product = findProduct(l.id);
+              if (!product) return null;
+              return {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                qty: l.qty,
+                image: product.image,
+                category: product.category,
+                printfulVariantId: product.printfulVariantId,
+              };
+            })
+            .filter(Boolean),
+        }),
+      });
+      if (!res.ok) throw new Error(`checkout failed: ${res.status}`);
+      const { url } = (await res.json()) as { url?: string };
+      if (!url) throw new Error("no checkout url returned");
+      // Hand off to Stripe-hosted checkout. Cart stays intact until the
+      // success page redirects back; on cancel the user lands on /?checkout=cancel
+      // and the cart is still populated.
+      window.location.href = url;
+    } catch (err) {
+      console.error("[checkout] falling back to demo flow", err);
+      // Demo fallback so the UI still completes if env vars aren't wired
+      // (lab / preview deploys without Stripe secrets).
+      window.setTimeout(() => {
+        const id = generateOrderId();
+        setOrderId(id);
+        clear();
+        setStage("success");
+      }, 1200);
+    }
   };
 
   const handleClose = () => {

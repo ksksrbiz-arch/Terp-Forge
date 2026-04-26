@@ -211,7 +211,7 @@ export default function LabPage() {
         <div
           aria-hidden
           className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity pointer-events-none"
-          style={{ backgroundImage: "url('/images/lab-extraction-rig.jpg')" }}
+          style={{ backgroundImage: "url('/images/lab-molecular.jpg')" }}
         />
         <div
           aria-hidden
