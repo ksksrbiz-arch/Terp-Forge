@@ -26,6 +26,18 @@ cards render that image full-bleed. To upgrade a product, save a new file
 to `public/images/` and update the SKU's `image` field. Filename suggestion:
 `product-{sku-slug}.jpg`, e.g. `public/images/product-myrcene-hoodie.jpg`.
 
+## Variant naming convention
+
+When one base photo is intentionally reused in multiple visual slots, create
+slot-specific copies so references stay explicit in code:
+
+- `{base}-{context}.jpg` (or `.jpeg`) for showcase variants
+- Examples: `forge-process-cbda.jpg`, `forge-process-organic.jpg`,
+  `lab-molecular-phenol.jpg`, `terpene-science-aromatic.jpg`
+
+This keeps `src` paths readable and avoids ambiguous "same file, different
+meaning" references in UI arrays.
+
 ## Cloudflare Images / Stream
 
 - All static images can be transformed at the edge via the helper in
