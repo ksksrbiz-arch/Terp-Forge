@@ -8,6 +8,7 @@ import { MoleculeViewer } from "@/components/lab/MoleculeViewer";
 import { PropertyBars } from "@/components/lab/PropertyBars";
 import { SynergyBuilder } from "@/components/lab/SynergyBuilder";
 import { CoaCardGenerator } from "@/components/lab/CoaCardGenerator";
+import { PlantForge3D } from "@/components/lab/PlantForge3D";
 
 const DESCRIPTION_PREVIEW_LENGTH = 100;
 
@@ -235,6 +236,7 @@ export default function LabPage() {
 
           <div className="mt-8 flex flex-wrap gap-2 sm:gap-3">
             {[
+              { href: "#plant-forge", label: "Plant Forge 3D" },
               { href: "#simulator", label: "Profile Simulator" },
               { href: "#matrix", label: "Compound Matrix" },
               { href: "#science", label: "Terpene Science" },
@@ -255,6 +257,30 @@ export default function LabPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
+        {/* ── PLANT FORGE 3D ──────────────────────────────────────── */}
+        <section id="plant-forge" tabIndex={-1}>
+          <div className="mb-10">
+            <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+              {"// MODULE Ø · LIVE 3D"}
+            </p>
+            <h2
+              className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              The Plant Forge
+            </h2>
+            <p className="text-[#64748B] font-mono text-sm max-w-2xl">
+              A live, in-browser forge. Watch eight key cannabinoids and
+              terpenes — CBGA, THCA, THC, CBDA, CBD, Myrcene, Limonene,
+              Pinene — fly in and lock onto a stylized cannabis plant.
+              Drag to orbit, press <span className="text-[#E8EDF5]">SPACE</span> to
+              pause, <span className="text-[#E8EDF5]">R</span> to replay, or
+              tap the TF logo for a bonus molecule.
+            </p>
+          </div>
+          <PlantForge3D />
+        </section>
+
         {/* ── PROFILE SIMULATOR ───────────────────────────────────── */}
         <section id="simulator">
           <div className="mb-10">
