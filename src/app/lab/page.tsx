@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { terpenes } from "@/lib/compounds";
 import { CompoundMatrix } from "@/components/lab/CompoundMatrix";
@@ -8,6 +9,42 @@ import { MoleculeViewer } from "@/components/lab/MoleculeViewer";
 import { PropertyBars } from "@/components/lab/PropertyBars";
 import { SynergyBuilder } from "@/components/lab/SynergyBuilder";
 import { CoaCardGenerator } from "@/components/lab/CoaCardGenerator";
+import { FORGE_CANVAS_HEIGHT_CLASS } from "@/components/lab/forge3d";
+
+// 3D experiences are heavy (Three.js scene + procedural geometry). They
+// only run client-side and aren't needed for first paint, so split each
+// into its own chunk and skip SSR. A subtle skeleton holds the layout.
+const SceneSkeleton = ({ label }: { label: string }) => (
+  <div
+    className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#0D9488]/20 bg-[#05080F] flex items-center justify-center`}
+  >
+    <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase">
+      {`// LOADING ${label.toUpperCase()}…`}
+    </p>
+  </div>
+);
+
+const PlantForge3D = dynamic(
+  () =>
+    import("@/components/lab/PlantForge3D").then((m) => ({
+      default: m.PlantForge3D,
+    })),
+  {
+    ssr: false,
+    loading: () => <SceneSkeleton label="Plant Forge" />,
+  },
+);
+
+const ReceptorDocking3D = dynamic(
+  () =>
+    import("@/components/lab/ReceptorDocking3D").then((m) => ({
+      default: m.ReceptorDocking3D,
+    })),
+  {
+    ssr: false,
+    loading: () => <SceneSkeleton label="Receptor Docking" />,
+  },
+);
 
 const DESCRIPTION_PREVIEW_LENGTH = 100;
 
@@ -235,6 +272,8 @@ export default function LabPage() {
 
           <div className="mt-8 flex flex-wrap gap-2 sm:gap-3">
             {[
+              { href: "#plant-forge", label: "Plant Forge 3D" },
+              { href: "#receptor-docking", label: "Receptor Docking" },
               { href: "#simulator", label: "Profile Simulator" },
               { href: "#matrix", label: "Compound Matrix" },
               { href: "#science", label: "Terpene Science" },
@@ -255,6 +294,55 @@ export default function LabPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
+        {/* ── PLANT FORGE 3D ──────────────────────────────────────── */}
+        <section id="plant-forge" tabIndex={-1}>
+          <div className="mb-10">
+            <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+              {"// MODULE Ø · LIVE 3D"}
+            </p>
+            <h2
+              className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              The Plant Forge
+            </h2>
+            <p className="text-[#64748B] font-mono text-sm max-w-2xl">
+              A live, in-browser forge. Watch eight key cannabinoids and
+              terpenes — CBGA, THCA, THC, CBDA, CBD, Myrcene, Limonene,
+              Pinene — fly in and lock onto a stylized cannabis plant.
+              Drag to orbit, press <span className="text-[#E8EDF5]">SPACE</span> to
+              pause, <span className="text-[#E8EDF5]">R</span> to replay, or
+              tap the TF logo for a bonus molecule.
+            </p>
+          </div>
+          <PlantForge3D />
+        </section>
+
+        {/* ── RECEPTOR DOCKING SIMULATOR ──────────────────────────── */}
+        <section id="receptor-docking" tabIndex={-1}>
+          <div className="mb-10">
+            <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+              {"// MODULE Ø·1 · LIVE 3D"}
+            </p>
+            <h2
+              className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              Receptor Docking
+            </h2>
+            <p className="text-[#64748B] font-mono text-sm max-w-2xl">
+              Pick a target receptor — <span className="text-[#0D9488]">CB1</span>{" "}
+              (central nervous system) or{" "}
+              <span className="text-[#C9A84C]">CB2</span> (peripheral, immune) —
+              and launch a molecule. Strong fits lock into the binding pocket
+              with a flare and ember burst; weak fits wobble and drift away.
+              Watch how the same compound docks differently depending on the
+              receptor.
+            </p>
+          </div>
+          <ReceptorDocking3D />
+        </section>
+
         {/* ── PROFILE SIMULATOR ───────────────────────────────────── */}
         <section id="simulator">
           <div className="mb-10">
