@@ -166,7 +166,7 @@ export default function StoryPage() {
 
           <div className="relative overflow-hidden border border-[#C9A84C]/20">
             <Image
-              src="https://github.com/user-attachments/assets/9f67e424-0fed-49cd-8ac3-44791d979ff2"
+              src="/images/forge-process.jpg"
               alt="The TerpForge extraction and forging process"
               width={600}
               height={400}
@@ -220,7 +220,7 @@ export default function StoryPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
               <Image
-                src="https://github.com/user-attachments/assets/7cfe1cff-fa46-48fa-b860-ef39aa3a0d45"
+                src="/images/terpene-science.jpg"
                 alt="Aromatic terpene ring structures emerging from fire"
                 width={600}
                 height={400}
@@ -234,7 +234,7 @@ export default function StoryPage() {
             </div>
             <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
               <Image
-                src="https://github.com/user-attachments/assets/baba0a39-ac63-43e6-9457-034dce1ffe27"
+                src="/images/lab-molecular.jpg"
                 alt="Phenol molecular model before and after extraction with fire"
                 width={600}
                 height={400}
@@ -248,7 +248,7 @@ export default function StoryPage() {
             </div>
             <div className="relative overflow-hidden border border-[#C9A84C]/20 group md:col-span-2">
               <Image
-                src="https://github.com/user-attachments/assets/a5cc906c-c9f2-472e-9d9c-8e0932e59dad"
+                src="/images/forge-process.jpg"
                 alt="CBDA to CBD decarboxylation molecular conversion diagram"
                 width={1200}
                 height={600}
@@ -262,7 +262,7 @@ export default function StoryPage() {
             </div>
             <div className="relative overflow-hidden border border-[#C9A84C]/20 group md:col-span-2">
               <Image
-                src="https://github.com/user-attachments/assets/5c087714-b585-4974-81e1-cbfff3ee1fdc"
+                src="/images/hero-extraction.jpg"
                 alt="Cannabinoid molecular structure forged in fire"
                 width={1200}
                 height={600}
