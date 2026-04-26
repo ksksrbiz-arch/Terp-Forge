@@ -850,7 +850,6 @@ export function PlantForge3D() {
           </p>
           <p
             className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
           </p>
@@ -924,7 +923,6 @@ export function PlantForge3D() {
           <div className="border border-[#C9A84C]/40 bg-[#0A1628]/80 backdrop-blur-sm px-6 py-3">
             <p
               className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               ▌▌ PAUSED
             </p>
@@ -950,7 +948,6 @@ export function PlantForge3D() {
           <span className="flex flex-col items-start leading-none">
             <span
               className="text-[#C9A84C] text-sm font-black tracking-widest uppercase"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               TF
             </span>

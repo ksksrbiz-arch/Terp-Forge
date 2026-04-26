@@ -120,7 +120,6 @@ export default function Section({
               {title && (
                 <h2
                   className="text-4xl sm:text-5xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
-                  style={{ fontFamily: "var(--font-montserrat)" }}
                 >
                   {title}
                 </h2>

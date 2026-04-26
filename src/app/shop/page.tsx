@@ -229,7 +229,6 @@ export default function ShopPage() {
           </div>
           <h1
             className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             The Inventory
           </h1>

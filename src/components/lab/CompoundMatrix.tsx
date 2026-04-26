@@ -59,8 +59,7 @@ export function CompoundMatrix({
             {/* big symbol */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p
-                className="text-3xl sm:text-4xl font-black uppercase tracking-tight transition-transform duration-500 group-hover:-translate-y-1"
-                style={{ fontFamily: "var(--font-montserrat)", color: "#E8EDF5" }}
+                className="text-3xl sm:text-4xl font-black uppercase tracking-tight transition-transform duration-500 group-hover:-translate-y-1 text-[#E8EDF5]"
               >
                 {c.symbol}
               </p>

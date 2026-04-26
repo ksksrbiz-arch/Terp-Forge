@@ -75,7 +75,6 @@ export default function ContactPage() {
           </p>
           <h1
             className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             Contact
           </h1>
@@ -104,7 +103,6 @@ export default function ContactPage() {
                 </p>
                 <h2
                   className="text-2xl font-black tracking-widest uppercase text-[#E8EDF5] mb-3"
-                  style={{ fontFamily: "var(--font-montserrat)" }}
                 >
                   Message Encrypted & Sent
                 </h2>

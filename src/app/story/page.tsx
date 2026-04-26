@@ -126,7 +126,6 @@ export default function StoryPage() {
           </p>
           <h1
             className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             The Foundry Story
           </h1>
@@ -151,7 +150,6 @@ export default function StoryPage() {
               </p>
               <blockquote
                 className="text-2xl font-black uppercase text-[#E8EDF5] leading-tight mb-6"
-                style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 <span className="text-[#C9A84C]">&ldquo;</span>
                 We don&apos;t sell lifestyle. We engineer it. Every molecule
@@ -212,71 +210,6 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* ── MOLECULAR SCIENCE IMAGES ─────────────────────── */}
-        <section>
-          <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
-            {"// MOLECULAR SCIENCE DOCUMENTATION"}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
-              <Image
-                src="/images/terpene-science.jpg"
-              alt="Terpene science and compound isolation"
-                width={600}
-                height={400}
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
-                <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">CHEMISTRY // AROMATIC COMPOUNDS</p>
-              </div>
-            </div>
-            <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
-              <Image
-                src="/images/lab-molecular.jpg"
-                alt="Molecular analysis in the TerpForge laboratory"
-                width={600}
-                height={400}
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#C9A84C]/30">
-                <p className="text-[#C9A84C] text-[10px] font-mono tracking-wider">SCIENCE // PHENOL ISOLATION</p>
-              </div>
-            </div>
-            <div className="relative overflow-hidden border border-[#C9A84C]/20 group md:col-span-2">
-              <Image
-                src="/images/forge-process.jpg"
-                alt="TerpForge extraction and forging process"
-                width={1200}
-                height={600}
-                sizes="100vw"
-                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#0D9488]/30">
-                <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">PROCESS // CBDA → CBD DECARBOXYLATION</p>
-              </div>
-            </div>
-            <div className="relative overflow-hidden border border-[#C9A84C]/20 group md:col-span-2">
-              <Image
-                src="/images/hero-extraction.jpg"
-                alt="TerpForge industrial extraction facility"
-                width={1200}
-                height={600}
-                sizes="100vw"
-                className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-3 px-2 py-1 bg-[#0A1628]/70 backdrop-blur-sm border border-[#C9A84C]/30">
-                <p className="text-[#C9A84C] text-[10px] font-mono tracking-wider">COMPOUNDS // MOLECULAR FORGE</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ── THE PROBLEM SECTION ─────────────────────── */}
         <section>
           <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
@@ -325,7 +258,6 @@ export default function StoryPage() {
               </p>
               <h2
                 className="text-3xl sm:text-4xl font-black uppercase text-[#E8EDF5] leading-tight mb-4"
-                style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 Born In A Lab, Tempered In The Foundry
               </h2>
@@ -347,7 +279,6 @@ export default function StoryPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5]"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Foundry Timeline
             </h2>
@@ -376,7 +307,6 @@ export default function StoryPage() {
                       </div>
                       <h3
                         className="text-lg font-black uppercase text-[#E8EDF5] mb-2"
-                        style={{ fontFamily: "var(--font-montserrat)" }}
                       >
                         {entry.title}
                       </h3>
@@ -399,7 +329,6 @@ export default function StoryPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5]"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Engineering Values
             </h2>
@@ -419,7 +348,6 @@ export default function StoryPage() {
                   </div>
                   <h3
                     className="text-xl font-black uppercase text-[#E8EDF5] mb-3"
-                    style={{ fontFamily: "var(--font-montserrat)" }}
                   >
                     {v.title}
                   </h3>
@@ -445,7 +373,6 @@ export default function StoryPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5]"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               The Extraction Team
             </h2>
@@ -485,7 +412,6 @@ export default function StoryPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5]"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Tech Life
             </h2>
@@ -503,7 +429,7 @@ export default function StoryPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
                 <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">LIFESTYLE // 001</p>
-                <p className="text-[#E8EDF5] text-sm font-bold uppercase" style={{ fontFamily: "var(--font-montserrat)" }}>Tech Life Collection</p>
+                <p className="text-[#E8EDF5] text-sm font-bold uppercase">Tech Life Collection</p>
               </div>
             </div>
             <div className="relative overflow-hidden border border-[#C9A84C]/20 group">
@@ -517,7 +443,7 @@ export default function StoryPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/70 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
                 <p className="text-[#C9A84C] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">LIFESTYLE // 002</p>
-                <p className="text-[#E8EDF5] text-sm font-bold uppercase" style={{ fontFamily: "var(--font-montserrat)" }}>Engineered For Living</p>
+                <p className="text-[#E8EDF5] text-sm font-bold uppercase">Engineered For Living</p>
               </div>
             </div>
           </div>
@@ -530,7 +456,6 @@ export default function StoryPage() {
           </p>
           <h2
             className="text-3xl font-black uppercase text-[#E8EDF5] mb-4"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             Ready to Enter the Inventory?
           </h2>

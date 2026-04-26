@@ -206,7 +206,6 @@ export default function OrbitSelector({
           </p>
           <h3
             className="text-2xl sm:text-3xl font-black uppercase text-[#E8EDF5] mb-1"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             {active.name}
           </h3>
