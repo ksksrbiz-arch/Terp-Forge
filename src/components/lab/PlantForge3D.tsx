@@ -323,9 +323,9 @@ export function PlantForge3D() {
       metalness: 0.8,
       roughness: 0.6,
     });
-    const PILLAR_COUNT = isMobile ? 4 : 6;
-    for (let i = 0; i < PILLAR_COUNT; i++) {
-      const a = (i / PILLAR_COUNT) * Math.PI * 2;
+    const pillarCount = isMobile ? 4 : 6;
+    for (let i = 0; i < pillarCount; i++) {
+      const a = (i / pillarCount) * Math.PI * 2;
       const r = 13;
       const pillar = new THREE.Mesh(
         new THREE.BoxGeometry(0.5, 9, 0.5),
@@ -337,10 +337,10 @@ export function PlantForge3D() {
     }
 
     // ── Embers (point particle system around the forge) ─────────────────
-    const EMBER_COUNT = isMobile ? 80 : 220;
-    const emberPositions = new Float32Array(EMBER_COUNT * 3);
-    const emberSeeds = new Float32Array(EMBER_COUNT);
-    for (let i = 0; i < EMBER_COUNT; i++) {
+    const emberCount = isMobile ? 80 : 220;
+    const emberPositions = new Float32Array(emberCount * 3);
+    const emberSeeds = new Float32Array(emberCount);
+    for (let i = 0; i < emberCount; i++) {
       const r = 0.5 + Math.random() * 6;
       const a = Math.random() * Math.PI * 2;
       emberPositions[i * 3] = Math.cos(a) * r;
@@ -821,7 +821,7 @@ export function PlantForge3D() {
       const posAttr = embers.geometry.getAttribute(
         "position",
       ) as THREE.BufferAttribute;
-      for (let i = 0; i < EMBER_COUNT; i++) {
+      for (let i = 0; i < emberCount; i++) {
         const idx = i * 3 + 1;
         let y = posAttr.array[idx] as number;
         y += dt * (0.4 + emberSeeds[i] * 0.8);
