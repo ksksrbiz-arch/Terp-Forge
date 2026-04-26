@@ -17,6 +17,9 @@ export interface Product {
   extraLabel: string;
   extraValue: string;
   icon: string;
+  image: string;
+  /** Optional Printful sync_variant_id for dropship apparel — leave undefined for self-fulfilled SKUs. */
+  printfulVariantId?: number;
 }
 
 export const profileColors: Record<NonNullable<TerpeneProfile>, string> = {
@@ -41,6 +44,7 @@ export const products: Product[] = [
     extraLabel: "Sizes",
     extraValue: "S · M · L · XL · 2XL",
     icon: "◈",
+    image: "/images/tech-life-1.jpeg",
   },
   {
     id: "tf-ap-002",
@@ -56,6 +60,7 @@ export const products: Product[] = [
     extraLabel: "Sizes",
     extraValue: "XS · S · M · L · XL",
     icon: "◈",
+    image: "/images/tech-life-2.jpeg",
   },
   {
     id: "tf-ap-003",
@@ -71,6 +76,7 @@ export const products: Product[] = [
     extraLabel: "Sizes",
     extraValue: "S · M · L · XL",
     icon: "◈",
+    image: "/images/tech-life-1.jpeg",
   },
   {
     id: "tf-ap-004",
@@ -86,6 +92,7 @@ export const products: Product[] = [
     extraLabel: "Sizes",
     extraValue: "OSFA",
     icon: "◈",
+    image: "/images/product-showcase.jpg",
   },
 
   // ── HARDWARE ──────────────────────────────────────────────────────────────
@@ -103,6 +110,7 @@ export const products: Product[] = [
     extraLabel: "Capacity",
     extraValue: "60mL / 120mL",
     icon: "⬡",
+    image: "/images/lab-molecular.jpg",
   },
   {
     id: "tf-hw-002",
@@ -118,6 +126,7 @@ export const products: Product[] = [
     extraLabel: "Capacity",
     extraValue: "500mL",
     icon: "⬡",
+    image: "/images/forge-process.jpg",
   },
   {
     id: "tf-hw-003",
@@ -133,6 +142,7 @@ export const products: Product[] = [
     extraLabel: "Capacity",
     extraValue: "N/A",
     icon: "⬡",
+    image: "/images/terpene-science.jpg",
   },
   {
     id: "tf-hw-004",
@@ -148,6 +158,7 @@ export const products: Product[] = [
     extraLabel: "Capacity",
     extraValue: "N/A",
     icon: "⬡",
+    image: "/images/hero-extraction.jpg",
   },
 
   // ── CBD WELLNESS ──────────────────────────────────────────────────────────
@@ -165,6 +176,7 @@ export const products: Product[] = [
     extraLabel: "Contents",
     extraValue: "30mL / 33mg per serving",
     icon: "◉",
+    image: "/images/product-showcase.jpg",
   },
   {
     id: "tf-wl-002",
@@ -180,6 +192,7 @@ export const products: Product[] = [
     extraLabel: "Contents",
     extraValue: "30 count / 25mg CBD per piece",
     icon: "◉",
+    image: "/images/lab-molecular.jpg",
   },
   {
     id: "tf-wl-003",
@@ -195,6 +208,7 @@ export const products: Product[] = [
     extraLabel: "Contents",
     extraValue: "30mL / 50mg per serving",
     icon: "◉",
+    image: "/images/terpene-science.jpg",
   },
   {
     id: "tf-wl-004",
@@ -210,6 +224,7 @@ export const products: Product[] = [
     extraLabel: "Contents",
     extraValue: "3 × 10mL bottles",
     icon: "◉",
+    image: "/images/product-showcase.jpg",
   },
 ];
 

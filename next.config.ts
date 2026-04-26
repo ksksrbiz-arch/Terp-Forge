@@ -8,13 +8,19 @@ const nextConfig: NextConfig = {
   output: "export",
 
   // Required for static export: Next's image optimizer needs a server.
+  // remotePatterns allows external image hosts (e.g. GitHub user-attachments).
   images: {
     unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "github.com",
-        pathname: "/user-attachments/assets/**",
+        pathname: "/user-attachments/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.githubusercontent.com",
+        pathname: "/**",
       },
     ],
   },
