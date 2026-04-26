@@ -731,15 +731,12 @@ export function PlantForge3D() {
         if (typeof bonusStart === "number") {
           mt = elapsed - bonusStart;
         } else {
-          // Scripted: belongs to its own slot.
-          const idx = molecules.indexOf(m);
-          // Find its compound's slot via reference equality.
+          // Scripted: belongs to its compound's slot in the main sequence.
           const slot = COMPOUNDS.indexOf(m.compound);
           mt =
             slot >= 0 && slot < COMPOUNDS.length
               ? elapsed - slot * COMPOUND_DURATION
               : elapsed;
-          void idx;
         }
         if (mt < 0) {
           m.group.visible = false;
