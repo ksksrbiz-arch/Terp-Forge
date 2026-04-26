@@ -161,16 +161,29 @@ export function PlantForge3D() {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    // Mobile / low-power detection — stable for the lifetime of this effect.
+    // Coarse pointer (touch) OR a narrow viewport implies a phone/tablet,
+    // where we trade visual fidelity for frame rate and battery.
+    const isMobile =
+      typeof window !== "undefined" &&
+      (window.matchMedia("(pointer: coarse)").matches ||
+        window.innerWidth < 768);
+
     // ── Renderer ────────────────────────────────────────────────────────
     const renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      // Antialias is expensive on mobile GPUs; rely on additive lighting and
+      // the dark fog backdrop to hide aliasing instead.
+      antialias: !isMobile,
       alpha: false,
-      powerPreference: "high-performance",
+      powerPreference: isMobile ? "low-power" : "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio, isMobile ? 1.25 : 2),
+    );
     renderer.setSize(mount.clientWidth, mount.clientHeight, false);
     renderer.setClearColor(0x05080f, 1);
-    renderer.shadowMap.enabled = true;
+    // Shadow maps are the single biggest mobile cost; turn them off there.
+    renderer.shadowMap.enabled = !isMobile;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     mount.appendChild(renderer.domElement);
     renderer.domElement.style.display = "block";
@@ -183,12 +196,16 @@ export function PlantForge3D() {
     scene.fog = new THREE.FogExp2(0x05080f, 0.025);
 
     const camera = new THREE.PerspectiveCamera(
-      45,
+      // Wider FOV on portrait so the tall plant fits without manual zoom.
+      isMobile ? 55 : 45,
       mount.clientWidth / mount.clientHeight,
       0.1,
       200,
     );
-    camera.position.set(8, 6, 12);
+    // Pull the camera back a bit on mobile so the full plant + pedestal
+    // are framed in landscape too.
+    if (isMobile) camera.position.set(9, 6.5, 14);
+    else camera.position.set(8, 6, 12);
     camera.lookAt(0, 3, 0);
 
     // ── Controls (orbit, also supports touch) ───────────────────────────
@@ -220,7 +237,9 @@ export function PlantForge3D() {
 
     const keyLight = new THREE.DirectionalLight(0xffe4b5, 1.1);
     keyLight.position.set(6, 12, 8);
-    keyLight.castShadow = true;
+    keyLight.castShadow = !isMobile;
+    // Smaller shadow map on desktop too keeps GPU memory reasonable;
+    // shadows are entirely disabled on mobile.
     keyLight.shadow.mapSize.set(1024, 1024);
     keyLight.shadow.camera.left = -12;
     keyLight.shadow.camera.right = 12;
@@ -231,9 +250,13 @@ export function PlantForge3D() {
     keyLight.shadow.bias = -0.0008;
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0x0d9488, 0.7);
-    rimLight.position.set(-8, 6, -6);
-    scene.add(rimLight);
+    // Rim light is purely aesthetic; skip it on mobile to halve directional
+    // light cost.
+    if (!isMobile) {
+      const rimLight = new THREE.DirectionalLight(0x0d9488, 0.7);
+      rimLight.position.set(-8, 6, -6);
+      scene.add(rimLight);
+    }
 
     // Pulsing forge fire — point light below the plant
     const forgeLight = new THREE.PointLight(0xff6a1a, 1.8, 18, 1.6);
@@ -241,8 +264,8 @@ export function PlantForge3D() {
     scene.add(forgeLight);
 
     // ── Forge environment ───────────────────────────────────────────────
-    // Floor: dark brushed-metal plane
-    const floorGeo = new THREE.CircleGeometry(18, 64);
+    // Floor: dark brushed-metal plane (fewer segments on mobile).
+    const floorGeo = new THREE.CircleGeometry(18, isMobile ? 32 : 64);
     const floorMat = new THREE.MeshStandardMaterial({
       color: 0x0f1f3d,
       metalness: 0.85,
@@ -250,7 +273,7 @@ export function PlantForge3D() {
     });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
+    floor.receiveShadow = !isMobile;
     scene.add(floor);
 
     // Anvil-like pedestal under the plant
@@ -264,12 +287,12 @@ export function PlantForge3D() {
       }),
     );
     pedTop.position.y = 0.75;
-    pedTop.castShadow = true;
-    pedTop.receiveShadow = true;
+    pedTop.castShadow = !isMobile;
+    pedTop.receiveShadow = !isMobile;
     pedestalGroup.add(pedTop);
 
     const pedNeck = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.6, 0.95, 0.6, 16),
+      new THREE.CylinderGeometry(0.6, 0.95, 0.6, isMobile ? 12 : 16),
       new THREE.MeshStandardMaterial({
         color: 0x141b30,
         metalness: 0.9,
@@ -277,11 +300,11 @@ export function PlantForge3D() {
       }),
     );
     pedNeck.position.y = 0.3;
-    pedNeck.castShadow = true;
+    pedNeck.castShadow = !isMobile;
     pedestalGroup.add(pedNeck);
 
     // Glowing emission ring on top of pedestal
-    const ringGeo = new THREE.RingGeometry(0.85, 1.05, 48);
+    const ringGeo = new THREE.RingGeometry(0.85, 1.05, isMobile ? 24 : 48);
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xc9a84c,
       transparent: true,
@@ -294,26 +317,27 @@ export function PlantForge3D() {
     pedestalGroup.add(ring);
     scene.add(pedestalGroup);
 
-    // Distant pillars to suggest a forge hall
+    // Distant pillars to suggest a forge hall (fewer on mobile).
     const pillarMat = new THREE.MeshStandardMaterial({
       color: 0x0a1224,
       metalness: 0.8,
       roughness: 0.6,
     });
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2;
+    const PILLAR_COUNT = isMobile ? 4 : 6;
+    for (let i = 0; i < PILLAR_COUNT; i++) {
+      const a = (i / PILLAR_COUNT) * Math.PI * 2;
       const r = 13;
       const pillar = new THREE.Mesh(
         new THREE.BoxGeometry(0.5, 9, 0.5),
         pillarMat,
       );
       pillar.position.set(Math.cos(a) * r, 4.5, Math.sin(a) * r);
-      pillar.castShadow = true;
+      pillar.castShadow = !isMobile;
       scene.add(pillar);
     }
 
     // ── Embers (point particle system around the forge) ─────────────────
-    const EMBER_COUNT = 220;
+    const EMBER_COUNT = isMobile ? 80 : 220;
     const emberPositions = new Float32Array(EMBER_COUNT * 3);
     const emberSeeds = new Float32Array(EMBER_COUNT);
     for (let i = 0; i < EMBER_COUNT; i++) {
@@ -357,7 +381,7 @@ export function PlantForge3D() {
       stemMat,
     );
     stem.position.y = stemHeight / 2;
-    stem.castShadow = true;
+    stem.castShadow = !isMobile;
     plantGroup.add(stem);
 
     // Build a stylized 7-finger cannabis-leaf geometry once (re-used).
@@ -445,7 +469,7 @@ export function PlantForge3D() {
         // Larger leaves lower, smaller higher.
         const scale = 1.05 - t * 0.55;
         leaf.scale.setScalar(scale * 1.4);
-        leaf.castShadow = true;
+        leaf.castShadow = !isMobile;
         leaves.push(leaf);
         plantGroup.add(leaf);
       }
@@ -473,7 +497,7 @@ export function PlantForge3D() {
         Math.sin(a) * r,
       );
       bud.scale.setScalar(0.6 + Math.random() * 0.8);
-      bud.castShadow = true;
+      bud.castShadow = !isMobile;
       budGroup.add(bud);
     }
 
@@ -847,6 +871,26 @@ export function PlantForge3D() {
       raf = requestAnimationFrame(tick);
     };
 
+    // Visibility-aware RAF: pause the loop entirely when the canvas is
+    // off-screen or the tab is hidden. This is critical on mobile where
+    // a hidden WebGL canvas still drains battery.
+    let running = false;
+    let onScreen = true;
+    let tabVisible =
+      typeof document === "undefined" || !document.hidden;
+    const startLoop = () => {
+      if (running || reduceMotion) return;
+      if (!onScreen || !tabVisible) return;
+      running = true;
+      last = performance.now();
+      raf = requestAnimationFrame(tick);
+    };
+    const stopLoop = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
     if (reduceMotion) {
       // Single static render for reduced-motion users.
       controls.update();
@@ -864,8 +908,27 @@ export function PlantForge3D() {
         }),
       );
     } else {
-      raf = requestAnimationFrame(tick);
+      startLoop();
     }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        onScreen = entry.isIntersecting;
+        if (onScreen) startLoop();
+        else stopLoop();
+      },
+      { threshold: 0.01 },
+    );
+    io.observe(mount);
+
+    const onVisibility = () => {
+      tabVisible = !document.hidden;
+      if (tabVisible) startLoop();
+      else stopLoop();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
 
     // ── Resize handling ─────────────────────────────────────────────────
     const ro = new ResizeObserver(() => {
@@ -906,7 +969,10 @@ export function PlantForge3D() {
     // ── Cleanup ─────────────────────────────────────────────────────────
     return () => {
       cancelAnimationFrame(raf);
+      running = false;
       window.removeEventListener("keydown", onKey);
+      document.removeEventListener("visibilitychange", onVisibility);
+      io.disconnect();
       ro.disconnect();
       controls.dispose();
       molecules.forEach((m) => disposeMolecule(m));
@@ -935,18 +1001,18 @@ export function PlantForge3D() {
     : "#0D9488";
 
   return (
-    <div className="relative w-full h-[560px] sm:h-[640px] md:h-[720px] border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden">
+    <div className="relative w-full h-[440px] sm:h-[640px] md:h-[720px] border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden select-none">
       {/* 3D canvas mount */}
       <div ref={mountRef} className="absolute inset-0" aria-hidden="true" />
 
       {/* Top-left status panel */}
-      <div className="absolute top-4 left-4 right-4 sm:right-auto sm:max-w-sm pointer-events-none">
+      <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm pointer-events-none">
         <div
-          className="border bg-[#0A1628]/85 backdrop-blur-sm p-4 transition-colors"
+          className="border bg-[#0A1628]/85 backdrop-blur-sm p-3 sm:p-4 transition-colors"
           style={{ borderColor: `${compoundColorHex}55` }}
         >
           <p
-            className="text-[10px] font-mono tracking-[0.4em] uppercase mb-1"
+            className="text-[9px] sm:text-[10px] font-mono tracking-[0.4em] uppercase mb-1"
             style={{ color: compoundColorHex }}
           >
             {hud.done
@@ -956,19 +1022,22 @@ export function PlantForge3D() {
                 : "// INITIALIZING FORGE"}
           </p>
           <p
-            className="text-2xl font-black uppercase tracking-tight text-[#E8EDF5]"
+            className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]"
             style={{ fontFamily: "var(--font-montserrat)" }}
           >
             {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
           </p>
           {hud.compound ? (
-            <p className="text-[#64748B] text-[11px] font-mono mt-1">
-              {hud.compound.formula} · {hud.compound.description}
+            <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1 truncate">
+              <span className="hidden sm:inline">
+                {hud.compound.formula} · {hud.compound.description}
+              </span>
+              <span className="sm:hidden">{hud.compound.formula}</span>
             </p>
           ) : (
-            <p className="text-[#64748B] text-[11px] font-mono mt-1">
+            <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
               {hud.done
-                ? "All eight compounds attached. Press R to replay."
+                ? "All eight compounds attached. Tap ⟲ to replay."
                 : "Spinning up the forge..."}
             </p>
           )}
@@ -1037,16 +1106,16 @@ export function PlantForge3D() {
       )}
 
       {/* Bottom action row */}
-      <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-3 pointer-events-none">
+      <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex flex-wrap items-end justify-between gap-2 sm:gap-3 pointer-events-none">
         {/* Logo button — click to spawn bonus molecule */}
         <button
           type="button"
           onClick={triggerBonus}
-          className="pointer-events-auto group flex items-center gap-3 border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/85 backdrop-blur-sm px-4 py-2.5 transition-all hover:bg-[#0F1F3D]/85"
+          className="pointer-events-auto group flex items-center gap-2 sm:gap-3 border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/85 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2.5 min-h-[44px] transition-all hover:bg-[#0F1F3D]/85"
           aria-label="Spawn a bonus molecule"
         >
           <span
-            className="inline-block w-6 h-6 border border-[#C9A84C] rotate-45 group-hover:rotate-[225deg] transition-transform duration-700"
+            className="inline-block w-5 h-5 sm:w-6 sm:h-6 border border-[#C9A84C] rotate-45 group-hover:rotate-[225deg] transition-transform duration-700"
             aria-hidden
           >
             <span className="block w-full h-full bg-[#C9A84C]/30" />
@@ -1064,19 +1133,21 @@ export function PlantForge3D() {
           </span>
         </button>
 
-        {/* Mobile controls (touch users can't press keys) */}
+        {/* On-screen controls (primary on touch, supplemental on desktop) */}
         <div className="pointer-events-auto flex gap-2">
           <button
             type="button"
             onClick={togglePaused}
-            className="border border-[#0D9488]/40 hover:border-[#0D9488] bg-[#0A1628]/85 backdrop-blur-sm px-4 py-2 text-[#0D9488] text-[10px] font-mono tracking-widest uppercase transition-all"
+            aria-label={hud.paused ? "Resume animation" : "Pause animation"}
+            className="border border-[#0D9488]/40 hover:border-[#0D9488] bg-[#0A1628]/85 backdrop-blur-sm px-3 py-2 sm:px-4 min-h-[44px] min-w-[44px] text-[#0D9488] text-[10px] font-mono tracking-widest uppercase transition-all"
           >
             {hud.paused ? "▶ Resume" : "▌▌ Pause"}
           </button>
           <button
             type="button"
             onClick={triggerReset}
-            className="border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/85 backdrop-blur-sm px-4 py-2 text-[#C9A84C] text-[10px] font-mono tracking-widest uppercase transition-all"
+            aria-label="Reset animation"
+            className="border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/85 backdrop-blur-sm px-3 py-2 sm:px-4 min-h-[44px] min-w-[44px] text-[#C9A84C] text-[10px] font-mono tracking-widest uppercase transition-all"
           >
             ⟲ Reset
           </button>
