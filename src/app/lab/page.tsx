@@ -9,12 +9,15 @@ import { MoleculeViewer } from "@/components/lab/MoleculeViewer";
 import { PropertyBars } from "@/components/lab/PropertyBars";
 import { SynergyBuilder } from "@/components/lab/SynergyBuilder";
 import { CoaCardGenerator } from "@/components/lab/CoaCardGenerator";
+import { FORGE_CANVAS_HEIGHT_CLASS } from "@/components/lab/forge3d";
 
 // 3D experiences are heavy (Three.js scene + procedural geometry). They
 // only run client-side and aren't needed for first paint, so split each
 // into its own chunk and skip SSR. A subtle skeleton holds the layout.
 const SceneSkeleton = ({ label }: { label: string }) => (
-  <div className="relative w-full h-[480px] sm:h-[640px] md:h-[720px] border border-[#0D9488]/20 bg-[#05080F] flex items-center justify-center">
+  <div
+    className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#0D9488]/20 bg-[#05080F] flex items-center justify-center`}
+  >
     <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase">
       {`// LOADING ${label.toUpperCase()}…`}
     </p>

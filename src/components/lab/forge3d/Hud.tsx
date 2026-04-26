@@ -5,6 +5,7 @@
  */
 
 import type { CSSProperties, ReactNode } from "react";
+import { cssHex } from "./materials";
 
 interface HudPanelProps {
   /** 0xRRGGBB — used for the border accent. */
@@ -12,9 +13,6 @@ interface HudPanelProps {
   className?: string;
   children: ReactNode;
 }
-
-const cssHex = (color: number): string =>
-  "#" + color.toString(16).padStart(6, "0");
 
 /**
  * Glass-blur status panel, gold/teal accent border. Pointer-events:none

@@ -16,6 +16,7 @@ export {
   tealEmissive,
   detectMobile,
   prefersReducedMotion,
+  FORGE_CANVAS_HEIGHT_CLASS,
 } from "./materials";
 
 export {

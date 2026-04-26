@@ -95,7 +95,10 @@ export function useVisibilityRaf(
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
     };
-    // mountRef is stable; tick uses tickRef so doesn't need to retrigger.
+    // `mountRef` is a ref — its identity is stable across renders, so it
+    // is intentionally omitted from the dependency list. `tick` is read
+    // through `tickRef` so re-renders that pass a new function don't
+    // tear down and rebuild the loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, maxDt]);
 }

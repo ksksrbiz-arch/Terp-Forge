@@ -30,11 +30,14 @@ import {
   AFFINITY,
   BINDING_EFFECTS,
   COMPOUNDS,
+  FORGE_CANVAS_HEIGHT_CLASS,
   PALETTE,
   RECEPTORS,
   buildMolecule,
   cssHex,
+  detectMobile,
   disposeMolecule,
+  prefersReducedMotion,
 } from "./forge3d";
 import type { ForgeCompound, ReceptorId } from "./forge3d";
 
@@ -44,6 +47,13 @@ import type { ForgeCompound, ReceptorId } from "./forge3d";
 
 /** Affinity threshold for a successful binding; below = rejection. */
 const SUCCESS_THRESHOLD = 0.5;
+
+/**
+ * Fallback affinity for compound/receptor pairs missing from the
+ * `AFFINITY` table. Below `SUCCESS_THRESHOLD` so unknowns play the
+ * rejection animation by default — that's the conservative outcome.
+ */
+const DEFAULT_AFFINITY = 0.2;
 
 /** Bezier flight duration (seconds). */
 const FLIGHT_DURATION = 2.2;
@@ -277,16 +287,8 @@ export function ReceptorDocking3D() {
     const mount = mountRef.current;
     if (!mount) return;
 
-    // Match PlantForge3D's stable per-mount detection inline so the
-    // react-hooks/purity rule can statically prove these reads are
-    // outside render scope.
-    const reduceMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobileLocal =
-      typeof window !== "undefined" &&
-      (window.matchMedia("(pointer: coarse)").matches ||
-        window.innerWidth < 768);
+    const reduceMotion = prefersReducedMotion();
+    const isMobileLocal = detectMobile();
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({
@@ -461,7 +463,7 @@ export function ReceptorDocking3D() {
         .lerp(destination, 0.5)
         .add(new THREE.Vector3(0, 3.2 + Math.random() * 0.8, 0));
 
-      const aff = AFFINITY[compound.name]?.[t] ?? 0.2;
+      const aff = AFFINITY[compound.name]?.[t] ?? DEFAULT_AFFINITY;
       const success = aff >= SUCCESS_THRESHOLD;
 
       docked.push({
@@ -884,7 +886,7 @@ export function ReceptorDocking3D() {
 
   // ── HUD layer ─────────────────────────────────────────────────────────────
   return (
-    <div className="relative w-full h-[480px] sm:h-[640px] md:h-[720px] border border-[#0D9488]/20 bg-[#05080F] overflow-hidden select-none">
+    <div className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#0D9488]/20 bg-[#05080F] overflow-hidden select-none`}>
       <div ref={mountRef} className="absolute inset-0" aria-hidden="true" />
 
       {/* Top-left: receptor info card */}

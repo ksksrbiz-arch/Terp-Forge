@@ -24,6 +24,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   COMPOUNDS,
+  FORGE_CANVAS_HEIGHT_CLASS,
   buildMolecule as buildMoleculeShared,
   disposeMolecule as disposeMoleculeShared,
 } from "./forge3d";
@@ -827,7 +828,7 @@ export function PlantForge3D() {
     : "#0D9488";
 
   return (
-    <div className="relative w-full h-[440px] sm:h-[640px] md:h-[720px] border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden select-none">
+    <div className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden select-none`}>
       {/* 3D canvas mount */}
       <div ref={mountRef} className="absolute inset-0" aria-hidden="true" />
 

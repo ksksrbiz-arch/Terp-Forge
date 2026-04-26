@@ -76,3 +76,12 @@ export const detectMobile = (): boolean =>
 export const prefersReducedMotion = (): boolean =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Shared canvas height for every Forge 3D scene mount. Centralised so
+ * the Plant Forge, Receptor Docking, and the lazy-load skeleton stay in
+ * lockstep — when a new experience lands it should reuse this class
+ * rather than copy-paste responsive heights.
+ */
+export const FORGE_CANVAS_HEIGHT_CLASS =
+  "h-[440px] sm:h-[640px] md:h-[720px]";
