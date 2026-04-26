@@ -142,7 +142,7 @@ export function SynergyBuilder() {
                   <p className="text-[#64748B] text-[9px] font-mono tracking-widest uppercase">
                     {axis.label}
                   </p>
-                  <p className="text-2xl font-black text-[#C9A84C] mt-1" style={{ fontFamily: "var(--font-montserrat)" }}>
+                  <p className="text-2xl font-black text-[#C9A84C] mt-1">
                     {Math.round(v)}
                   </p>
                 </div>
@@ -206,7 +206,7 @@ function Selector({
                 cursor: isDisabled ? "not-allowed" : "pointer",
               }}
             >
-              <p className="text-[#E8EDF5] text-sm font-bold" style={{ fontFamily: "var(--font-montserrat)" }}>
+              <p className="text-[#E8EDF5] text-sm font-bold">
                 {t.name}
               </p>
               <p className="text-[10px] font-mono mt-0.5" style={{ color: t.profileColor }}>

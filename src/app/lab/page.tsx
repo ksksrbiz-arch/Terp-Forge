@@ -260,7 +260,6 @@ export default function LabPage() {
           </p>
           <h1
             className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             The Lab
           </h1>
@@ -302,7 +301,6 @@ export default function LabPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               The Plant Forge
             </h2>
@@ -326,7 +324,6 @@ export default function LabPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Receptor Docking
             </h2>
@@ -351,7 +348,6 @@ export default function LabPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Profile Simulator
             </h2>
@@ -429,7 +425,6 @@ export default function LabPage() {
                   </p>
                   <h3
                     className="text-3xl font-black uppercase text-[#E8EDF5]"
-                    style={{ fontFamily: "var(--font-montserrat)" }}
                   >
                     {selected.name}
                   </h3>
@@ -535,7 +530,6 @@ export default function LabPage() {
               </p>
               <h2
                 className="text-4xl font-black uppercase text-[#E8EDF5] mb-6"
-                style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 What Are Terpenes?
               </h2>
@@ -637,7 +631,6 @@ export default function LabPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Compound Matrix
             </h2>
@@ -666,7 +659,7 @@ export default function LabPage() {
                     Active compound
                   </p>
                   <h3 className="text-3xl font-black text-[#E8EDF5]"
-                      style={{ fontFamily: "var(--font-montserrat)" }}>
+                     >
                     {selected.name}
                   </h3>
                   <p className="text-[#64748B] text-xs font-mono mt-1">
@@ -711,7 +704,6 @@ export default function LabPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Compound Library
             </h2>
@@ -743,7 +735,6 @@ export default function LabPage() {
                     <div className="flex items-center gap-3 mb-1">
                       <h3
                         className="text-xl font-black text-[#E8EDF5]"
-                        style={{ fontFamily: "var(--font-montserrat)" }}
                       >
                         {t.name}
                       </h3>
@@ -857,7 +848,6 @@ export default function LabPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Synergy Builder
             </h2>
@@ -879,7 +869,6 @@ export default function LabPage() {
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               COA Portal
             </h2>
@@ -993,7 +982,7 @@ export default function LabPage() {
               {"// SCHEMATIC COA CARD"}
             </p>
             <h3 className="text-2xl font-black text-[#E8EDF5] mb-2"
-                style={{ fontFamily: "var(--font-montserrat)" }}>
+               >
               Generate a printable card
             </h3>
             <p className="text-[#64748B] font-mono text-xs max-w-xl mb-6">

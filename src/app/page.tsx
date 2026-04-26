@@ -81,6 +81,8 @@ const terpeneProfiles = [
 ];
 
 // Bento layout cells for the visual showcase. Spans are tuned for lg breakpoint.
+// Each entry uses a unique source image — duplicates were collapsed during the
+// visual optimization pass.
 const showcaseCells = [
   {
     src: "/images/forge-process.jpg",
@@ -97,7 +99,7 @@ const showcaseCells = [
     height: "h-48 sm:h-56",
   },
   {
-    src: "/images/terpene-science-aromatic.jpg",
+    src: "/images/terpene-science.jpg",
     alt: "Terpene science and compound isolation",
     label: "SCIENCE // ISOLATION",
     span: "lg:col-span-1",
@@ -125,74 +127,11 @@ const showcaseCells = [
     height: "h-48 sm:h-56",
   },
   {
-    src: "/images/terpene-science.jpg",
-    alt: "Terpene science and compound isolation",
-    label: "CHEMISTRY // AROMATIC COMPOUNDS",
-    span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/lab-molecular-phenol.jpg",
-    alt: "Molecular analysis in the TerpForge laboratory",
-    label: "SCIENCE // PHENOL ISOLATION",
-    span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/forge-process-cbda.jpg",
-    alt: "CBDA to CBD decarboxylation molecular conversion diagram",
-    label: "PROCESS // CBDA → CBD",
-    span: "lg:col-span-2",
-    height: "h-48 sm:h-56",
-  },
-  {
     src: "/images/hero-extraction.jpg",
     alt: "Cannabinoid molecular structure forged in fire",
     label: "COMPOUNDS // MOLECULAR FORGE",
-    span: "lg:col-span-2",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/product-showcase.jpg",
-    alt: "Glowing molecular model resting on dark velvet with terpene compound structures",
-    label: "COMPOUND // MOLECULAR MODEL",
-    span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/tech-life-1.jpeg",
-    alt: "Molecular model on forge anvil with industrial sparks flying",
-    label: "FORGE // COMPOUND STRUCTURE",
-    span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/tech-life-iridescent.jpeg",
-    alt: "Iridescent metallic molecular model in front of forge fire and sparks",
-    label: "SCIENCE // IRIDESCENT STRUCTURE",
-    span: "lg:col-span-2",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/forge-process-organic.jpg",
-    alt: "TerpForge extraction and forging process",
-    label: "FOUNDRY // ORGANIC COMPOUND",
     span: "lg:col-span-4",
     height: "h-56 sm:h-64",
-  },
-  {
-    src: "/images/lab-molecular-benzene.jpg",
-    alt: "Molecular analysis in the TerpForge laboratory",
-    label: "SCIENCE // MOLECULAR MODEL",
-    span: "lg:col-span-2",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/terpene-science-compound-structure.jpg",
-    alt: "Terpene science and compound isolation",
-    label: "LAB // COMPOUND STRUCTURE",
-    span: "lg:col-span-2",
-    height: "h-48 sm:h-56",
   },
 ];
 
@@ -279,7 +218,6 @@ export default function Home() {
               </p>
               <h1
                 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-none mb-6"
-                style={{ fontFamily: 'var(--font-montserrat)' }}
               >
                 <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "120ms" }}>ENGINEERED</span>
                 <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "220ms" }}>AROMATICS.</span>
@@ -423,7 +361,6 @@ export default function Home() {
                   </p>
                   <h3
                     className="text-2xl font-black uppercase text-[#E8EDF5] mb-1"
-                    style={{ fontFamily: "var(--font-montserrat)" }}
                   >
                     {pillar.title}
                   </h3>
@@ -611,7 +548,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-2xl font-black uppercase text-[#E8EDF5] mb-1" style={{ fontFamily: "var(--font-montserrat)" }}>
+                  <h3 className="text-2xl font-black uppercase text-[#E8EDF5] mb-1">
                     {v.title}
                   </h3>
                   <p className="text-[#94A3B8] text-sm leading-relaxed font-light mb-3">
@@ -723,14 +660,12 @@ export default function Home() {
           <span
             aria-hidden
             className="block holo-gold text-[10rem] sm:text-[14rem] font-black leading-none -mb-12 sm:-mb-20 select-none"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             &ldquo;
           </span>
           <Reveal variant="up">
             <blockquote
               className="relative text-3xl sm:text-5xl font-black tracking-tight uppercase text-[#E8EDF5] leading-[1.05] mb-10"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               We don&apos;t sell{" "}
               <span className="text-[#94A3B8] line-through decoration-[#0D9488]/60">

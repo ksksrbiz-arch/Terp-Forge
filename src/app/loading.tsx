@@ -7,7 +7,6 @@ export default function Loading() {
         </p>
         <h2
           className="mt-3 text-3xl font-black uppercase text-[#E8EDF5]"
-          style={{ fontFamily: "var(--font-montserrat)" }}
         >
           Boot Sequence Active
         </h2>

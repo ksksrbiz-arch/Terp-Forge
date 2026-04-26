@@ -174,7 +174,6 @@ export default function CartDrawer() {
               </p>
               <h2
                 className="text-xl font-black tracking-widest uppercase text-[#E8EDF5]"
-                style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 Transmission Protocol
               </h2>
@@ -571,7 +570,6 @@ function SuccessView({
       </p>
       <h3
         className="text-2xl font-black tracking-widest uppercase text-[#E8EDF5] mb-4"
-        style={{ fontFamily: "var(--font-montserrat)" }}
       >
         Transmission Received
       </h3>

@@ -226,7 +226,6 @@ export default function SiteShellEnhancements() {
             </p>
             <h2
               className="mt-3 text-2xl font-black uppercase text-[#E8EDF5]"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               Boot Sequence
             </h2>

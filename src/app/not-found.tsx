@@ -10,7 +10,6 @@ export default function NotFound() {
         </p>
         <h1
           className="mt-4 text-5xl font-black uppercase tracking-tight text-[#E8EDF5] sm:text-6xl"
-          style={{ fontFamily: "var(--font-montserrat)" }}
         >
           404
         </h1>

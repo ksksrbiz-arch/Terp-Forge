@@ -903,7 +903,6 @@ export function ReceptorDocking3D() {
           </p>
           <p
             className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             {RECEPTORS.find((r) => r.id === target)?.name ?? target}
           </p>
@@ -948,7 +947,6 @@ export function ReceptorDocking3D() {
             </p>
             <p
               className="text-base sm:text-lg font-black uppercase tracking-tight text-[#E8EDF5]"
-              style={{ fontFamily: "var(--font-montserrat)" }}
             >
               {hud.popup.compoundName} → {hud.popup.receptorId}
             </p>

@@ -72,7 +72,6 @@ export default function Navigation() {
           </span>
           <span
             className="text-lg font-black tracking-widest uppercase text-[#E8EDF5] group-hover:text-[#C9A84C] transition-colors duration-300"
-            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             TerpForge
           </span>

@@ -29,12 +29,58 @@
   --color-slate: var(--slate);
   --color-slate-light: var(--slate-light);
   --color-off-white: var(--off-white);
+  /* Wire local fonts into Tailwind's font tokens so `font-sans` and
+     `font-mono` resolve to the bundled brand faces instead of the
+     browser's generic stacks. */
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-roboto-mono), ui-monospace, SFMono-Regular,
+    "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+html {
+  /* Smooth anchor scrolling for in-page jumps; respected by reduced-motion via the rule below. */
+  scroll-behavior: smooth;
+  /* Keep large headings from wrapping awkwardly on narrow viewports. */
+  text-wrap: pretty;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-montserrat);
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11", "kern";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Avoid mobile Safari auto-inflating large text. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Headings inherit Montserrat from body. Lock in tighter tracking by
+   default and balanced wrapping so multi-line titles don't leave orphans. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-montserrat), ui-sans-serif, sans-serif;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Tabular figures for any monospace text — keeps spec-sheet numbers,
+   stat counters, and price columns from jittering as values change. */
+.font-mono,
+code,
+kbd,
+pre,
+samp {
+  font-feature-settings: "tnum", "zero", "ss01";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Brand selection palette — gold ink on navy paper. */
+::selection {
+  background: rgba(201, 168, 76, 0.35);
+  color: var(--off-white);
+  text-shadow: none;
 }
 
 .skip-link:focus-visible {
@@ -454,8 +500,14 @@ body {
   100% { opacity: 0; background-position: -20% 0; }
 }
 
+/* Anchor offset — so #id jumps clear the fixed top nav. */
+:where(section, article, [id]) {
+  scroll-margin-top: 5rem;
+}
+
 /* Reduced motion safety net — kill ALL custom animations */
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *,
   *::before,
   *::after {
