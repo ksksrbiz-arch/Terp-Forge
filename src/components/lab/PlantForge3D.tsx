@@ -22,88 +22,12 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
-// ─────────────────────────────────────────────────────────────────────────
-// Compound catalog
-// ─────────────────────────────────────────────────────────────────────────
-
-type CompoundCategory = "acid" | "cannabinoid" | "terpene";
-
-interface ForgeCompound {
-  name: string;
-  formula: string;
-  category: CompoundCategory;
-  color: number;
-  atoms: number;
-  description: string;
-}
-
-const COMPOUNDS: ForgeCompound[] = [
-  {
-    name: "CBGA",
-    formula: "C22H32O4",
-    category: "acid",
-    color: 0xc9a84c, // gold — "the mother cannabinoid"
-    atoms: 11,
-    description: "Cannabigerolic acid · biosynthetic precursor",
-  },
-  {
-    name: "THCA",
-    formula: "C22H30O4",
-    category: "acid",
-    color: 0xe9b949,
-    atoms: 11,
-    description: "Tetrahydrocannabinolic acid · raw flower form",
-  },
-  {
-    name: "THC",
-    formula: "C21H30O2",
-    category: "cannabinoid",
-    color: 0x8b5cf6, // violet
-    atoms: 10,
-    description: "Δ9-Tetrahydrocannabinol · psychoactive",
-  },
-  {
-    name: "CBDA",
-    formula: "C22H30O4",
-    category: "acid",
-    color: 0xeab308,
-    atoms: 11,
-    description: "Cannabidiolic acid · raw CBD precursor",
-  },
-  {
-    name: "CBD",
-    formula: "C21H30O2",
-    category: "cannabinoid",
-    color: 0x0d9488, // teal
-    atoms: 10,
-    description: "Cannabidiol · non-intoxicating",
-  },
-  {
-    name: "Myrcene",
-    formula: "C10H16",
-    category: "terpene",
-    color: 0x10b981, // emerald
-    atoms: 7,
-    description: "Earthy · mango · sedating",
-  },
-  {
-    name: "Limonene",
-    formula: "C10H16",
-    category: "terpene",
-    color: 0xfbbf24, // citrus
-    atoms: 7,
-    description: "Citrus · uplifting",
-  },
-  {
-    name: "Pinene",
-    formula: "C10H16",
-    category: "terpene",
-    color: 0x22c55e, // pine
-    atoms: 7,
-    description: "Pine · alertness",
-  },
-];
+import {
+  COMPOUNDS,
+  buildMolecule as buildMoleculeShared,
+  disposeMolecule as disposeMoleculeShared,
+} from "./forge3d";
+import type { ForgeCompound } from "./forge3d";
 
 // Per-compound timing (seconds): fly → burst → settle
 const PHASE_FLY = 2.6;
@@ -534,107 +458,17 @@ export function PlantForge3D() {
       anchor: THREE.Vector3,
       origin: THREE.Vector3,
     ): MoleculeRuntime => {
-      const group = new THREE.Group();
-      // Glowing shell halo (sprite-like billboard ring).
-      const haloMat = new THREE.MeshBasicMaterial({
-        color: compound.color,
-        transparent: true,
-        opacity: 0.0,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      });
-      const halo = new THREE.Mesh(
-        new THREE.RingGeometry(0.5, 0.8, 32),
-        haloMat,
-      );
-      group.add(halo);
-
-      // Atom cluster: small spheres in a tight 3D arrangement.
-      const atomGeo = new THREE.SphereGeometry(0.12, 14, 12);
-      const atomMatPrimary = new THREE.MeshStandardMaterial({
-        color: compound.color,
-        emissive: compound.color,
-        emissiveIntensity: 0.55,
-        roughness: 0.3,
-        metalness: 0.4,
-      });
-      const atomMatCarbon = new THREE.MeshStandardMaterial({
-        color: 0xe8edf5,
-        roughness: 0.45,
-        metalness: 0.25,
-      });
-
-      const positions: THREE.Vector3[] = [];
-      // Hex-ring backbone + a few branches to suggest an organic compound.
-      for (let i = 0; i < compound.atoms; i++) {
-        if (i < 6) {
-          const a = (i / 6) * Math.PI * 2;
-          positions.push(
-            new THREE.Vector3(Math.cos(a) * 0.32, Math.sin(a) * 0.32, 0),
-          );
-        } else {
-          // Branches dangle off ring vertices in 3D.
-          const parent = positions[i % 6];
-          const dir = parent.clone().normalize();
-          positions.push(
-            parent
-              .clone()
-              .add(dir.multiplyScalar(0.32))
-              .add(
-                new THREE.Vector3(
-                  (Math.random() - 0.5) * 0.18,
-                  (Math.random() - 0.5) * 0.18,
-                  (Math.random() - 0.5) * 0.32,
-                ),
-              ),
-          );
-        }
-      }
-      positions.forEach((p, i) => {
-        const isCarbon = i < 6 || i % 3 !== 0;
-        const atom = new THREE.Mesh(
-          atomGeo,
-          isCarbon ? atomMatCarbon : atomMatPrimary,
-        );
-        atom.position.copy(p);
-        atom.scale.setScalar(isCarbon ? 0.85 : 1.05);
-        group.add(atom);
-      });
-      // Bonds along the ring.
-      const bondMat = new THREE.MeshStandardMaterial({
-        color: 0x9fb0c8,
-        roughness: 0.4,
-        metalness: 0.3,
-      });
-      for (let i = 0; i < 6; i++) {
-        const a = positions[i];
-        const b = positions[(i + 1) % 6];
-        const mid = a.clone().add(b).multiplyScalar(0.5);
-        const len = a.distanceTo(b);
-        const bond = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.035, 0.035, len, 8),
-          bondMat,
-        );
-        bond.position.copy(mid);
-        bond.lookAt(b);
-        bond.rotateX(Math.PI / 2);
-        group.add(bond);
-      }
-
-      const glow = new THREE.PointLight(compound.color, 0, 6, 2);
-      group.add(glow);
-
-      group.position.copy(origin);
-      scene.add(group);
+      const built = buildMoleculeShared(compound);
+      built.group.position.copy(origin);
+      scene.add(built.group);
 
       return {
-        group,
+        group: built.group,
         compound,
         anchor: anchor.clone(),
         origin: origin.clone(),
-        glow,
-        halo,
+        glow: built.glow,
+        halo: built.halo,
         bobSeed: Math.random() * Math.PI * 2,
         attached: false,
       };
@@ -661,15 +495,7 @@ export function PlantForge3D() {
     startSequence();
 
     const disposeMolecule = (m: MoleculeRuntime) => {
-      scene.remove(m.group);
-      m.group.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
-          obj.geometry.dispose();
-          const mat = obj.material;
-          if (Array.isArray(mat)) mat.forEach((mm) => mm.dispose());
-          else mat.dispose();
-        }
-      });
+      disposeMoleculeShared(m.group);
     };
 
     // ── Animation loop ──────────────────────────────────────────────────
