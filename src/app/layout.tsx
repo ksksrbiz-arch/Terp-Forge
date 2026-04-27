@@ -5,6 +5,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import PageTransition from "@/components/PageTransition";
 import SiteShellEnhancements from "@/components/SiteShellEnhancements";
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
 
@@ -106,7 +107,7 @@ export default function RootLayout({
           <SiteShellEnhancements />
           <Navigation />
           <main id="main-content" className="flex-1">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
           <CartDrawer />
