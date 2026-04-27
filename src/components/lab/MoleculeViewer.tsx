@@ -171,7 +171,7 @@ export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
             <circle cx={p.sx} cy={p.sy} r={p.r} fill={ELEMENT_COLOR[p.el] || "#fff"} stroke={compound.profileColor} strokeWidth="1.2" />
             <circle cx={p.sx} cy={p.sy} r={p.r} fill="url(#atomGlow)" />
             {p.el !== "C" && (
-              <text x={p.sx} y={p.sy + 4} textAnchor="middle" fill="#0A1628" fontSize="11" fontFamily="var(--font-roboto-mono), monospace" fontWeight="700">
+              <text x={p.sx} y={p.sy + 4} textAnchor="middle" fill="#0A1628" fontSize="11" fontFamily="var(--font-tf-mono), monospace" fontWeight="700">
                 {p.el}
               </text>
             )}
@@ -179,10 +179,10 @@ export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
         ))}
 
         {/* HUD strings */}
-        <text x="14" y={H - 18} fill={compound.profileColor} fontSize="10" fontFamily="var(--font-roboto-mono), monospace" letterSpacing="2">
+        <text x="14" y={H - 18} fill={compound.profileColor} fontSize="10" fontFamily="var(--font-tf-mono), monospace" letterSpacing="2">
           {compound.formula} · MW {compound.mw}
         </text>
-        <text x={W - 14} y={H - 18} textAnchor="end" fill="#64748B" fontSize="10" fontFamily="var(--font-roboto-mono), monospace" letterSpacing="2">
+        <text x={W - 14} y={H - 18} textAnchor="end" fill="#64748B" fontSize="10" fontFamily="var(--font-tf-mono), monospace" letterSpacing="2">
           DRAG · ROTATE
         </text>
       </svg>

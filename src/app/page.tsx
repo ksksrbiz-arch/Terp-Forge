@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { StreamPlayer } from "@/components/StreamPlayer";
 import Link from "next/link";
-import MolecularCanvas from "@/components/ui/MolecularCanvas";
 import Marquee from "@/components/ui/Marquee";
 import CornerBrackets from "@/components/ui/CornerBrackets";
 import Reveal from "@/components/ui/Reveal";
@@ -9,6 +8,8 @@ import Section from "@/components/ui/Section";
 import TiltCard from "@/components/ui/TiltCard";
 import CountUp from "@/components/ui/CountUp";
 import OrbitSelector from "@/components/ui/OrbitSelector";
+import HeroForgeScene from "@/components/ui/HeroForgeScene";
+import KineticHeadline from "@/components/ui/KineticHeadline";
 
 const pillars = [
   {
@@ -168,15 +169,19 @@ const featuredProducts = [
 export default function Home() {
   return (
     <>
-      {/* HERO */}
-      <section className="relative min-h-screen flex items-center overflow-hidden hex-mesh molecular-bg pt-16 noise-overlay scanlines">
-        {/* Animated molecular network backdrop */}
-        <div aria-hidden="true" className="absolute inset-0 pointer-events-none opacity-70">
-          <MolecularCanvas density={42} linkDistance={150} />
+      {/* HERO — full-bleed industrial-foundry scene */}
+      <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
+        {/* Real WebGL-feel scene: depth-sorted ball-and-stick molecules,
+            drifting fog, gold sodium-lamp shafts, scan-gate sweep. The
+            canvas pauses RAF when offscreen and on tab-hidden. */}
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <HeroForgeScene />
         </div>
 
-        {/* Vignette to keep typography legible over the network */}
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(10,22,40,0.55)_60%,_rgba(10,22,40,0.92)_100%)]" />
+        {/* Vignette to keep typography legible over the scene. The site-
+            wide vignette is subtle; this layer is hero-specific so the
+            headline always reads. */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(10,22,40,0.45)_60%,_rgba(10,22,40,0.86)_100%)]" />
 
         {/* Decorative concentric gold rings (drifting) */}
         <div className="absolute inset-0 pointer-events-none">
@@ -216,13 +221,15 @@ export default function Home() {
               >
                 {"// TERPFORGE SYSTEMS ONLINE"}
               </p>
-              <h1
-                className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-none mb-6"
-              >
-                <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "120ms" }}>ENGINEERED</span>
-                <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "220ms" }}>AROMATICS.</span>
-                <span className="block holo-gold line-rise" style={{ animationDelay: "340ms" }}>FORGED</span>
-                <span className="block text-[#E8EDF5] line-rise" style={{ animationDelay: "460ms" }}>WELLNESS.</span>
+              <h1 className="mb-6">
+                <KineticHeadline
+                  lines={[
+                    { text: "ENGINEERED" },
+                    { text: "AROMATICS." },
+                    { text: "FORGED", accent: true },
+                    { text: "WELLNESS." },
+                  ]}
+                />
               </h1>
               <p
                 className="text-[#94A3B8] text-base sm:text-lg leading-relaxed max-w-md mb-8 font-light line-rise"
@@ -262,31 +269,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right — Hero image */}
-            <div className="flex items-center justify-center order-first lg:order-none">
-              <Reveal variant="right" delay={300}>
-                <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
-                  <CornerBrackets size={18} color="#C9A84C" inset={-9} />
-                  <div className="absolute -inset-4 border border-[#C9A84C]/20 pointer-events-none" />
-                  <div className="absolute -inset-1 border border-[#0D9488]/10 pointer-events-none" />
-                  <Image
-                    src="/images/hero-extraction.jpg"
-                    alt="TerpForge industrial extraction facility with glowing molecular structures"
-                    width={600}
-                    height={400}
-                    sizes="(min-width: 1024px) 32rem, 100vw"
-                    className="w-full h-auto object-cover"
-                    priority
-                  />
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
-                    <p className="text-[#0D9488] text-[10px] font-mono">EXTRACTION // LIVE</p>
-                  </div>
-                  <div className="absolute bottom-3 right-3 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#C9A84C]/40">
-                    <p className="text-[#C9A84C] text-[10px] font-mono">TF-SYSTEMS</p>
-                  </div>
-                </div>
-              </Reveal>
-            </div>
+            {/* Right — keep the column empty on desktop so the WebGL scene
+                has room to breathe. On smaller viewports the canvas sits
+                behind the headline already, so we don't repeat content. */}
+            <div className="hidden lg:block" aria-hidden="true" />
           </div>
         </div>
 

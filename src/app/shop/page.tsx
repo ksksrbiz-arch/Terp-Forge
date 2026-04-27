@@ -555,7 +555,7 @@ function ProductFront({ product }: { product: Product }) {
         )}
         {product.profile && profileColor && (
           <div
-            className="absolute bottom-3 left-3 px-2 py-0.5 text-[9px] font-mono tracking-widest border"
+            className="flip-profile-chip absolute bottom-3 left-3 px-2 py-0.5 text-[9px] font-mono tracking-widest border rounded-sm"
             style={{ color: profileColor, borderColor: `${profileColor}50` }}
           >
             {product.profile}
@@ -621,7 +621,10 @@ function ProductBack({ product }: { product: Product }) {
       />
       <CornerBrackets size={12} color={accent} inset={6} />
 
-      <div className="relative px-5 pt-5 pb-3 border-b border-[#1E293B]">
+      <div
+        className="flip-spec-block relative px-5 pt-5 pb-3 border-b border-[#1E293B]"
+        style={{ ["--tf-stagger" as string]: "0" } as React.CSSProperties}
+      >
         <p
           className="text-[9px] font-mono tracking-[0.4em] uppercase mb-1"
           style={{ color: accent }}
@@ -633,16 +636,32 @@ function ProductBack({ product }: { product: Product }) {
         </h3>
       </div>
 
-      <dl className="relative flex-1 px-5 py-4 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-2 text-[11px] font-mono content-start">
-        {rows.map((r) => (
-          <div key={r.k} className="contents">
-            <dt className="text-[#64748B] tracking-widest">{r.k}</dt>
-            <dd className="text-[#E8EDF5] truncate text-right">{r.v}</dd>
+      <div className="relative flex-1 px-5 py-4 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-2 text-[11px] font-mono content-start">
+        {rows.map((r, i) => (
+          <div
+            key={r.k}
+            className="flip-spec-row contents"
+            style={
+              { ["--tf-stagger" as string]: `${120 + i * 110}` } as React.CSSProperties
+            }
+          >
+            <span className="text-[#64748B] tracking-widest">{r.k}</span>
+            <span className="text-[#E8EDF5] truncate text-right">
+              {r.v}
+              {i === rows.length - 1 && <span className="flip-spec-caret" aria-hidden />}
+            </span>
           </div>
         ))}
-      </dl>
+      </div>
 
-      <div className="relative px-5 py-3 border-t border-[#1E293B]">
+      <div
+        className="flip-spec-block relative px-5 py-3 border-t border-[#1E293B]"
+        style={
+          {
+            ["--tf-stagger" as string]: `${120 + rows.length * 110 + 60}`,
+          } as React.CSSProperties
+        }
+      >
         <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed line-clamp-3">
           {product.details}
         </p>
