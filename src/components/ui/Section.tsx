@@ -106,8 +106,8 @@ export default function Section({
                   }`}
                 >
                   {eyebrow && (
-                    <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase">
-                      {`// ${eyebrow}`}
+                    <p className="scanlines-tight relative inline-block text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase px-2 py-1">
+                      <span className="relative z-[2]">{`// ${eyebrow}`}</span>
                     </p>
                   )}
                   {index && (

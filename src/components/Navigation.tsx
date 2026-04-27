@@ -33,7 +33,7 @@ export default function Navigation() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-sm border-b ${
+      className={`scanlines-tight fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-sm border-b ${
         scrolled
           ? "bg-[#0A1628]/95 border-[#C9A84C]/30 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.6)]"
           : "bg-[#0A1628]/70 border-[#C9A84C]/15"

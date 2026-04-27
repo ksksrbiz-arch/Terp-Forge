@@ -110,7 +110,7 @@ export function SynergyBuilder() {
                 textAnchor="middle"
                 fill="#64748B"
                 fontSize="10"
-                fontFamily="var(--font-roboto-mono), monospace"
+                fontFamily="var(--font-tf-mono), monospace"
                 letterSpacing="2"
                 dominantBaseline="middle"
               >

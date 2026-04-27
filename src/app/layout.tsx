@@ -8,9 +8,8 @@ import CartDrawer from "@/components/CartDrawer";
 import SiteShellEnhancements from "@/components/SiteShellEnhancements";
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
 
-// Keep the existing CSS variable names so the current component styles do not
-// need to change, even though the font assets are now bundled locally.
-const montserrat = localFont({
+// Brand typefaces — bundled, served from the same origin, no Google Fonts call.
+const tfSans = localFont({
   src: [
     {
       path: "./fonts/TerpForgeSans-Regular.ttf",
@@ -23,11 +22,11 @@ const montserrat = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-montserrat",
+  variable: "--font-tf-sans",
   display: "swap",
 });
 
-const robotoMono = localFont({
+const tfMono = localFont({
   src: [
     {
       path: "./fonts/TerpForgeMono-Regular.ttf",
@@ -40,7 +39,7 @@ const robotoMono = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-roboto-mono",
+  variable: "--font-tf-mono",
   display: "swap",
 });
 
@@ -94,7 +93,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${montserrat.variable} ${robotoMono.variable} h-full antialiased`}
+      className={`${tfSans.variable} ${tfMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0A1628] text-[#E8EDF5]">
         <a
@@ -112,6 +111,11 @@ export default function RootLayout({
           <Footer />
           <CartDrawer />
         </CartProvider>
+        {/* Site-wide atmospheric overlays — film grain + radial vignette.
+            Mounted last so they layer over every page surface but stay
+            below the navigation, drawers, and command palette (z 70+). */}
+        <div aria-hidden="true" className="atmosphere-vignette" />
+        <div aria-hidden="true" className="atmosphere-grain" />
       </body>
     </html>
   );
