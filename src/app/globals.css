@@ -666,6 +666,81 @@ samp {
   100% { opacity: 0; background-position: -20% 0; }
 }
 
+/* ── Page transitions ───────────────────────────────────────────────────
+   Per-route cinematic entry: a teal scan-line sweeps the viewport while
+   the page content fades up from the floor. Triggered by remounting the
+   wrapper via `key={pathname}` in PageTransition.tsx — no JS animation
+   loop, no extra deps. */
+.page-transition {
+  position: relative;
+  isolation: isolate;
+}
+.page-transition-content {
+  animation: page-fade-up 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 60ms;
+}
+.page-transition-content > * {
+  animation: page-stagger-up 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-transition-content > *:nth-child(1) { animation-delay: 110ms; }
+.page-transition-content > *:nth-child(2) { animation-delay: 200ms; }
+.page-transition-content > *:nth-child(3) { animation-delay: 290ms; }
+.page-transition-content > *:nth-child(4) { animation-delay: 380ms; }
+.page-transition-content > *:nth-child(n + 5) { animation-delay: 460ms; }
+
+@keyframes page-fade-up {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes page-stagger-up {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.page-scan-sweep {
+  pointer-events: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14vh;
+  z-index: 60;
+  background: linear-gradient(
+    180deg,
+    rgba(13, 148, 136, 0) 0%,
+    rgba(13, 148, 136, 0.18) 38%,
+    rgba(232, 237, 245, 0.14) 50%,
+    rgba(13, 148, 136, 0.18) 62%,
+    rgba(13, 148, 136, 0) 100%
+  );
+  filter: blur(0.5px);
+  transform: translate3d(0, -20vh, 0);
+  animation: page-scan-sweep 720ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes page-scan-sweep {
+  0%   { transform: translate3d(0, -20vh, 0); opacity: 0; }
+  18%  { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translate3d(0, 110vh, 0); opacity: 0; }
+}
+
+/* ── Boot sequence polish — softens the first-paint flash and adds a
+   schematic scanner pass over the panel. The sessionStorage gate lives
+   in SiteShellEnhancements.tsx (`terpforge.boot-seen`). */
+.boot-progress { will-change: transform; }
+.boot-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
+  mix-blend-mode: overlay;
+  animation: boot-progress-shine 1.2s linear forwards;
+}
+@keyframes boot-progress-shine {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
 /* Anchor offset — so #id jumps clear the fixed top nav. */
 :where(section, article, [id]) {
   scroll-margin-top: 5rem;
@@ -695,4 +770,8 @@ samp {
   /* Atmosphere grain stays as a still texture; vignette and scanlines are
      static by definition and need no override. */
   .atmosphere-grain { animation: none !important; }
+  /* Keep the route-change scan invisible — content fades in instantly via
+     the global animation-duration override above. */
+  .page-scan-sweep { display: none !important; }
+  .boot-progress::after { display: none !important; }
 }

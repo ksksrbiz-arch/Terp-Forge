@@ -41,7 +41,6 @@ export default function HeroForgeScene({
 
     // ── Scene composition: pick five structurally varied compounds and
     // place them across the frame at different depths and rotations.
-    const picks = ["myrcene", "limonene", "linalool", "pinene", "caryophyllene"];
     type Placement = {
       slug: string;
       // canvas-relative position (0..1, x/y) and depth (smaller = farther)
@@ -80,7 +79,7 @@ export default function HeroForgeScene({
     let mouseX = 0; // -1..1
     let mouseY = 0;
     let scrollT = 0; // 0..1 dolly progress (1 = fully scrolled past)
-    let t0 = performance.now();
+    const t0 = performance.now();
 
     const seed = () => {
       const rect = container.getBoundingClientRect();
