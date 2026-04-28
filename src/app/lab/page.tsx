@@ -152,7 +152,7 @@ const PlantForge3D = dynamic(
     })),
   {
     ssr: false,
-    loading: () => <SceneSkeleton label="Plant Forge" />,
+    loading: () => <SceneSkeleton label="Compound Forge" />,
   },
 );
 
@@ -414,7 +414,7 @@ export default function LabPage() {
 
           <div className="mt-8 flex flex-wrap gap-2 sm:gap-3">
             {[
-              { href: "#plant-forge", label: "Plant Forge 3D" },
+              { href: "#compound-forge", label: "Compound Forge 3D" },
               { href: "#receptor-docking", label: "Receptor Docking" },
               { href: "#simulator", label: "Profile Simulator" },
               { href: "#matrix", label: "Compound Matrix" },
@@ -437,8 +437,8 @@ export default function LabPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
-        {/* ── PLANT FORGE 3D ──────────────────────────────────────── */}
-        <section id="plant-forge" tabIndex={-1}>
+        {/* ── COMPOUND FORGE 3D ───────────────────────────────────── */}
+        <section id="compound-forge" tabIndex={-1}>
           <Reveal className="mb-10">
             <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE Ø · LIVE 3D"}
@@ -446,14 +446,16 @@ export default function LabPage() {
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
             >
-              The Plant Forge
+              The Compound Forge
             </h2>
             <p className="text-[#64748B] font-mono text-sm max-w-2xl">
-              A live, in-browser forge. Watch eight key cannabinoids and
-              terpenes — CBGA, THCA, THC, CBDA, CBD, Myrcene, Limonene,
-              Pinene — fly in and lock onto a stylized cannabis plant.
-              Drag to orbit, press <span className="text-[#E8EDF5]">SPACE</span> to
-              pause, <span className="text-[#E8EDF5]">R</span> to replay, or
+              A live in-browser molecular forge. Eight key compounds — CBGA,
+              THCA, THC, CBDA, CBD, Myrcene, Limonene, Pinene — fly in from
+              the surrounding darkness and fuse into a crystalline lattice at
+              the center of the forge. Each docked compound adds a permanent
+              scaffold node and bond. Drag to orbit, press{" "}
+              <span className="text-[#E8EDF5]">SPACE</span> to pause,{" "}
+              <span className="text-[#E8EDF5]">R</span> to replay, or
               tap the TF logo for a bonus molecule.
             </p>
           </Reveal>
