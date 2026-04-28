@@ -25,6 +25,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   COMPOUNDS,
   FORGE_CANVAS_HEIGHT_CLASS,
+  PALETTE,
+  HudPanel,
+  HudCaption,
+  HudProgress,
   buildMolecule as buildMoleculeShared,
   disposeMolecule as disposeMoleculeShared,
 } from "./forge3d";
@@ -823,9 +827,7 @@ export function PlantForge3D() {
   }, []);
 
   // ── React HUD (overlay) ─────────────────────────────────────────────────
-  const compoundColorHex = hud.compound
-    ? "#" + hud.compound.color.toString(16).padStart(6, "0")
-    : "#0D9488";
+  const hudAccentColor = hud.compound?.color ?? PALETTE.teal;
 
   return (
     <div className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden select-none`}>
@@ -833,77 +835,59 @@ export function PlantForge3D() {
       <div ref={mountRef} className="absolute inset-0" aria-hidden="true" />
 
       {/* Top-left status panel */}
-      <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm pointer-events-none">
-        <div
-          className="border bg-[#0A1628]/85 backdrop-blur-sm p-3 sm:p-4 transition-colors"
-          style={{ borderColor: `${compoundColorHex}55` }}
-        >
-          <p
-            className="text-[9px] sm:text-[10px] font-mono tracking-[0.4em] uppercase mb-1"
-            style={{ color: compoundColorHex }}
-          >
-            {hud.done
-              ? "// SEQUENCE COMPLETE"
-              : hud.compound
-                ? "// FORGING COMPOUND"
-                : "// INITIALIZING FORGE"}
-          </p>
-          <p
-            className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]"
-          >
-            {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
-          </p>
-          {hud.compound ? (
-            <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1 truncate">
-              <span className="hidden sm:inline">
-                {hud.compound.formula} · {hud.compound.description}
-              </span>
-              <span className="sm:hidden">{hud.compound.formula}</span>
-            </p>
-          ) : (
-            <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
-              {hud.done
-                ? "All eight compounds attached. Tap ⟲ to replay."
-                : "Spinning up the forge..."}
-            </p>
-          )}
-
-          {/* Compound progress bar */}
-          <div className="mt-3 h-1.5 bg-[#1E293B] overflow-hidden">
-            <div
-              className="h-full transition-[width] duration-150"
-              style={{
-                width: `${hud.compoundProgress * 100}%`,
-                backgroundColor: compoundColorHex,
-              }}
-            />
-          </div>
-          {/* Global progress bar */}
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-[#64748B] text-[9px] font-mono tracking-widest">
-              {String(Math.min(hud.index + 1, COMPOUNDS.length)).padStart(
-                2,
-                "0",
-              )}
-              /{String(COMPOUNDS.length).padStart(2, "0")}
+      <HudPanel
+        accentColor={hudAccentColor}
+        className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm"
+      >
+        <HudCaption color={hudAccentColor}>
+          {hud.done
+            ? "// SEQUENCE COMPLETE"
+            : hud.compound
+              ? "// FORGING COMPOUND"
+              : "// INITIALIZING FORGE"}
+        </HudCaption>
+        <p className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]">
+          {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
+        </p>
+        {hud.compound ? (
+          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1 truncate">
+            <span className="hidden sm:inline">
+              {hud.compound.formula} · {hud.compound.description}
             </span>
-            <div className="flex-1 h-0.5 bg-[#1E293B] overflow-hidden">
-              <div
-                className="h-full bg-[#C9A84C] transition-[width] duration-150"
-                style={{ width: `${hud.globalProgress * 100}%` }}
-              />
-            </div>
+            <span className="sm:hidden">{hud.compound.formula}</span>
+          </p>
+        ) : (
+          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
+            {hud.done
+              ? "All eight compounds attached. Tap ⟲ to replay."
+              : "Spinning up the forge..."}
+          </p>
+        )}
+
+        {/* Compound progress bar */}
+        <div className="mt-3">
+          <HudProgress value={hud.compoundProgress} color={hudAccentColor} />
+        </div>
+        {/* Global progress bar */}
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-[#64748B] text-[9px] font-mono tracking-widest">
+            {String(Math.min(hud.index + 1, COMPOUNDS.length)).padStart(2, "0")}
+            /{String(COMPOUNDS.length).padStart(2, "0")}
+          </span>
+          <div className="flex-1">
+            <HudProgress value={hud.globalProgress} color={PALETTE.gold} thin />
           </div>
         </div>
-      </div>
+      </HudPanel>
 
       {/* Top-right controls hint */}
-      <div className="absolute top-4 right-4 pointer-events-none hidden sm:block">
-        <div className="border border-[#0D9488]/30 bg-[#0A1628]/85 backdrop-blur-sm p-3 text-right">
-          <p className="text-[#0D9488] text-[9px] font-mono tracking-[0.3em] uppercase mb-2">
-            {"// CONTROLS"}
-          </p>
-          <ul className="text-[#64748B] text-[10px] font-mono space-y-1">
+      <HudPanel
+        accentColor={PALETTE.teal}
+        className="absolute top-4 right-4 hidden sm:block"
+      >
+        <div className="text-right">
+          <HudCaption color={PALETTE.teal}>{"// CONTROLS"}</HudCaption>
+          <ul className="text-[#64748B] text-[10px] font-mono space-y-1 mt-2">
             <li>
               <span className="text-[#E8EDF5]">SPACE</span> · pause
             </li>
@@ -915,15 +899,13 @@ export function PlantForge3D() {
             </li>
           </ul>
         </div>
-      </div>
+      </HudPanel>
 
       {/* Pause indicator */}
       {hud.paused && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="border border-[#C9A84C]/40 bg-[#0A1628]/80 backdrop-blur-sm px-6 py-3">
-            <p
-              className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase"
-            >
+            <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase">
               ▌▌ PAUSED
             </p>
           </div>
@@ -946,9 +928,7 @@ export function PlantForge3D() {
             <span className="block w-full h-full bg-[#C9A84C]/30" />
           </span>
           <span className="flex flex-col items-start leading-none">
-            <span
-              className="text-[#C9A84C] text-sm font-black tracking-widest uppercase"
-            >
+            <span className="text-[#C9A84C] text-sm font-black tracking-widest uppercase">
               TF
             </span>
             <span className="text-[#64748B] text-[9px] font-mono tracking-widest uppercase mt-0.5">

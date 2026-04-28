@@ -23,7 +23,7 @@
  * unmount.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
@@ -33,6 +33,8 @@ import {
   FORGE_CANVAS_HEIGHT_CLASS,
   PALETTE,
   RECEPTORS,
+  HudPanel,
+  HudCaption,
   buildMolecule,
   cssHex,
   detectMobile,
@@ -874,62 +876,45 @@ export function ReceptorDocking3D() {
     targetSyncRef.current?.(target);
   }, [target]);
 
-  // Pre-compute hex strings for the HUD.
-  const palette = useMemo(
-    () => ({
-      CB1: cssHex(PALETTE.teal),
-      CB2: cssHex(PALETTE.gold),
-    }),
-    [],
-  );
-  const targetHex = palette[target];
-
   // ── HUD layer ─────────────────────────────────────────────────────────────
   return (
     <div className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#0D9488]/20 bg-[#05080F] overflow-hidden select-none`}>
       <div ref={mountRef} className="absolute inset-0" aria-hidden="true" />
 
       {/* Top-left: receptor info card */}
-      <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm pointer-events-none">
-        <div
-          className="border bg-[#0A1628]/85 backdrop-blur-sm p-3 sm:p-4 transition-colors"
-          style={{ borderColor: `${targetHex}55` }}
-        >
-          <p
-            className="text-[9px] sm:text-[10px] font-mono tracking-[0.4em] uppercase mb-1"
-            style={{ color: targetHex }}
-          >
-            {"// TARGET RECEPTOR"}
-          </p>
-          <p
-            className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]"
-          >
-            {RECEPTORS.find((r) => r.id === target)?.name ?? target}
-          </p>
-          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
-            {RECEPTORS.find((r) => r.id === target)?.location}
-          </p>
-          <p className="hidden sm:block text-[#94A3B8] text-[11px] mt-2 leading-snug">
-            {RECEPTORS.find((r) => r.id === target)?.blurb}
-          </p>
-          <div className="mt-3 flex items-center gap-2 text-[10px] font-mono tracking-widest">
-            <span className="text-[#64748B]">DOCKED</span>
-            <span className="text-[#E8EDF5]">
-              {String(hud.successCount).padStart(2, "0")}
-            </span>
-            <span className="text-[#64748B]">/</span>
-            <span className="text-[#94A3B8]">
-              {String(hud.totalLaunches).padStart(2, "0")}
-            </span>
-          </div>
+      <HudPanel
+        accentColor={target === "CB1" ? PALETTE.teal : PALETTE.gold}
+        className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm"
+      >
+        <HudCaption color={target === "CB1" ? PALETTE.teal : PALETTE.gold}>
+          {"// TARGET RECEPTOR"}
+        </HudCaption>
+        <p className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]">
+          {RECEPTORS.find((r) => r.id === target)?.name ?? target}
+        </p>
+        <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
+          {RECEPTORS.find((r) => r.id === target)?.location}
+        </p>
+        <p className="hidden sm:block text-[#94A3B8] text-[11px] mt-2 leading-snug">
+          {RECEPTORS.find((r) => r.id === target)?.blurb}
+        </p>
+        <div className="mt-3 flex items-center gap-2 text-[10px] font-mono tracking-widest">
+          <span className="text-[#64748B]">DOCKED</span>
+          <span className="text-[#E8EDF5]">
+            {String(hud.successCount).padStart(2, "0")}
+          </span>
+          <span className="text-[#64748B]">/</span>
+          <span className="text-[#94A3B8]">
+            {String(hud.totalLaunches).padStart(2, "0")}
+          </span>
         </div>
-      </div>
+      </HudPanel>
 
       {/* Top-right: latest binding result popup */}
       {hud.popup && (
         <div
           key={hud.popup.key}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-xs pointer-events-none animate-[fadeIn_0.3s_ease-out]"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-xs pointer-events-none animate-fade-in"
         >
           <div
             className="border bg-[#0A1628]/90 backdrop-blur-sm p-3 sm:p-4"
@@ -1030,20 +1015,6 @@ export function ReceptorDocking3D() {
         </div>
       )}
 
-      {/* Local keyframes for the popup fade-in. Kept inline so the
-          component remains drop-in. */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-4px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }

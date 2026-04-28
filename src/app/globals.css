@@ -411,6 +411,60 @@ samp {
 }
 .pulse-soft { animation: soft-pulse 2.4s ease-in-out infinite; }
 
+/* ── Forge canvas loading skeleton ──────────────────────────────────────────
+   Animated loading state shown before the Three.js scenes finish building.
+   - forge-scan:       teal/gold scan line sweeps top→bottom on repeat.
+   - skeleton-pulse:   subtle opacity flicker for secondary text.
+   - skeleton-progress: shimmer bar sweeps across the progress track.
+   - cursor-blink:     terminal-style blinking cursor.
+   - fadeIn:           popup card entrance (also used by ReceptorDocking3D).
+   ────────────────────────────────────────────────────────────────────────── */
+@keyframes forge-scan {
+  0%   { top: 0;    opacity: 0; }
+  6%   {             opacity: 0.9; }
+  94%  {             opacity: 0.9; }
+  100% { top: 100%; opacity: 0; }
+}
+.forge-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(13, 148, 136, 0.7) 35%,
+    rgba(201, 168, 76, 0.5) 65%,
+    transparent 100%
+  );
+  animation: forge-scan 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 0.65; }
+}
+.skeleton-pulse { animation: skeleton-pulse 1.8s ease-in-out infinite; }
+
+@keyframes skeleton-progress {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(600%); }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+.cursor-blink { animation: cursor-blink 1.1s step-end infinite; }
+
+/* Popup / result card fade-in (used by ReceptorDocking3D binding result) */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.3s ease-out both; }
+
 /* Stagger fade-in — used by hero kinetic headline */
 @keyframes line-rise {
   from { opacity: 0; transform: translateY(28px); filter: blur(8px); }
