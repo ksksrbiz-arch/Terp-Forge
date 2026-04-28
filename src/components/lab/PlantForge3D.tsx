@@ -22,6 +22,10 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import {
   COMPOUNDS,
   FORGE_CANVAS_HEIGHT_CLASS,
@@ -111,6 +115,9 @@ export function PlantForge3D() {
     );
     renderer.setSize(mount.clientWidth, mount.clientHeight, false);
     renderer.setClearColor(0x05080f, 1);
+    // Physically-based tone mapping amplifies the molten/forge aesthetic.
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = isMobile ? 0.85 : 1.0;
     // Shadow maps are the single biggest mobile cost; turn them off there.
     renderer.shadowMap.enabled = !isMobile;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -137,6 +144,22 @@ export function PlantForge3D() {
     else camera.position.set(8, 6, 12);
     camera.lookAt(0, 3, 0);
 
+    // ── Post-processing composer (desktop only for perf) ─────────────────
+    const cw = mount.clientWidth;
+    const ch = mount.clientHeight;
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    if (!isMobile) {
+      const bloom = new UnrealBloomPass(
+        new THREE.Vector2(cw, ch),
+        /* strength */ 1.35,
+        /* radius   */ 0.55,
+        /* threshold */ 0.05,
+      );
+      composer.addPass(bloom);
+    }
+    composer.addPass(new OutputPass());
+
     // ── Controls (orbit, also supports touch) ───────────────────────────
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -161,10 +184,11 @@ export function PlantForge3D() {
     });
 
     // ── Lighting (industrial forge mood) ────────────────────────────────
-    const hemi = new THREE.HemisphereLight(0x6b89c4, 0x0a0a14, 0.35);
+    // Slightly stronger hemisphere to fill shadows on the plant.
+    const hemi = new THREE.HemisphereLight(0x7090d0, 0x0a0a14, 0.5);
     scene.add(hemi);
 
-    const keyLight = new THREE.DirectionalLight(0xffe4b5, 1.1);
+    const keyLight = new THREE.DirectionalLight(0xffe4b5, 1.4);
     keyLight.position.set(6, 12, 8);
     keyLight.castShadow = !isMobile;
     // Smaller shadow map on desktop too keeps GPU memory reasonable;
@@ -182,28 +206,93 @@ export function PlantForge3D() {
     // Rim light is purely aesthetic; skip it on mobile to halve directional
     // light cost.
     if (!isMobile) {
-      const rimLight = new THREE.DirectionalLight(0x0d9488, 0.7);
+      const rimLight = new THREE.DirectionalLight(0x0d9488, 0.9);
       rimLight.position.set(-8, 6, -6);
       scene.add(rimLight);
+      // Second fill from below to catch the underside of leaves.
+      const fillLight = new THREE.DirectionalLight(0xff8c00, 0.4);
+      fillLight.position.set(0, -4, 4);
+      scene.add(fillLight);
     }
 
-    // Pulsing forge fire — point light below the plant
-    const forgeLight = new THREE.PointLight(0xff6a1a, 1.8, 18, 1.6);
+    // Pulsing forge fire — stronger so the bloom picks it up dramatically.
+    const forgeLight = new THREE.PointLight(0xff6a1a, 3.5, 22, 1.5);
     forgeLight.position.set(0, 0.6, 0);
     scene.add(forgeLight);
+    // Secondary cooler forge light for color contrast.
+    const forgeLightBlue = new THREE.PointLight(0x3060ff, 1.2, 12, 2);
+    forgeLightBlue.position.set(0, 1.2, 0);
+    scene.add(forgeLightBlue);
 
     // ── Forge environment ───────────────────────────────────────────────
     // Floor: dark brushed-metal plane (fewer segments on mobile).
     const floorGeo = new THREE.CircleGeometry(18, isMobile ? 32 : 64);
     const floorMat = new THREE.MeshStandardMaterial({
-      color: 0x0f1f3d,
-      metalness: 0.85,
-      roughness: 0.45,
+      color: 0x0a1628,
+      metalness: 0.92,
+      roughness: 0.38,
     });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = !isMobile;
     scene.add(floor);
+
+    // Glowing concentric floor rings — additive blending so the bloom
+    // turns them into luminous halos on the floor surface.
+    if (!isMobile) {
+      const floorRingRadii = [2.2, 4.5, 7.2, 10.8];
+      const floorRingColors = [0xc9a84c, 0x0d9488, 0xc9a84c, 0x0d3060];
+      floorRingRadii.forEach((r, ri) => {
+        const points: THREE.Vector3[] = [];
+        const segs = 96;
+        for (let i = 0; i <= segs; i++) {
+          const a = (i / segs) * Math.PI * 2;
+          points.push(new THREE.Vector3(Math.cos(a) * r, 0.012, Math.sin(a) * r));
+        }
+        const rGeo = new THREE.BufferGeometry().setFromPoints(points);
+        const rMat = new THREE.LineBasicMaterial({
+          color: floorRingColors[ri] ?? 0xc9a84c,
+          transparent: true,
+          opacity: ri === 0 ? 0.75 : 0.35 - ri * 0.06,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+        scene.add(new THREE.Line(rGeo, rMat));
+      });
+    }
+
+    // Forge fire pit — a glowing cone at the center of the pedestal base.
+    // The emissive material feeds the bloom for a proper fire-glow look.
+    const firePitGeo = new THREE.ConeGeometry(0.7, 0.55, isMobile ? 12 : 24, 1, true);
+    const firePitMat = new THREE.MeshStandardMaterial({
+      color: 0xff4400,
+      emissive: 0xff6a1a,
+      emissiveIntensity: 2.5,
+      metalness: 0.0,
+      roughness: 1.0,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.7,
+    });
+    const firePit = new THREE.Mesh(firePitGeo, firePitMat);
+    firePit.position.set(0, 0.28, 0);
+    firePit.rotation.y = Math.PI / 8;
+    scene.add(firePit);
+
+    // Inner fire glow disc.
+    const fireDiscGeo = new THREE.CircleGeometry(0.55, isMobile ? 16 : 32);
+    const fireDiscMat = new THREE.MeshBasicMaterial({
+      color: 0xff9933,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const fireDisc = new THREE.Mesh(fireDiscGeo, fireDiscMat);
+    fireDisc.rotation.x = -Math.PI / 2;
+    fireDisc.position.y = 0.02;
+    scene.add(fireDisc);
 
     // Anvil-like pedestal under the plant
     const pedestalGroup = new THREE.Group();
@@ -211,8 +300,8 @@ export function PlantForge3D() {
       new THREE.BoxGeometry(3.2, 0.35, 2.0),
       new THREE.MeshStandardMaterial({
         color: 0x1a2540,
-        metalness: 0.9,
-        roughness: 0.35,
+        metalness: 0.92,
+        roughness: 0.3,
       }),
     );
     pedTop.position.y = 0.75;
@@ -224,58 +313,97 @@ export function PlantForge3D() {
       new THREE.CylinderGeometry(0.6, 0.95, 0.6, isMobile ? 12 : 16),
       new THREE.MeshStandardMaterial({
         color: 0x141b30,
-        metalness: 0.9,
-        roughness: 0.45,
+        metalness: 0.92,
+        roughness: 0.4,
       }),
     );
     pedNeck.position.y = 0.3;
     pedNeck.castShadow = !isMobile;
     pedestalGroup.add(pedNeck);
 
-    // Glowing emission ring on top of pedestal
-    const ringGeo = new THREE.RingGeometry(0.85, 1.05, isMobile ? 24 : 48);
+    // Glowing emission ring on top of pedestal — high emissive for bloom.
+    const ringGeo = new THREE.RingGeometry(0.85, 1.05, isMobile ? 24 : 64);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xc9a84c,
+      color: 0xffd060,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.95,
       side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
     });
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = -Math.PI / 2;
     ring.position.y = 0.93;
     pedestalGroup.add(ring);
+    // Second, wider ring for a double-halo look.
+    const ringOuter = new THREE.Mesh(
+      new THREE.RingGeometry(1.1, 1.22, isMobile ? 24 : 64),
+      new THREE.MeshBasicMaterial({
+        color: 0x0d9488,
+        transparent: true,
+        opacity: 0.55,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    );
+    ringOuter.rotation.x = -Math.PI / 2;
+    ringOuter.position.y = 0.91;
+    pedestalGroup.add(ringOuter);
     scene.add(pedestalGroup);
 
     // Distant pillars to suggest a forge hall (fewer on mobile).
     const pillarMat = new THREE.MeshStandardMaterial({
-      color: 0x0a1224,
-      metalness: 0.8,
-      roughness: 0.6,
+      color: 0x080e1e,
+      emissive: 0x040810,
+      emissiveIntensity: 0.5,
+      metalness: 0.85,
+      roughness: 0.55,
     });
-    const pillarCount = isMobile ? 4 : 6;
+    const pillarCapMat = new THREE.MeshStandardMaterial({
+      color: 0x0d9488,
+      emissive: 0x0d9488,
+      emissiveIntensity: 0.8,
+      metalness: 0.5,
+      roughness: 0.3,
+    });
+    const pillarCount = isMobile ? 4 : 8;
     for (let i = 0; i < pillarCount; i++) {
       const a = (i / pillarCount) * Math.PI * 2;
       const r = 13;
       const pillar = new THREE.Mesh(
-        new THREE.BoxGeometry(0.5, 9, 0.5),
+        new THREE.BoxGeometry(0.55, 10, 0.55),
         pillarMat,
       );
-      pillar.position.set(Math.cos(a) * r, 4.5, Math.sin(a) * r);
+      pillar.position.set(Math.cos(a) * r, 5, Math.sin(a) * r);
       pillar.castShadow = !isMobile;
       scene.add(pillar);
+      // Glowing cap on each pillar — feeds bloom for a corridor-of-lights look.
+      if (!isMobile) {
+        const cap = new THREE.Mesh(
+          new THREE.BoxGeometry(0.7, 0.18, 0.7),
+          pillarCapMat,
+        );
+        cap.position.set(Math.cos(a) * r, 10.1, Math.sin(a) * r);
+        scene.add(cap);
+      }
     }
 
     // ── Embers (point particle system around the forge) ─────────────────
-    const emberCount = isMobile ? 80 : 220;
+    // More embers, 2x size so they register under bloom.
+    const emberCount = isMobile ? 100 : 320;
     const emberPositions = new Float32Array(emberCount * 3);
     const emberSeeds = new Float32Array(emberCount);
+    const emberSizes = new Float32Array(emberCount);
     for (let i = 0; i < emberCount; i++) {
-      const r = 0.5 + Math.random() * 6;
+      const r = 0.4 + Math.random() * 7;
       const a = Math.random() * Math.PI * 2;
       emberPositions[i * 3] = Math.cos(a) * r;
-      emberPositions[i * 3 + 1] = Math.random() * 8;
+      emberPositions[i * 3 + 1] = Math.random() * 9;
       emberPositions[i * 3 + 2] = Math.sin(a) * r;
       emberSeeds[i] = Math.random();
+      // Varied sizes: a few bright sparks mixed with tiny embers.
+      emberSizes[i] = 0.06 + Math.random() * 0.18;
     }
     const emberGeo = new THREE.BufferGeometry();
     emberGeo.setAttribute(
@@ -283,30 +411,65 @@ export function PlantForge3D() {
       new THREE.BufferAttribute(emberPositions, 3),
     );
     const emberMat = new THREE.PointsMaterial({
-      color: 0xffaa44,
-      size: 0.08,
+      color: 0xffcc55,
+      size: 0.13,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.92,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
     });
     const embers = new THREE.Points(emberGeo, emberMat);
     scene.add(embers);
+
+    // Secondary cooler-colored sparks (teal/blue) for color variety.
+    if (!isMobile) {
+      const sparkCount = 80;
+      const sparkPos = new Float32Array(sparkCount * 3);
+      const sparkSeeds = new Float32Array(sparkCount);
+      for (let i = 0; i < sparkCount; i++) {
+        const r = 1.2 + Math.random() * 4.5;
+        const a = Math.random() * Math.PI * 2;
+        sparkPos[i * 3] = Math.cos(a) * r;
+        sparkPos[i * 3 + 1] = Math.random() * 7;
+        sparkPos[i * 3 + 2] = Math.sin(a) * r;
+        sparkSeeds[i] = Math.random();
+      }
+      const sparkGeo = new THREE.BufferGeometry();
+      sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos, 3));
+      const sparkMat = new THREE.PointsMaterial({
+        color: 0x40e0d0,
+        size: 0.09,
+        transparent: true,
+        opacity: 0.7,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      const sparks = new THREE.Points(sparkGeo, sparkMat);
+      scene.add(sparks);
+      // Animate sparks with same drift logic as embers (closure captures refs).
+      // Store reference for tick loop to animate.
+      scene.userData.sparks = sparks;
+      scene.userData.sparkSeeds = sparkSeeds;
+      scene.userData.sparkCount = sparkCount;
+    }
 
     // ── Cannabis plant (procedural, stylized) ───────────────────────────
     const plantGroup = new THREE.Group();
     plantGroup.position.y = 0.93;
     scene.add(plantGroup);
 
-    // Stem
+    // Stem — slightly emissive so the bloom adds a subtle green aura.
     const stemHeight = 4.2;
     const stemMat = new THREE.MeshStandardMaterial({
-      color: 0x355c2c,
-      roughness: 0.85,
-      metalness: 0.0,
+      color: 0x3d6e32,
+      emissive: 0x0f2209,
+      emissiveIntensity: 0.6,
+      roughness: 0.75,
+      metalness: 0.05,
     });
     const stem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.07, 0.12, stemHeight, 12),
+      new THREE.CylinderGeometry(0.07, 0.13, stemHeight, 14),
       stemMat,
     );
     stem.position.y = stemHeight / 2;
@@ -352,22 +515,37 @@ export function PlantForge3D() {
           0,
         );
       }
-      const geo = new THREE.ShapeGeometry(shape, 8);
+      const geo = new THREE.ShapeGeometry(shape, 10);
       geo.computeVertexNormals();
       return geo;
     };
     const leafGeo = buildLeafGeometry();
+    // Two leaf materials with subtle emissive for bloom pickup.
     const leafMatA = new THREE.MeshStandardMaterial({
       color: 0x3d7a36,
-      roughness: 0.7,
-      metalness: 0.0,
+      emissive: 0x0d2208,
+      emissiveIntensity: 0.5,
+      roughness: 0.65,
+      metalness: 0.02,
       side: THREE.DoubleSide,
     });
     const leafMatB = new THREE.MeshStandardMaterial({
       color: 0x4f9a45,
-      roughness: 0.7,
-      metalness: 0.0,
+      emissive: 0x0d2a08,
+      emissiveIntensity: 0.55,
+      roughness: 0.65,
+      metalness: 0.02,
       side: THREE.DoubleSide,
+    });
+
+    // Midrib (central vein) geometry — a single line per leaf.
+    // Gets added to the plantGroup directly but positioned when the leaf is.
+    const midribMat = new THREE.LineBasicMaterial({
+      color: 0x7dca5a,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
     });
 
     // Place leaf nodes at varying heights, alternating sides.
@@ -390,44 +568,79 @@ export function PlantForge3D() {
           Math.sin(rot) * 0.05,
         );
         // Pitch leaves outward & slightly down; stylized fan look.
-        leaf.rotation.set(
-          -Math.PI / 2 + 0.35,
-          rot,
-          0,
-        );
+        leaf.rotation.set(-Math.PI / 2 + 0.35, rot, 0);
         // Larger leaves lower, smaller higher.
         const scale = 1.05 - t * 0.55;
         leaf.scale.setScalar(scale * 1.4);
         leaf.castShadow = !isMobile;
         leaves.push(leaf);
         plantGroup.add(leaf);
+
+        // Midrib vein — add in leaf local space via a child.
+        if (!isMobile) {
+          const leafLen = (scale * 1.4) * 1.35; // approximate visible length
+          const veinPts = [
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, leafLen * 0.85, 0),
+          ];
+          const veinGeo = new THREE.BufferGeometry().setFromPoints(veinPts);
+          const vein = new THREE.Line(veinGeo, midribMat);
+          leaf.add(vein);
+        }
       }
     }
 
-    // Top cola: cluster of frosted "buds" (icosahedrons w/ emissive trim).
+    // Top cola: dense cluster of frosted "buds" — high emissive for bloom.
     const budGroup = new THREE.Group();
     budGroup.position.y = stemHeight - 0.1;
     plantGroup.add(budGroup);
-    const budGeo = new THREE.IcosahedronGeometry(0.18, 0);
+    const budGeo = new THREE.IcosahedronGeometry(0.19, 1);
     const budMat = new THREE.MeshStandardMaterial({
       color: 0x6fb348,
-      roughness: 0.5,
-      metalness: 0.1,
-      emissive: 0x1a3a18,
-      emissiveIntensity: 0.6,
+      emissive: 0x28520d,
+      emissiveIntensity: 1.0,
+      roughness: 0.45,
+      metalness: 0.08,
     });
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 18; i++) {
       const bud = new THREE.Mesh(budGeo, budMat);
       const a = Math.random() * Math.PI * 2;
-      const r = Math.random() * 0.3;
+      const r = Math.random() * 0.36;
       bud.position.set(
         Math.cos(a) * r,
-        Math.random() * 0.7,
+        Math.random() * 0.85,
         Math.sin(a) * r,
       );
-      bud.scale.setScalar(0.6 + Math.random() * 0.8);
+      bud.scale.setScalar(0.55 + Math.random() * 0.95);
       bud.castShadow = !isMobile;
       budGroup.add(bud);
+    }
+
+    // Trichome glow — a point cloud of tiny emissive dots around the bud
+    // cluster. Under bloom these read as a frosty crystalline aura.
+    if (!isMobile) {
+      const trichCount = 120;
+      const trichPos = new Float32Array(trichCount * 3);
+      for (let i = 0; i < trichCount; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const elev = Math.random() * Math.PI;
+        const r = 0.55 + Math.random() * 0.35;
+        trichPos[i * 3] = Math.sin(elev) * Math.cos(a) * r;
+        trichPos[i * 3 + 1] = 0.25 + Math.cos(elev) * r * 0.5;
+        trichPos[i * 3 + 2] = Math.sin(elev) * Math.sin(a) * r;
+      }
+      const trichGeo = new THREE.BufferGeometry();
+      trichGeo.setAttribute("position", new THREE.BufferAttribute(trichPos, 3));
+      const trichMat = new THREE.PointsMaterial({
+        color: 0xeaf5d0,
+        size: 0.055,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        sizeAttenuation: true,
+      });
+      budGroup.add(new THREE.Points(trichGeo, trichMat));
     }
 
     // Anchor points on the plant where molecules attach.
@@ -664,9 +877,10 @@ export function PlantForge3D() {
           m.group.position.lerpVectors(m.origin, m.anchor, t);
           m.group.rotation.x += dt * 1.3;
           m.group.rotation.y += dt * 1.7;
-          m.glow.intensity = 0.6 + t * 1.6;
-          (m.halo.material as THREE.MeshBasicMaterial).opacity = 0.15 + t * 0.4;
-          m.halo.scale.setScalar(0.6 + t * 0.6);
+          // Ramp glow higher so it feeds the bloom strongly during approach.
+          m.glow.intensity = 0.8 + t * 3.5;
+          (m.halo.material as THREE.MeshBasicMaterial).opacity = 0.15 + t * 0.55;
+          m.halo.scale.setScalar(0.7 + t * 0.8);
           m.halo.lookAt(camera.position);
 
           // Trail: rotate the buffer so the head is at the molecule's current
@@ -689,10 +903,11 @@ export function PlantForge3D() {
           // Burst on contact: flash + halo expansion + shockwave ring + flash.
           const t = (mt - PHASE_FLY) / PHASE_BURST;
           m.group.position.copy(m.anchor);
-          m.glow.intensity = 5.5 * (1 - t) + 0.8;
+          // Higher peak so bloom flares dramatically on contact.
+          m.glow.intensity = 12.0 * (1 - t) + 1.2;
           const haloMat = m.halo.material as THREE.MeshBasicMaterial;
-          haloMat.opacity = 0.85 * (1 - t);
-          m.halo.scale.setScalar(1 + t * 2.6);
+          haloMat.opacity = 0.9 * (1 - t);
+          m.halo.scale.setScalar(1.2 + t * 3.5);
           m.halo.lookAt(camera.position);
           m.group.rotation.x += dt * 0.8;
           m.group.rotation.y += dt * 1.1;
@@ -705,10 +920,10 @@ export function PlantForge3D() {
           // Shockwave: expand from anchor, fade as it grows.
           m.shock.position.copy(m.anchor);
           m.shock.lookAt(camera.position);
-          const shockScale = 0.5 + t * 4.5;
+          const shockScale = 0.5 + t * 6.0;
           m.shock.scale.setScalar(shockScale);
           (m.shock.material as THREE.MeshBasicMaterial).opacity =
-            0.85 * (1 - t);
+            0.9 * (1 - t);
         } else {
           // Settle: subtle bob + rotation while attached.
           const bobT = (mt - PHASE_FLY - PHASE_BURST + m.bobSeed) % 1000;
@@ -719,7 +934,8 @@ export function PlantForge3D() {
             m.anchor.z,
           );
           m.group.rotation.y += dt * 0.6;
-          m.glow.intensity = 0.9 + Math.sin(bobT * 2.0) * 0.25;
+          // Steady glow with a heartbeat pulse — high enough for bloom.
+          m.glow.intensity = 1.5 + Math.sin(bobT * 2.0) * 0.55;
           (m.halo.material as THREE.MeshBasicMaterial).opacity = 0.0;
           // Trail + shock are spent — make sure they're invisible.
           (m.trail.material as THREE.LineBasicMaterial).opacity = 0;
@@ -735,9 +951,11 @@ export function PlantForge3D() {
         return true;
       });
 
-      // Forge light flicker
+      // Forge light flicker — increased range so bloom picks up the floor.
       forgeLight.intensity =
-        1.4 + Math.sin(elapsed * 7.3) * 0.35 + Math.sin(elapsed * 13.1) * 0.2;
+        3.0 + Math.sin(elapsed * 7.3) * 0.8 + Math.sin(elapsed * 13.1) * 0.45;
+      forgeLightBlue.intensity =
+        1.0 + Math.sin(elapsed * 5.1 + 1.0) * 0.35;
 
       // Embers drift up
       const posAttr = embers.geometry.getAttribute(
@@ -746,11 +964,27 @@ export function PlantForge3D() {
       for (let i = 0; i < emberCount; i++) {
         const idx = i * 3 + 1;
         let y = posAttr.array[idx] as number;
-        y += dt * (0.4 + emberSeeds[i] * 0.8);
+        y += dt * (0.5 + emberSeeds[i] * 0.9);
         if (y > 9) y = 0.1;
         (posAttr.array as Float32Array)[idx] = y;
       }
       posAttr.needsUpdate = true;
+
+      // Animate secondary sparks if they exist.
+      if (scene.userData.sparks) {
+        const sp = scene.userData.sparks as THREE.Points;
+        const spAttr = sp.geometry.getAttribute("position") as THREE.BufferAttribute;
+        const spSeeds = scene.userData.sparkSeeds as Float32Array;
+        const spCount = scene.userData.sparkCount as number;
+        for (let i = 0; i < spCount; i++) {
+          const idx = i * 3 + 1;
+          let y = spAttr.array[idx] as number;
+          y += dt * (0.3 + spSeeds[i] * 0.6);
+          if (y > 7) y = 0.1;
+          (spAttr.array as Float32Array)[idx] = y;
+        }
+        spAttr.needsUpdate = true;
+      }
 
       // Plant breathing: gentle vertical scale + sway
       const breathe = 1 + Math.sin(elapsed * 0.9) * 0.012;
@@ -789,7 +1023,7 @@ export function PlantForge3D() {
       });
 
       controls.update();
-      renderer.render(scene, camera);
+      composer.render();
       raf = requestAnimationFrame(tick);
     };
 
@@ -816,7 +1050,7 @@ export function PlantForge3D() {
     if (reduceMotion) {
       // Single static render for reduced-motion users.
       controls.update();
-      renderer.render(scene, camera);
+      composer.render();
       // Defer state update to avoid a synchronous setState during the effect
       // (which would trigger a cascading render).
       queueMicrotask(() =>
@@ -858,6 +1092,7 @@ export function PlantForge3D() {
       const h = mount.clientHeight;
       if (w === 0 || h === 0) return;
       renderer.setSize(w, h, false);
+      composer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     });
@@ -913,6 +1148,7 @@ export function PlantForge3D() {
           (obj.material as THREE.Material).dispose();
         }
       });
+      composer.dispose();
       renderer.dispose();
       if (renderer.domElement.parentElement === mount) {
         mount.removeChild(renderer.domElement);
@@ -922,6 +1158,13 @@ export function PlantForge3D() {
 
   // ── React HUD (overlay) ─────────────────────────────────────────────────
   const hudAccentColor = hud.compound?.color ?? PALETTE.teal;
+  const categoryLabel = hud.compound
+    ? hud.compound.category === "acid"
+      ? "PRECURSOR ACID"
+      : hud.compound.category === "cannabinoid"
+      ? "CANNABINOID"
+      : "TERPENE"
+    : null;
 
   return (
     <div className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden select-none`}>
@@ -931,30 +1174,43 @@ export function PlantForge3D() {
       {/* Top-left status panel */}
       <HudPanel
         accentColor={hudAccentColor}
-        className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm"
+        className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-xs"
       >
         <HudCaption color={hudAccentColor}>
           {hud.done
-            ? "// SEQUENCE COMPLETE"
+            ? "// SYNTHESIS COMPLETE"
             : hud.compound
-              ? "// FORGING COMPOUND"
+              ? "// BINDING COMPOUND"
               : "// INITIALIZING FORGE"}
         </HudCaption>
-        <p className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]">
-          {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
-        </p>
+        <div className="flex items-baseline gap-2 mt-0.5">
+          <p className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#E8EDF5] leading-none">
+            {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
+          </p>
+          {categoryLabel && (
+            <span
+              className="text-[9px] font-mono tracking-wider uppercase px-1.5 py-0.5 border"
+              style={{
+                color: `#${hudAccentColor.toString(16).padStart(6, "0")}`,
+                borderColor: `#${hudAccentColor.toString(16).padStart(6, "0")}55`,
+              }}
+            >
+              {categoryLabel}
+            </span>
+          )}
+        </div>
         {hud.compound ? (
-          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1 truncate">
+          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1.5 truncate">
             <span className="hidden sm:inline">
               {hud.compound.formula} · {hud.compound.description}
             </span>
             <span className="sm:hidden">{hud.compound.formula}</span>
           </p>
         ) : (
-          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
+          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1.5">
             {hud.done
-              ? "All eight compounds attached. Tap ⟲ to replay."
-              : "Spinning up the forge..."}
+              ? "All 8 compounds bound. Press ⟲ to replay."
+              : "Warming the forge..."}
           </p>
         )}
 
@@ -962,11 +1218,12 @@ export function PlantForge3D() {
         <div className="mt-3">
           <HudProgress value={hud.compoundProgress} color={hudAccentColor} />
         </div>
-        {/* Global progress bar */}
+        {/* Global progress */}
         <div className="mt-2 flex items-center gap-2">
-          <span className="text-[#64748B] text-[9px] font-mono tracking-widest">
+          <span className="text-[#64748B] text-[9px] font-mono tracking-widest tabular-nums">
             {String(Math.min(hud.index + 1, COMPOUNDS.length)).padStart(2, "0")}
-            /{String(COMPOUNDS.length).padStart(2, "0")}
+            {" / "}
+            {String(COMPOUNDS.length).padStart(2, "0")}
           </span>
           <div className="flex-1">
             <HudProgress value={hud.globalProgress} color={PALETTE.gold} thin />
@@ -981,15 +1238,15 @@ export function PlantForge3D() {
       >
         <div className="text-right">
           <HudCaption color={PALETTE.teal}>{"// CONTROLS"}</HudCaption>
-          <ul className="text-[#64748B] text-[10px] font-mono space-y-1 mt-2">
+          <ul className="text-[#64748B] text-[10px] font-mono space-y-1.5 mt-2">
+            <li>
+              <span className="text-[#E8EDF5]">DRAG</span> · orbit
+            </li>
             <li>
               <span className="text-[#E8EDF5]">SPACE</span> · pause
             </li>
             <li>
-              <span className="text-[#E8EDF5]">R</span> · reset
-            </li>
-            <li>
-              <span className="text-[#E8EDF5]">DRAG</span> · orbit
+              <span className="text-[#E8EDF5]">R</span> · replay
             </li>
           </ul>
         </div>
@@ -998,8 +1255,8 @@ export function PlantForge3D() {
       {/* Pause indicator */}
       {hud.paused && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="border border-[#C9A84C]/40 bg-[#0A1628]/80 backdrop-blur-sm px-6 py-3">
-            <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase">
+          <div className="border border-[#C9A84C]/50 bg-[#0A1628]/85 backdrop-blur-sm px-8 py-4">
+            <p className="text-[#C9A84C] text-xs font-mono tracking-[0.5em] uppercase">
               ▌▌ PAUSED
             </p>
           </div>
@@ -1012,32 +1269,32 @@ export function PlantForge3D() {
         <button
           type="button"
           onClick={triggerBonus}
-          className="pointer-events-auto group flex items-center gap-2 sm:gap-3 border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/85 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2.5 min-h-[44px] transition-all hover:bg-[#0F1F3D]/85"
+          className="pointer-events-auto group flex items-center gap-2 sm:gap-3 border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/90 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2.5 min-h-[44px] transition-all duration-300 hover:bg-[#0F1F3D]/90 hover:shadow-[0_0_18px_rgba(201,168,76,0.25)]"
           aria-label="Spawn a bonus molecule"
         >
           <span
             className="inline-block w-5 h-5 sm:w-6 sm:h-6 border border-[#C9A84C] rotate-45 group-hover:rotate-[225deg] transition-transform duration-700"
             aria-hidden
           >
-            <span className="block w-full h-full bg-[#C9A84C]/30" />
+            <span className="block w-full h-full bg-[#C9A84C]/25" />
           </span>
           <span className="flex flex-col items-start leading-none">
             <span className="text-[#C9A84C] text-sm font-black tracking-widest uppercase">
               TF
             </span>
             <span className="text-[#64748B] text-[9px] font-mono tracking-widest uppercase mt-0.5">
-              + bonus
+              + compound
             </span>
           </span>
         </button>
 
-        {/* On-screen controls (primary on touch, supplemental on desktop) */}
+        {/* On-screen controls */}
         <div className="pointer-events-auto flex gap-2">
           <button
             type="button"
             onClick={togglePaused}
             aria-label={hud.paused ? "Resume animation" : "Pause animation"}
-            className="border border-[#0D9488]/40 hover:border-[#0D9488] bg-[#0A1628]/85 backdrop-blur-sm px-3 py-2 sm:px-4 min-h-[44px] min-w-[44px] text-[#0D9488] text-[10px] font-mono tracking-widest uppercase transition-all"
+            className="border border-[#0D9488]/40 hover:border-[#0D9488] bg-[#0A1628]/90 backdrop-blur-sm px-3 py-2 sm:px-4 min-h-[44px] min-w-[44px] text-[#0D9488] text-[10px] font-mono tracking-widest uppercase transition-all hover:shadow-[0_0_14px_rgba(13,148,136,0.2)]"
           >
             {hud.paused ? "▶ Resume" : "▌▌ Pause"}
           </button>
@@ -1045,9 +1302,9 @@ export function PlantForge3D() {
             type="button"
             onClick={triggerReset}
             aria-label="Reset animation"
-            className="border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/85 backdrop-blur-sm px-3 py-2 sm:px-4 min-h-[44px] min-w-[44px] text-[#C9A84C] text-[10px] font-mono tracking-widest uppercase transition-all"
+            className="border border-[#C9A84C]/40 hover:border-[#C9A84C] bg-[#0A1628]/90 backdrop-blur-sm px-3 py-2 sm:px-4 min-h-[44px] min-w-[44px] text-[#C9A84C] text-[10px] font-mono tracking-widest uppercase transition-all hover:shadow-[0_0_14px_rgba(201,168,76,0.2)]"
           >
-            ⟲ Reset
+            ⟲ Replay
           </button>
         </div>
       </div>
