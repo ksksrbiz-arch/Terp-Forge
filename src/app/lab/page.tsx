@@ -414,7 +414,7 @@ export default function LabPage() {
 
           <div className="mt-8 flex flex-wrap gap-2 sm:gap-3">
             {[
-              { href: "#plant-forge", label: "Compound Forge 3D" },
+              { href: "#compound-forge", label: "Compound Forge 3D" },
               { href: "#receptor-docking", label: "Receptor Docking" },
               { href: "#simulator", label: "Profile Simulator" },
               { href: "#matrix", label: "Compound Matrix" },
@@ -438,7 +438,7 @@ export default function LabPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
         {/* ── COMPOUND FORGE 3D ───────────────────────────────────── */}
-        <section id="plant-forge" tabIndex={-1}>
+        <section id="compound-forge" tabIndex={-1}>
           <Reveal className="mb-10">
             <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE Ø · LIVE 3D"}

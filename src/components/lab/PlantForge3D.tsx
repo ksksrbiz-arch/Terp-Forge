@@ -655,6 +655,8 @@ export function PlantForge3D() {
       trailHead: number;
       /** Expanding ring shockwave that fires on burst. */
       shock: THREE.Mesh;
+      /** Set for bonus molecules spawned outside the scripted sequence. */
+      bonusStart?: number;
     }
 
     /** Number of trail samples kept per molecule. Lower on mobile. */
@@ -807,7 +809,7 @@ export function PlantForge3D() {
         const m = buildMolecule(compound, anchor, randomSpawnPoint());
         // Bonus molecules animate independently with their own clock.
         // We tag with negative spawnAt offset relative to elapsed.
-        (m as MoleculeRuntime & { bonusStart: number }).bonusStart = elapsed;
+        (m as MoleculeRuntime).bonusStart = elapsed;
         molecules.push(m);
       }
 
@@ -839,8 +841,7 @@ export function PlantForge3D() {
       // Animate each molecule.
       molecules = molecules.filter((m) => {
         // Determine local timing: scripted vs bonus
-        const bonusStart = (m as MoleculeRuntime & { bonusStart?: number })
-          .bonusStart;
+        const bonusStart = m.bonusStart;
         let mt: number;
         if (typeof bonusStart === "number") {
           mt = elapsed - bonusStart;
@@ -930,7 +931,7 @@ export function PlantForge3D() {
           m.attached = true;
           // Fade in the scaffold node + bond for scripted compounds.
           // Bonus molecules (tagged bonusStart) are ephemeral — skip them.
-          if (typeof (m as MoleculeRuntime & { bonusStart?: number }).bonusStart !== "number") {
+          if (m.bonusStart === undefined) {
             const ci = COMPOUNDS.indexOf(m.compound);
             if (ci >= 0) {
               const nodeMat = anchorNodes[ci].material as THREE.MeshBasicMaterial;
