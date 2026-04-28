@@ -210,7 +210,7 @@ export function CoaCardGenerator({ defaultEntry }: { defaultEntry?: CoaInput }) 
               type="text"
               value={entry[k]}
               onChange={(e) => setEntry({ ...entry, [k]: e.target.value })}
-              className="w-full bg-[#0A1628] border border-[#1E293B] focus:border-[#C9A84C] outline-none px-3 py-2 text-sm font-mono text-[#E8EDF5]"
+              className="w-full bg-[#0A1628] border border-[#1E293B] focus:border-[#C9A84C] outline-none px-3 py-3 sm:py-2 text-sm font-mono text-[#E8EDF5]"
             />
           </label>
         ))}

@@ -134,15 +134,15 @@ export function SynergyBuilder() {
           <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase mb-3">
             {"// Synergy summary"}
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {RADAR_AXES.map((axis) => {
               const v = synergy[axis.key as AxisKey];
               return (
-                <div key={axis.key} className="border border-[#1E293B] p-3 bg-[#0A1628]">
+                <div key={axis.key} className="border border-[#1E293B] p-2.5 sm:p-3 bg-[#0A1628]">
                   <p className="text-[#64748B] text-[9px] font-mono tracking-widest uppercase">
                     {axis.label}
                   </p>
-                  <p className="text-2xl font-black text-[#C9A84C] mt-1">
+                  <p className="text-xl sm:text-2xl font-black text-[#C9A84C] mt-1">
                     {Math.round(v)}
                   </p>
                 </div>
@@ -187,7 +187,7 @@ function Selector({
       <p className="text-[#64748B] text-[10px] font-mono tracking-[0.4em] uppercase mb-2">
         {label}
       </p>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {terpenes.map((t) => {
           const isSelected = value === t.slug;
           const isDisabled = disabled === t.slug;

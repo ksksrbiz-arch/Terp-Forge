@@ -75,8 +75,14 @@ function PropertyRow({
   }, [seen, value]);
 
   return (
-    <div ref={ref} className="grid grid-cols-[110px_1fr_50px] items-center gap-3">
-      <p className="text-[10px] font-mono tracking-[0.25em] uppercase" style={{ color }}>
+    <div
+      ref={ref}
+      className="grid grid-cols-[88px_1fr_44px] sm:grid-cols-[110px_1fr_50px] items-center gap-2 sm:gap-3"
+    >
+      <p
+        className="text-[9px] sm:text-[10px] font-mono tracking-[0.18em] sm:tracking-[0.25em] uppercase truncate"
+        style={{ color }}
+      >
         {row.label}
       </p>
       <div className="relative h-2 bg-[#0A1628] border border-[#1E293B] overflow-hidden">

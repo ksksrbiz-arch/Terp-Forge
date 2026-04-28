@@ -426,7 +426,7 @@ export default function LabPage() {
               <a
                 key={href}
                 href={href}
-                className="px-4 py-2 border border-[#0D9488]/40 text-[#0D9488] text-xs font-mono tracking-widest uppercase hover:border-[#0D9488] hover:bg-[#0D9488]/10 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(13,148,136,0.25)] transition-all duration-300 line-rise"
+                className="px-4 py-3 sm:py-2 min-h-[44px] sm:min-h-0 flex items-center justify-center border border-[#0D9488]/40 text-[#0D9488] text-xs font-mono tracking-widest uppercase hover:border-[#0D9488] hover:bg-[#0D9488]/10 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(13,148,136,0.25)] transition-all duration-300 line-rise"
                 style={{ animationDelay: `${560 + idx * 60}ms` }}
               >
                 {label}
@@ -1042,7 +1042,66 @@ export default function LabPage() {
             ))}
           </div>
 
-          <div className="overflow-x-auto border border-[#1E293B]">
+          {/* Mobile fallback: stacked cards. The desktop table at sm+ is far
+              richer, but the equivalent data renders as a dense card list on
+              phones rather than forcing a 7-column horizontal scroll. */}
+          <ul className="sm:hidden space-y-3">
+            {coaEntries.map((entry) => (
+              <li
+                key={entry.id}
+                className="border border-[#1E293B] bg-[#0F1F3D]/40 p-4"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0">
+                    <p className="text-[#E8EDF5] text-xs font-mono font-bold truncate">
+                      {entry.id}
+                    </p>
+                    <p className="text-[#64748B] text-[11px] font-mono mt-0.5 leading-snug">
+                      {entry.product}
+                    </p>
+                  </div>
+                  <span className="shrink-0 px-2 py-1 bg-[#0D9488]/20 text-[#0D9488] text-[10px] font-mono tracking-widest border border-[#0D9488]/30">
+                    {entry.status}
+                  </span>
+                </div>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] font-mono mb-3">
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      CBD
+                    </dt>
+                    <dd className="text-[#C9A84C]">{entry.cbd}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      THC
+                    </dt>
+                    <dd className="text-[#0D9488]">{entry.thc}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      Date
+                    </dt>
+                    <dd className="text-[#94A3B8]">{entry.date}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      Lab
+                    </dt>
+                    <dd className="text-[#94A3B8] truncate">{entry.lab}</dd>
+                  </div>
+                </dl>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadCoa(entry)}
+                  className="w-full min-h-[44px] px-3 py-3 border border-[#C9A84C]/40 text-[#C9A84C] text-[11px] font-mono tracking-widest uppercase hover:bg-[#C9A84C]/10 transition-colors"
+                >
+                  {downloaded === entry.id ? "✓ DOWNLOADED" : "↓ Download COA"}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden sm:block overflow-x-auto border border-[#1E293B]">
             <table className="w-full text-sm font-mono">
               <thead>
                 <tr className="border-b border-[#C9A84C]/20 bg-[#0F1F3D]">
