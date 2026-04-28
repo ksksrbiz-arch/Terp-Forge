@@ -25,6 +25,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   COMPOUNDS,
   FORGE_CANVAS_HEIGHT_CLASS,
+  PALETTE,
+  HudPanel,
+  HudCaption,
+  HudProgress,
   buildMolecule as buildMoleculeShared,
   disposeMolecule as disposeMoleculeShared,
 } from "./forge3d";
@@ -452,7 +456,16 @@ export function PlantForge3D() {
       halo: THREE.Mesh;
       bobSeed: number;
       attached: boolean;
+      /** Streak trail behind the molecule during fly-in. */
+      trail: THREE.Line;
+      trailPositions: Float32Array;
+      trailHead: number;
+      /** Expanding ring shockwave that fires on burst. */
+      shock: THREE.Mesh;
     }
+
+    /** Number of trail samples kept per molecule. Lower on mobile. */
+    const TRAIL_LEN = isMobile ? 18 : 32;
 
     const buildMolecule = (
       compound: ForgeCompound,
@@ -463,6 +476,45 @@ export function PlantForge3D() {
       built.group.position.copy(origin);
       scene.add(built.group);
 
+      // Trail — a Line whose buffer is rotated as the head advances. Starts
+      // collapsed at the origin so the first frame doesn't draw a streak from
+      // (0,0,0). Additive blending sells the "molten" look.
+      const trailPositions = new Float32Array(TRAIL_LEN * 3);
+      for (let i = 0; i < TRAIL_LEN; i++) {
+        trailPositions[i * 3] = origin.x;
+        trailPositions[i * 3 + 1] = origin.y;
+        trailPositions[i * 3 + 2] = origin.z;
+      }
+      const trailGeo = new THREE.BufferGeometry();
+      trailGeo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(trailPositions, 3),
+      );
+      const trailMat = new THREE.LineBasicMaterial({
+        color: compound.color,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const trail = new THREE.Line(trailGeo, trailMat);
+      scene.add(trail);
+
+      // Shockwave ring — sits on the molecule's anchor, scales up + fades
+      // out across the burst phase. Disabled (scale 0) until burst begins.
+      const shockGeo = new THREE.RingGeometry(0.4, 0.55, 48);
+      const shockMat = new THREE.MeshBasicMaterial({
+        color: compound.color,
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const shock = new THREE.Mesh(shockGeo, shockMat);
+      shock.scale.setScalar(0.0001);
+      scene.add(shock);
+
       return {
         group: built.group,
         compound,
@@ -472,6 +524,10 @@ export function PlantForge3D() {
         halo: built.halo,
         bobSeed: Math.random() * Math.PI * 2,
         attached: false,
+        trail,
+        trailPositions,
+        trailHead: 0,
+        shock,
       };
     };
 
@@ -497,6 +553,13 @@ export function PlantForge3D() {
 
     const disposeMolecule = (m: MoleculeRuntime) => {
       disposeMoleculeShared(m.group);
+      // Free trail + shockwave that we own (not part of the shared molecule).
+      scene.remove(m.trail);
+      m.trail.geometry.dispose();
+      (m.trail.material as THREE.Material).dispose();
+      scene.remove(m.shock);
+      m.shock.geometry.dispose();
+      (m.shock.material as THREE.Material).dispose();
     };
 
     // ── Animation loop ──────────────────────────────────────────────────
@@ -605,18 +668,47 @@ export function PlantForge3D() {
           (m.halo.material as THREE.MeshBasicMaterial).opacity = 0.15 + t * 0.4;
           m.halo.scale.setScalar(0.6 + t * 0.6);
           m.halo.lookAt(camera.position);
+
+          // Trail: rotate the buffer so the head is at the molecule's current
+          // position; older samples drift away. Brightest at the head, fading
+          // toward the tail (line color is uniform — opacity is what we drive).
+          const trailMat = m.trail.material as THREE.LineBasicMaterial;
+          trailMat.opacity = 0.4 + t * 0.55;
+          const tp = m.trailPositions;
+          for (let i = 0; i < TRAIL_LEN - 1; i++) {
+            tp[i * 3] = tp[(i + 1) * 3];
+            tp[i * 3 + 1] = tp[(i + 1) * 3 + 1];
+            tp[i * 3 + 2] = tp[(i + 1) * 3 + 2];
+          }
+          tp[(TRAIL_LEN - 1) * 3] = m.group.position.x;
+          tp[(TRAIL_LEN - 1) * 3 + 1] = m.group.position.y;
+          tp[(TRAIL_LEN - 1) * 3 + 2] = m.group.position.z;
+          (m.trail.geometry.getAttribute("position") as THREE.BufferAttribute)
+            .needsUpdate = true;
         } else if (mt <= PHASE_FLY + PHASE_BURST) {
-          // Burst on contact: flash + ring expansion.
+          // Burst on contact: flash + halo expansion + shockwave ring + flash.
           const t = (mt - PHASE_FLY) / PHASE_BURST;
           m.group.position.copy(m.anchor);
-          m.glow.intensity = 4.0 * (1 - t) + 0.8;
+          m.glow.intensity = 5.5 * (1 - t) + 0.8;
           const haloMat = m.halo.material as THREE.MeshBasicMaterial;
           haloMat.opacity = 0.85 * (1 - t);
-          m.halo.scale.setScalar(1 + t * 2.4);
+          m.halo.scale.setScalar(1 + t * 2.6);
           m.halo.lookAt(camera.position);
           m.group.rotation.x += dt * 0.8;
           m.group.rotation.y += dt * 1.1;
           m.attached = true;
+
+          // Trail rapidly thins out during the burst.
+          const trailMat = m.trail.material as THREE.LineBasicMaterial;
+          trailMat.opacity = Math.max(0, 0.95 * (1 - t * 1.6));
+
+          // Shockwave: expand from anchor, fade as it grows.
+          m.shock.position.copy(m.anchor);
+          m.shock.lookAt(camera.position);
+          const shockScale = 0.5 + t * 4.5;
+          m.shock.scale.setScalar(shockScale);
+          (m.shock.material as THREE.MeshBasicMaterial).opacity =
+            0.85 * (1 - t);
         } else {
           // Settle: subtle bob + rotation while attached.
           const bobT = (mt - PHASE_FLY - PHASE_BURST + m.bobSeed) % 1000;
@@ -629,6 +721,9 @@ export function PlantForge3D() {
           m.group.rotation.y += dt * 0.6;
           m.glow.intensity = 0.9 + Math.sin(bobT * 2.0) * 0.25;
           (m.halo.material as THREE.MeshBasicMaterial).opacity = 0.0;
+          // Trail + shock are spent — make sure they're invisible.
+          (m.trail.material as THREE.LineBasicMaterial).opacity = 0;
+          (m.shock.material as THREE.MeshBasicMaterial).opacity = 0;
           m.attached = true;
         }
 
@@ -813,6 +908,9 @@ export function PlantForge3D() {
         } else if (obj instanceof THREE.Points) {
           obj.geometry.dispose();
           (obj.material as THREE.Material).dispose();
+        } else if (obj instanceof THREE.Line) {
+          obj.geometry.dispose();
+          (obj.material as THREE.Material).dispose();
         }
       });
       renderer.dispose();
@@ -823,9 +921,7 @@ export function PlantForge3D() {
   }, []);
 
   // ── React HUD (overlay) ─────────────────────────────────────────────────
-  const compoundColorHex = hud.compound
-    ? "#" + hud.compound.color.toString(16).padStart(6, "0")
-    : "#0D9488";
+  const hudAccentColor = hud.compound?.color ?? PALETTE.teal;
 
   return (
     <div className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden select-none`}>
@@ -833,77 +929,59 @@ export function PlantForge3D() {
       <div ref={mountRef} className="absolute inset-0" aria-hidden="true" />
 
       {/* Top-left status panel */}
-      <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm pointer-events-none">
-        <div
-          className="border bg-[#0A1628]/85 backdrop-blur-sm p-3 sm:p-4 transition-colors"
-          style={{ borderColor: `${compoundColorHex}55` }}
-        >
-          <p
-            className="text-[9px] sm:text-[10px] font-mono tracking-[0.4em] uppercase mb-1"
-            style={{ color: compoundColorHex }}
-          >
-            {hud.done
-              ? "// SEQUENCE COMPLETE"
-              : hud.compound
-                ? "// FORGING COMPOUND"
-                : "// INITIALIZING FORGE"}
-          </p>
-          <p
-            className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]"
-          >
-            {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
-          </p>
-          {hud.compound ? (
-            <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1 truncate">
-              <span className="hidden sm:inline">
-                {hud.compound.formula} · {hud.compound.description}
-              </span>
-              <span className="sm:hidden">{hud.compound.formula}</span>
-            </p>
-          ) : (
-            <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
-              {hud.done
-                ? "All eight compounds attached. Tap ⟲ to replay."
-                : "Spinning up the forge..."}
-            </p>
-          )}
-
-          {/* Compound progress bar */}
-          <div className="mt-3 h-1.5 bg-[#1E293B] overflow-hidden">
-            <div
-              className="h-full transition-[width] duration-150"
-              style={{
-                width: `${hud.compoundProgress * 100}%`,
-                backgroundColor: compoundColorHex,
-              }}
-            />
-          </div>
-          {/* Global progress bar */}
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-[#64748B] text-[9px] font-mono tracking-widest">
-              {String(Math.min(hud.index + 1, COMPOUNDS.length)).padStart(
-                2,
-                "0",
-              )}
-              /{String(COMPOUNDS.length).padStart(2, "0")}
+      <HudPanel
+        accentColor={hudAccentColor}
+        className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-auto sm:max-w-sm"
+      >
+        <HudCaption color={hudAccentColor}>
+          {hud.done
+            ? "// SEQUENCE COMPLETE"
+            : hud.compound
+              ? "// FORGING COMPOUND"
+              : "// INITIALIZING FORGE"}
+        </HudCaption>
+        <p className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#E8EDF5]">
+          {hud.compound?.name ?? (hud.done ? "FULL SPECTRUM" : "—")}
+        </p>
+        {hud.compound ? (
+          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1 truncate">
+            <span className="hidden sm:inline">
+              {hud.compound.formula} · {hud.compound.description}
             </span>
-            <div className="flex-1 h-0.5 bg-[#1E293B] overflow-hidden">
-              <div
-                className="h-full bg-[#C9A84C] transition-[width] duration-150"
-                style={{ width: `${hud.globalProgress * 100}%` }}
-              />
-            </div>
+            <span className="sm:hidden">{hud.compound.formula}</span>
+          </p>
+        ) : (
+          <p className="text-[#64748B] text-[10px] sm:text-[11px] font-mono mt-1">
+            {hud.done
+              ? "All eight compounds attached. Tap ⟲ to replay."
+              : "Spinning up the forge..."}
+          </p>
+        )}
+
+        {/* Compound progress bar */}
+        <div className="mt-3">
+          <HudProgress value={hud.compoundProgress} color={hudAccentColor} />
+        </div>
+        {/* Global progress bar */}
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-[#64748B] text-[9px] font-mono tracking-widest">
+            {String(Math.min(hud.index + 1, COMPOUNDS.length)).padStart(2, "0")}
+            /{String(COMPOUNDS.length).padStart(2, "0")}
+          </span>
+          <div className="flex-1">
+            <HudProgress value={hud.globalProgress} color={PALETTE.gold} thin />
           </div>
         </div>
-      </div>
+      </HudPanel>
 
       {/* Top-right controls hint */}
-      <div className="absolute top-4 right-4 pointer-events-none hidden sm:block">
-        <div className="border border-[#0D9488]/30 bg-[#0A1628]/85 backdrop-blur-sm p-3 text-right">
-          <p className="text-[#0D9488] text-[9px] font-mono tracking-[0.3em] uppercase mb-2">
-            {"// CONTROLS"}
-          </p>
-          <ul className="text-[#64748B] text-[10px] font-mono space-y-1">
+      <HudPanel
+        accentColor={PALETTE.teal}
+        className="absolute top-4 right-4 hidden sm:block"
+      >
+        <div className="text-right">
+          <HudCaption color={PALETTE.teal}>{"// CONTROLS"}</HudCaption>
+          <ul className="text-[#64748B] text-[10px] font-mono space-y-1 mt-2">
             <li>
               <span className="text-[#E8EDF5]">SPACE</span> · pause
             </li>
@@ -915,15 +993,13 @@ export function PlantForge3D() {
             </li>
           </ul>
         </div>
-      </div>
+      </HudPanel>
 
       {/* Pause indicator */}
       {hud.paused && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="border border-[#C9A84C]/40 bg-[#0A1628]/80 backdrop-blur-sm px-6 py-3">
-            <p
-              className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase"
-            >
+            <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase">
               ▌▌ PAUSED
             </p>
           </div>
@@ -946,9 +1022,7 @@ export function PlantForge3D() {
             <span className="block w-full h-full bg-[#C9A84C]/30" />
           </span>
           <span className="flex flex-col items-start leading-none">
-            <span
-              className="text-[#C9A84C] text-sm font-black tracking-widest uppercase"
-            >
+            <span className="text-[#C9A84C] text-sm font-black tracking-widest uppercase">
               TF
             </span>
             <span className="text-[#64748B] text-[9px] font-mono tracking-widest uppercase mt-0.5">

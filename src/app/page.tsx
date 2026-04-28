@@ -325,13 +325,13 @@ export default function Home() {
           {pillars.map((pillar, i) => (
             <Reveal key={pillar.id} variant="up" delay={i * 120}>
               <TiltCard
-                className="conic-ring relative h-full p-8 border border-[#C9A84C]/20 bg-[#0A1628] hover:border-[#C9A84C]/50 transition-colors duration-300 group overflow-hidden"
+                className="conic-ring relative h-full p-5 sm:p-8 border border-[#C9A84C]/20 bg-[#0A1628] hover:border-[#C9A84C]/50 transition-colors duration-300 group overflow-hidden"
                 glowColor={`${pillar.accent}26`}
               >
                 <CornerBrackets size={12} color="rgba(201,168,76,0.5)" inset={4} />
                 <div
                   aria-hidden
-                  className="text-[#C9A84C]/15 text-8xl font-black font-mono absolute top-4 right-6 leading-none select-none group-hover:text-[#C9A84C]/25 transition-colors"
+                  className="text-[#C9A84C]/15 text-6xl sm:text-8xl font-black font-mono absolute top-3 right-4 sm:top-4 sm:right-6 leading-none select-none group-hover:text-[#C9A84C]/25 transition-colors"
                 >
                   {pillar.id}
                 </div>

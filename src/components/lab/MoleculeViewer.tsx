@@ -668,7 +668,7 @@ function Inspector({
       )}
 
       {data.kind === "bond" && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
           <Stat label="Bond" value={data.order === 2 ? "Double" : "Single"} accent={profileColor} />
           <Stat
             label="Atoms"
@@ -684,7 +684,7 @@ function Inspector({
 
       {data.kind === "atom" && (
         <div className="space-y-2">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
             <Stat
               label="Element"
               value={`${data.element} · ${data.elementName}`}

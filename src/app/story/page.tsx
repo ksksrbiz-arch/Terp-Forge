@@ -140,8 +140,8 @@ export default function StoryPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
         {/* ── MANIFESTO BLOCK ─────────────────────── */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="relative p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] schematic-grid">
-            <div className="text-[#C9A84C]/10 text-[120px] font-black leading-none absolute top-0 right-4 select-none">
+          <div className="relative p-5 sm:p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] schematic-grid">
+            <div className="text-[#C9A84C]/10 text-[80px] sm:text-[120px] font-black leading-none absolute top-0 right-4 select-none">
               TF
             </div>
             <div className="relative">
@@ -337,7 +337,7 @@ export default function StoryPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {values.map((v, i) => (
               <Reveal key={v.title} variant="up" delay={i * 90}>
-                <article className="p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] hover:border-[#C9A84C]/50 transition-all duration-300">
+                <article className="p-5 sm:p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] hover:border-[#C9A84C]/50 transition-all duration-300">
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-[#C9A84C]">
                       <ValueIcon kind={v.icon} />
