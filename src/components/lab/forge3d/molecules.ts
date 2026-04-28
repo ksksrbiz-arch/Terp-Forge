@@ -99,8 +99,10 @@ export function buildMolecule(compound: ForgeCompound): BuiltMolecule {
   }
 
   // Branch atoms — spread more in Z so the molecule has genuine depth.
+  // Guard: only iterate if the compound has atoms beyond the 6-ring base.
   for (let i = 6; i < compound.atoms; i++) {
-    const parent = positions[i % 6]!;
+    const parent = positions[i % 6];
+    if (!parent) continue;
     const dir = parent.clone().normalize();
     const offset = new THREE.Vector3(
       (Math.random() - 0.5) * 0.22,
@@ -131,8 +133,9 @@ export function buildMolecule(compound: ForgeCompound): BuiltMolecule {
     metalness: 0.6,
   });
   for (let i = 0; i < 6; i++) {
-    const a = positions[i]!;
-    const b = positions[(i + 1) % 6]!;
+    const a = positions[i];
+    const b = positions[(i + 1) % 6];
+    if (!a || !b) continue;
     const mid = a.clone().add(b).multiplyScalar(0.5);
     const len = a.distanceTo(b);
     const bond = new THREE.Mesh(

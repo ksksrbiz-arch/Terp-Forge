@@ -30,6 +30,7 @@ import {
   COMPOUNDS,
   FORGE_CANVAS_HEIGHT_CLASS,
   PALETTE,
+  cssHex,
   HudPanel,
   HudCaption,
   HudProgress,
@@ -240,9 +241,13 @@ export function PlantForge3D() {
     // Glowing concentric floor rings — additive blending so the bloom
     // turns them into luminous halos on the floor surface.
     if (!isMobile) {
-      const floorRingRadii = [2.2, 4.5, 7.2, 10.8];
-      const floorRingColors = [0xc9a84c, 0x0d9488, 0xc9a84c, 0x0d3060];
-      floorRingRadii.forEach((r, ri) => {
+      const floorRings = [
+        { r: 2.2, color: 0xc9a84c, opacity: 0.75 },
+        { r: 4.5, color: 0x0d9488, opacity: 0.29 },
+        { r: 7.2, color: 0xc9a84c, opacity: 0.23 },
+        { r: 10.8, color: 0x0d3060, opacity: 0.17 },
+      ];
+      floorRings.forEach(({ r, color, opacity }) => {
         const points: THREE.Vector3[] = [];
         const segs = 96;
         for (let i = 0; i <= segs; i++) {
@@ -251,9 +256,9 @@ export function PlantForge3D() {
         }
         const rGeo = new THREE.BufferGeometry().setFromPoints(points);
         const rMat = new THREE.LineBasicMaterial({
-          color: floorRingColors[ri] ?? 0xc9a84c,
+          color,
           transparent: true,
-          opacity: ri === 0 ? 0.75 : 0.35 - ri * 0.06,
+          opacity,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
         });
@@ -578,7 +583,9 @@ export function PlantForge3D() {
 
         // Midrib vein — add in leaf local space via a child.
         if (!isMobile) {
-          const leafLen = (scale * 1.4) * 1.35; // approximate visible length
+          // Midrib length approximates the visible leaf extent.
+          const LEAF_VEIN_LENGTH_FACTOR = 1.35;
+          const leafLen = (scale * 1.4) * LEAF_VEIN_LENGTH_FACTOR;
           const veinPts = [
             new THREE.Vector3(0, 0, 0),
             new THREE.Vector3(0, leafLen * 0.85, 0),
@@ -1191,8 +1198,8 @@ export function PlantForge3D() {
             <span
               className="text-[9px] font-mono tracking-wider uppercase px-1.5 py-0.5 border"
               style={{
-                color: `#${hudAccentColor.toString(16).padStart(6, "0")}`,
-                borderColor: `#${hudAccentColor.toString(16).padStart(6, "0")}55`,
+                color: cssHex(hudAccentColor),
+                borderColor: `${cssHex(hudAccentColor)}55`,
               }}
             >
               {categoryLabel}
