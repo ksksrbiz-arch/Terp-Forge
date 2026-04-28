@@ -686,7 +686,11 @@ export default function LabPage() {
               </div>
             </Reveal>
 
-            <Reveal variant="right" delay={150} className="relative p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] schematic-grid">
+            <Reveal
+              variant="right"
+              delay={150}
+              className="relative p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] schematic-grid"
+            >
               <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
                 ISOPRENE CLASSIFICATION SYSTEM
               </p>
