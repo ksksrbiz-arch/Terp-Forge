@@ -459,211 +459,184 @@ export function PlantForge3D() {
       scene.userData.sparkCount = sparkCount;
     }
 
-    // ── Cannabis plant (procedural, stylized) ───────────────────────────
-    const plantGroup = new THREE.Group();
-    plantGroup.position.y = 0.93;
-    scene.add(plantGroup);
+    // ── Crystalline Compound Core ────────────────────────────────────────
+    // The centerpiece of the forge: a faceted molecular crystal that grows
+    // as each compound docks. Replaces the plant with a form that speaks
+    // directly to molecular synthesis — the TerpForge brand language.
+    const CORE_Y = 2.4; // height above the pedestal
+    const coreGroup = new THREE.Group();
+    coreGroup.position.set(0, CORE_Y, 0);
+    scene.add(coreGroup);
 
-    // Stem — slightly emissive so the bloom adds a subtle green aura.
-    const stemHeight = 4.2;
-    const stemMat = new THREE.MeshStandardMaterial({
-      color: 0x3d6e32,
-      emissive: 0x0f2209,
-      emissiveIntensity: 0.6,
-      roughness: 0.75,
-      metalness: 0.05,
-    });
-    const stem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.07, 0.13, stemHeight, 14),
-      stemMat,
+    // Inner plasma sphere — pulsing energy core, gold emissive.
+    const innerSphereGeo = new THREE.SphereGeometry(
+      0.62,
+      isMobile ? 12 : 24,
+      isMobile ? 12 : 24,
     );
-    stem.position.y = stemHeight / 2;
-    stem.castShadow = !isMobile;
-    plantGroup.add(stem);
-
-    // Build a stylized 7-finger cannabis-leaf geometry once (re-used).
-    const buildLeafGeometry = (): THREE.BufferGeometry => {
-      const shape = new THREE.Shape();
-      // Fingers radiate from origin (leaf base) along +Y axis fan.
-      // Tip lengths shaped like a classic 7-finger fan leaf.
-      const fingerLengths = [0.55, 0.85, 1.15, 1.35, 1.15, 0.85, 0.55];
-      const angleSpread = Math.PI * 0.78; // ~140°
-      const n = fingerLengths.length;
-      shape.moveTo(0, 0);
-      for (let i = 0; i < n; i++) {
-        const t = i / (n - 1);
-        const angle = -angleSpread / 2 + t * angleSpread + Math.PI / 2;
-        const len = fingerLengths[i];
-        const tipX = Math.cos(angle) * len;
-        const tipY = Math.sin(angle) * len;
-        // Side control points create the serrated finger silhouette.
-        const sideAngleA = angle - 0.18;
-        const sideAngleB = angle + 0.18;
-        const sideLenA = len * 0.35;
-        const sideLenB = len * 0.35;
-        if (i === 0) {
-          shape.lineTo(
-            Math.cos(sideAngleA) * sideLenA,
-            Math.sin(sideAngleA) * sideLenA,
-          );
-        }
-        shape.quadraticCurveTo(
-          Math.cos(sideAngleA) * sideLenA,
-          Math.sin(sideAngleA) * sideLenA,
-          tipX,
-          tipY,
-        );
-        shape.quadraticCurveTo(
-          Math.cos(sideAngleB) * sideLenB,
-          Math.sin(sideAngleB) * sideLenB,
-          0,
-          0,
-        );
-      }
-      const geo = new THREE.ShapeGeometry(shape, 10);
-      geo.computeVertexNormals();
-      return geo;
-    };
-    const leafGeo = buildLeafGeometry();
-    // Two leaf materials with subtle emissive for bloom pickup.
-    const leafMatA = new THREE.MeshStandardMaterial({
-      color: 0x3d7a36,
-      emissive: 0x0d2208,
-      emissiveIntensity: 0.5,
-      roughness: 0.65,
-      metalness: 0.02,
-      side: THREE.DoubleSide,
-    });
-    const leafMatB = new THREE.MeshStandardMaterial({
-      color: 0x4f9a45,
-      emissive: 0x0d2a08,
-      emissiveIntensity: 0.55,
-      roughness: 0.65,
-      metalness: 0.02,
-      side: THREE.DoubleSide,
-    });
-
-    // Midrib (central vein) geometry — a single line per leaf.
-    // Gets added to the plantGroup directly but positioned when the leaf is.
-    const midribMat = new THREE.LineBasicMaterial({
-      color: 0x7dca5a,
+    const innerSphereMat = new THREE.MeshBasicMaterial({
+      color: 0xffd060,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.85,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
+    const innerSphere = new THREE.Mesh(innerSphereGeo, innerSphereMat);
+    coreGroup.add(innerSphere);
 
-    // Place leaf nodes at varying heights, alternating sides.
-    const leaves: THREE.Mesh[] = [];
-    const NODE_COUNT = 7;
-    for (let i = 0; i < NODE_COUNT; i++) {
-      const t = (i + 1) / (NODE_COUNT + 1);
-      const yPos = t * stemHeight * 0.95;
-      const baseRot = (i % 2 === 0 ? 0 : Math.PI) + (i * 0.4);
-      // Two leaves per node (opposite phyllotaxy).
-      for (let s = 0; s < 2; s++) {
-        const leaf = new THREE.Mesh(
-          leafGeo,
-          i % 2 === 0 ? leafMatA : leafMatB,
-        );
-        const rot = baseRot + s * Math.PI;
-        leaf.position.set(
-          Math.cos(rot) * 0.05,
-          yPos,
-          Math.sin(rot) * 0.05,
-        );
-        // Pitch leaves outward & slightly down; stylized fan look.
-        leaf.rotation.set(-Math.PI / 2 + 0.35, rot, 0);
-        // Larger leaves lower, smaller higher.
-        const scale = 1.05 - t * 0.55;
-        leaf.scale.setScalar(scale * 1.4);
-        leaf.castShadow = !isMobile;
-        leaves.push(leaf);
-        plantGroup.add(leaf);
-
-        // Midrib vein — add in leaf local space via a child.
-        if (!isMobile) {
-          // Midrib length approximates the visible leaf extent.
-          const LEAF_VEIN_LENGTH_FACTOR = 1.35;
-          const leafLen = (scale * 1.4) * LEAF_VEIN_LENGTH_FACTOR;
-          const veinPts = [
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(0, leafLen * 0.85, 0),
-          ];
-          const veinGeo = new THREE.BufferGeometry().setFromPoints(veinPts);
-          const vein = new THREE.Line(veinGeo, midribMat);
-          leaf.add(vein);
-        }
-      }
-    }
-
-    // Top cola: dense cluster of frosted "buds" — high emissive for bloom.
-    const budGroup = new THREE.Group();
-    budGroup.position.y = stemHeight - 0.1;
-    plantGroup.add(budGroup);
-    const budGeo = new THREE.IcosahedronGeometry(0.19, 1);
-    const budMat = new THREE.MeshStandardMaterial({
-      color: 0x6fb348,
-      emissive: 0x28520d,
-      emissiveIntensity: 1.0,
-      roughness: 0.45,
-      metalness: 0.08,
+    // Secondary inner glow — slightly larger, teal, backside only.
+    const innerGlowMat = new THREE.MeshBasicMaterial({
+      color: 0x0d9488,
+      transparent: true,
+      opacity: 0.3,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.BackSide,
     });
-    for (let i = 0; i < 18; i++) {
-      const bud = new THREE.Mesh(budGeo, budMat);
-      const a = Math.random() * Math.PI * 2;
-      const r = Math.random() * 0.36;
-      bud.position.set(
-        Math.cos(a) * r,
-        Math.random() * 0.85,
-        Math.sin(a) * r,
-      );
-      bud.scale.setScalar(0.55 + Math.random() * 0.95);
-      bud.castShadow = !isMobile;
-      budGroup.add(bud);
-    }
+    coreGroup.add(
+      new THREE.Mesh(
+        new THREE.SphereGeometry(0.95, isMobile ? 10 : 18, isMobile ? 10 : 18),
+        innerGlowMat,
+      ),
+    );
 
-    // Trichome glow — a point cloud of tiny emissive dots around the bud
-    // cluster. Under bloom these read as a frosty crystalline aura.
+    // Main icosahedron body — dark navy metal, subtle teal emissive.
+    const coreBodyGeo = new THREE.IcosahedronGeometry(1.5, isMobile ? 0 : 1);
+    const coreBodyMat = new THREE.MeshStandardMaterial({
+      color: 0x0a1628,
+      emissive: 0x0d9488,
+      emissiveIntensity: 0.18,
+      metalness: 0.96,
+      roughness: 0.18,
+      transparent: true,
+      opacity: 0.92,
+    });
+    const coreMesh = new THREE.Mesh(coreBodyGeo, coreBodyMat);
+    coreMesh.castShadow = !isMobile;
+    coreGroup.add(coreMesh);
+
+    // Wireframe shell — outer icosahedron (level-0), gold edges.
+    // EdgesGeometry gives only silhouette edges, far cleaner than wireframe:true.
+    const wireBaseGeo = new THREE.IcosahedronGeometry(1.88, 0);
+    const wireEdgesGeo = new THREE.EdgesGeometry(wireBaseGeo);
+    wireBaseGeo.dispose();
+    const wireMat = new THREE.LineBasicMaterial({
+      color: 0xc9a84c,
+      transparent: true,
+      opacity: 0.52,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const wireShell = new THREE.LineSegments(wireEdgesGeo, wireMat);
+    coreGroup.add(wireShell);
+
+    // Equatorial orbit ring — gold, sits in the XZ plane.
+    const coreRingMat = new THREE.MeshBasicMaterial({
+      color: 0xc9a84c,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const coreRing = new THREE.Mesh(
+      new THREE.TorusGeometry(2.38, 0.025, 8, isMobile ? 48 : 96),
+      coreRingMat,
+    );
+    coreGroup.add(coreRing);
+
+    // Second ring — teal, tilted 60° for depth.
+    const coreRing2Mat = new THREE.MeshBasicMaterial({
+      color: 0x0d9488,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const coreRing2 = new THREE.Mesh(
+      new THREE.TorusGeometry(2.12, 0.018, 8, isMobile ? 48 : 96),
+      coreRing2Mat,
+    );
+    coreRing2.rotation.x = Math.PI / 3;
+    coreGroup.add(coreRing2);
+
+    // Particle halo — fine dust cloud orbiting the core.
     if (!isMobile) {
-      const trichCount = 120;
-      const trichPos = new Float32Array(trichCount * 3);
-      for (let i = 0; i < trichCount; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const elev = Math.random() * Math.PI;
-        const r = 0.55 + Math.random() * 0.35;
-        trichPos[i * 3] = Math.sin(elev) * Math.cos(a) * r;
-        trichPos[i * 3 + 1] = 0.25 + Math.cos(elev) * r * 0.5;
-        trichPos[i * 3 + 2] = Math.sin(elev) * Math.sin(a) * r;
+      const haloCount = 180;
+      const haloPos = new Float32Array(haloCount * 3);
+      for (let i = 0; i < haloCount; i++) {
+        const phi = Math.acos(1 - 2 * (i + 0.5) / haloCount);
+        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+        const r = 2.55 + (Math.random() - 0.5) * 0.7;
+        haloPos[i * 3]     = Math.sin(phi) * Math.cos(theta) * r;
+        haloPos[i * 3 + 1] = Math.cos(phi) * r;
+        haloPos[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * r;
       }
-      const trichGeo = new THREE.BufferGeometry();
-      trichGeo.setAttribute("position", new THREE.BufferAttribute(trichPos, 3));
-      const trichMat = new THREE.PointsMaterial({
-        color: 0xeaf5d0,
-        size: 0.055,
+      const haloPtGeo = new THREE.BufferGeometry();
+      haloPtGeo.setAttribute("position", new THREE.BufferAttribute(haloPos, 3));
+      const haloPtMat = new THREE.PointsMaterial({
+        color: 0xffd060,
+        size: 0.06,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.55,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         sizeAttenuation: true,
       });
-      budGroup.add(new THREE.Points(trichGeo, trichMat));
+      coreGroup.add(new THREE.Points(haloPtGeo, haloPtMat));
     }
 
-    // Anchor points on the plant where molecules attach.
+    // ── Anchor points — evenly distributed on a sphere around the core ──
+    // Using the Fibonacci / golden-angle lattice for optimal spacing.
+    const ANCHOR_RADIUS = 2.65;
     const anchors: THREE.Vector3[] = [];
     for (let i = 0; i < COMPOUNDS.length; i++) {
-      const t = (i + 0.5) / COMPOUNDS.length;
-      const yLocal = 0.6 + t * (stemHeight - 0.6);
-      const a = i * 2.39996; // golden angle for nice spread
-      const r = 0.7 + Math.random() * 0.2;
+      const phi = Math.acos(1 - 2 * (i + 0.5) / COMPOUNDS.length);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
       anchors.push(
         new THREE.Vector3(
-          Math.cos(a) * r,
-          plantGroup.position.y + yLocal,
-          Math.sin(a) * r,
+          Math.sin(phi) * Math.cos(theta) * ANCHOR_RADIUS,
+          Math.cos(phi) * ANCHOR_RADIUS + CORE_Y,
+          Math.sin(phi) * Math.sin(theta) * ANCHOR_RADIUS,
         ),
       );
+    }
+
+    // ── Per-anchor scaffold nodes + bond lines (revealed as compounds dock) ──
+    // These build up the "grown lattice" effect: each docked compound
+    // leaves a permanent glowing node and a bond rod connecting it to center.
+    const anchorNodes: THREE.Mesh[] = [];
+    const anchorBonds: THREE.Line[] = [];
+    for (let i = 0; i < COMPOUNDS.length; i++) {
+      const nodeMat = new THREE.MeshBasicMaterial({
+        color: COMPOUNDS[i].color,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const nodeMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.13, isMobile ? 6 : 10, isMobile ? 6 : 10),
+        nodeMat,
+      );
+      nodeMesh.position.copy(anchors[i]);
+      scene.add(nodeMesh);
+      anchorNodes.push(nodeMesh);
+
+      const bondPts = [
+        new THREE.Vector3(0, CORE_Y, 0),
+        anchors[i].clone(),
+      ];
+      const bondGeo = new THREE.BufferGeometry().setFromPoints(bondPts);
+      const bondMat = new THREE.LineBasicMaterial({
+        color: COMPOUNDS[i].color,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const bondLine = new THREE.Line(bondGeo, bondMat);
+      scene.add(bondLine);
+      anchorBonds.push(bondLine);
     }
 
     // ── Molecule builder ────────────────────────────────────────────────
@@ -757,7 +730,7 @@ export function PlantForge3D() {
       const r = 14 + Math.random() * 6;
       return new THREE.Vector3(
         Math.cos(a) * r,
-        plantGroup.position.y + elev * 4,
+        CORE_Y + elev * 4,
         Math.sin(a) * r,
       );
     };
@@ -811,6 +784,13 @@ export function PlantForge3D() {
         lastIndex = -1;
         molecules.forEach((m) => disposeMolecule(m));
         molecules = [];
+        // Fade out all scaffold nodes and bonds so they rebuild fresh.
+        anchorNodes.forEach((n) => {
+          (n.material as THREE.MeshBasicMaterial).opacity = 0;
+        });
+        anchorBonds.forEach((b) => {
+          (b.material as THREE.LineBasicMaterial).opacity = 0;
+        });
         setHud((h) => ({ ...INITIAL_HUD, paused: h.paused }));
       }
 
@@ -820,9 +800,9 @@ export function PlantForge3D() {
         const compound =
           COMPOUNDS[Math.floor(Math.random() * COMPOUNDS.length)];
         const anchor = new THREE.Vector3(
-          (Math.random() - 0.5) * 1.4,
-          plantGroup.position.y + 0.8 + Math.random() * stemHeight * 0.8,
-          (Math.random() - 0.5) * 1.4,
+          (Math.random() - 0.5) * 3.0,
+          CORE_Y + (Math.random() - 0.5) * 2.2,
+          (Math.random() - 0.5) * 3.0,
         );
         const m = buildMolecule(compound, anchor, randomSpawnPoint());
         // Bonus molecules animate independently with their own clock.
@@ -948,6 +928,17 @@ export function PlantForge3D() {
           (m.trail.material as THREE.LineBasicMaterial).opacity = 0;
           (m.shock.material as THREE.MeshBasicMaterial).opacity = 0;
           m.attached = true;
+          // Fade in the scaffold node + bond for scripted compounds.
+          // Bonus molecules (tagged bonusStart) are ephemeral — skip them.
+          if (typeof (m as MoleculeRuntime & { bonusStart?: number }).bonusStart !== "number") {
+            const ci = COMPOUNDS.indexOf(m.compound);
+            if (ci >= 0) {
+              const nodeMat = anchorNodes[ci].material as THREE.MeshBasicMaterial;
+              nodeMat.opacity = Math.min(0.9, nodeMat.opacity + dt * 3.0);
+              const bondMat = anchorBonds[ci].material as THREE.LineBasicMaterial;
+              bondMat.opacity = Math.min(0.55, bondMat.opacity + dt * 2.0);
+            }
+          }
         }
 
         // Bonus molecules expire after ~12s to avoid clutter.
@@ -993,10 +984,15 @@ export function PlantForge3D() {
         spAttr.needsUpdate = true;
       }
 
-      // Plant breathing: gentle vertical scale + sway
-      const breathe = 1 + Math.sin(elapsed * 0.9) * 0.012;
-      plantGroup.scale.set(1, breathe, 1);
-      plantGroup.rotation.y = Math.sin(elapsed * 0.25) * 0.04;
+      // Core: gentle rotation + counter-rotating wireframe shell + ring orbits.
+      coreGroup.rotation.y += dt * 0.18;
+      coreGroup.rotation.x = Math.sin(elapsed * 0.22) * 0.08;
+      wireShell.rotation.y = -coreGroup.rotation.y * 1.65;
+      coreRing.rotation.z += dt * 0.5;
+      coreRing2.rotation.y += dt * 0.38;
+      // Inner plasma sphere breathes with a slow heartbeat.
+      const breathFactor = 0.78 + Math.sin(elapsed * 1.1) * 0.22;
+      innerSphere.scale.setScalar(breathFactor);
 
       // HUD update (throttled to ~10/sec is fine; React batches)
       const hudCompound = sequenceDone
