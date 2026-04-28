@@ -85,6 +85,14 @@ interface DockedMolecule {
   phase: "flight" | "lockin" | "reject" | "dwell" | "fade" | "done";
   /** Ember burst points (success only). Disposed when molecule disposes. */
   burst?: { points: THREE.Points; velocities: Float32Array; age: number };
+  /** Comet-like streak rendered behind the molecule during flight. */
+  trail: THREE.Line;
+  trailPositions: Float32Array;
+  /** Two concentric shockwave rings that bloom on a successful lock-in. */
+  shocks?: {
+    rings: THREE.Mesh[];
+    age: number;
+  };
 }
 
 interface ReceptorRuntime {
@@ -441,6 +449,9 @@ export function ReceptorDocking3D() {
       }
     };
 
+    /** Trail length (samples) for each docking molecule. */
+    const TRAIL_LEN = isMobileLocal ? 24 : 48;
+
     const spawnMolecule = (compound: ForgeCompound, t: ReceptorId) => {
       const built = buildMolecule(compound);
       // Spawn near the floor in front of the receptors.
@@ -468,6 +479,32 @@ export function ReceptorDocking3D() {
       const aff = AFFINITY[compound.name]?.[t] ?? DEFAULT_AFFINITY;
       const success = aff >= SUCCESS_THRESHOLD;
 
+      // Comet trail: a Line whose buffer is rotated as the molecule flies.
+      // Initialised collapsed at the spawn point so the first frame doesn't
+      // draw a streak from world origin.
+      const trailPositions = new Float32Array(TRAIL_LEN * 3);
+      for (let i = 0; i < TRAIL_LEN; i++) {
+        trailPositions[i * 3] = origin.x;
+        trailPositions[i * 3 + 1] = origin.y;
+        trailPositions[i * 3 + 2] = origin.z;
+      }
+      const trailGeo = new THREE.BufferGeometry();
+      trailGeo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(trailPositions, 3),
+      );
+      const trail = new THREE.Line(
+        trailGeo,
+        new THREE.LineBasicMaterial({
+          color: compound.color,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        }),
+      );
+      scene.add(trail);
+
       docked.push({
         compound,
         target: t,
@@ -481,6 +518,8 @@ export function ReceptorDocking3D() {
         success,
         age: 0,
         phase: "flight",
+        trail,
+        trailPositions,
       });
 
       setHud((prev) => ({
@@ -542,6 +581,31 @@ export function ReceptorDocking3D() {
       return { points, velocities, age: 0 };
     };
 
+    /**
+     * Dispose extras (burst points, shockwave rings, comet trail) attached to
+     * a docked molecule. Used by the clear-button handler and the unmount
+     * cleanup. Does NOT dispose the molecule group itself — callers do that.
+     */
+    const disposeDockedExtras = (m: DockedMolecule) => {
+      if (m.burst) {
+        scene.remove(m.burst.points);
+        m.burst.points.geometry.dispose();
+        (m.burst.points.material as THREE.Material).dispose();
+        m.burst = undefined;
+      }
+      if (m.shocks) {
+        for (const ring of m.shocks.rings) {
+          scene.remove(ring);
+          ring.geometry.dispose();
+          (ring.material as THREE.Material).dispose();
+        }
+        m.shocks = undefined;
+      }
+      scene.remove(m.trail);
+      m.trail.geometry.dispose();
+      (m.trail.material as THREE.Material).dispose();
+    };
+
     // ── Animation loop ─────────────────────────────────────────────────────
     let raf = 0;
     // performance.now() invoked via a tiny helper so the static purity
@@ -577,11 +641,7 @@ export function ReceptorDocking3D() {
       if (clearRef.current) {
         clearRef.current = false;
         for (const m of docked) {
-          if (m.burst) {
-            scene.remove(m.burst.points);
-            m.burst.points.geometry.dispose();
-            (m.burst.points.material as THREE.Material).dispose();
-          }
+          disposeDockedExtras(m);
           disposeMolecule(m.group);
         }
         docked.length = 0;
@@ -660,9 +720,39 @@ export function ReceptorDocking3D() {
           haloMat.opacity = 0.15 + t * 0.45;
           m.halo.scale.setScalar(0.6 + t * 0.6);
 
+          // Comet trail: rotate the buffer so the head follows the molecule.
+          // Brightness ramps up early then fades back as the burst takes over.
+          const trailMat = m.trail.material as THREE.LineBasicMaterial;
+          trailMat.opacity = Math.min(1, t * 2.4) * (1 - t * 0.35) * 0.95;
+          const tp = m.trailPositions;
+          const len = tp.length / 3;
+          for (let p = 0; p < len - 1; p++) {
+            tp[p * 3] = tp[(p + 1) * 3];
+            tp[p * 3 + 1] = tp[(p + 1) * 3 + 1];
+            tp[p * 3 + 2] = tp[(p + 1) * 3 + 2];
+          }
+          tp[(len - 1) * 3] = x;
+          tp[(len - 1) * 3 + 1] = y;
+          tp[(len - 1) * 3 + 2] = z;
+          (m.trail.geometry.getAttribute("position") as THREE.BufferAttribute)
+            .needsUpdate = true;
+
+          // Pre-impact pocket flare-up: ramp the receptor pocket emissive in
+          // the final stretch of flight so it looks like the pocket is "drawing in"
+          // the molecule, then handed off to the per-receptor flash on contact.
+          if (t > 0.78) {
+            const lead = (t - 0.78) / 0.22;
+            const receptor = receptors[m.target];
+            const peek = receptor.flash;
+            // Don't override an active stronger flash from a recent dock.
+            receptor.flash = Math.max(peek, lead * 0.6);
+          }
+
           if (t >= 1) {
             m.phase = m.success ? "lockin" : "reject";
             m.age = 0;
+            // Trail fades fast once the molecule arrives.
+            (m.trail.material as THREE.LineBasicMaterial).opacity *= 0.6;
             const receptor = receptors[m.target];
             if (m.success) {
               receptor.flash = 1.0;
@@ -672,6 +762,28 @@ export function ReceptorDocking3D() {
                 m.compound.color,
                 burstCount,
               );
+              // Two concentric shockwave rings — outer ring lags slightly so
+              // the impact reads as a percussive double-thump.
+              const makeRing = (innerR: number, outerR: number) => {
+                const geo = new THREE.RingGeometry(innerR, outerR, 64);
+                const mat = new THREE.MeshBasicMaterial({
+                  color: m.compound.color,
+                  transparent: true,
+                  opacity: 0.95,
+                  side: THREE.DoubleSide,
+                  blending: THREE.AdditiveBlending,
+                  depthWrite: false,
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.copy(m.destination);
+                mesh.lookAt(camera.position);
+                scene.add(mesh);
+                return mesh;
+              };
+              m.shocks = {
+                rings: [makeRing(0.45, 0.6), makeRing(0.25, 0.35)],
+                age: 0,
+              };
             } else {
               receptor.dimFlash = 1.0;
             }
@@ -766,6 +878,45 @@ export function ReceptorDocking3D() {
           }
         }
 
+        // Animate the success shockwave rings: each ring expands and fades
+        // out, with the inner ring lagging slightly to give a percussive
+        // double-thump feel. Total visible duration ~0.85s.
+        if (m.shocks) {
+          m.shocks.age += dt;
+          const SHOCK_LIFE = 0.85;
+          for (let r = 0; r < m.shocks.rings.length; r++) {
+            const ring = m.shocks.rings[r];
+            // Inner ring (idx 1) is offset by 90ms so it reads as a follow-up.
+            const offset = r === 0 ? 0 : 0.09;
+            const lt = Math.max(0, (m.shocks.age - offset) / SHOCK_LIFE);
+            if (lt <= 0) {
+              ring.visible = false;
+              continue;
+            }
+            ring.visible = true;
+            ring.lookAt(camera.position);
+            const scale = 1 + lt * (r === 0 ? 9 : 6.5);
+            ring.scale.setScalar(scale);
+            const mat = ring.material as THREE.MeshBasicMaterial;
+            mat.opacity = Math.max(0, 0.95 * (1 - lt));
+          }
+          if (m.shocks.age > SHOCK_LIFE + 0.1) {
+            for (const ring of m.shocks.rings) {
+              scene.remove(ring);
+              ring.geometry.dispose();
+              (ring.material as THREE.Material).dispose();
+            }
+            m.shocks = undefined;
+          }
+        }
+
+        // Trail fade-out for non-flight phases. The flight phase drives its
+        // own opacity; here we just bleed out whatever remains.
+        if (m.phase !== "flight") {
+          const tm = m.trail.material as THREE.LineBasicMaterial;
+          tm.opacity = Math.max(0, tm.opacity - dt * 1.6);
+        }
+
         // Cleanup
         if (m.phase === "done") {
           if (m.burst) {
@@ -773,6 +924,16 @@ export function ReceptorDocking3D() {
             m.burst.points.geometry.dispose();
             (m.burst.points.material as THREE.Material).dispose();
           }
+          if (m.shocks) {
+            for (const ring of m.shocks.rings) {
+              scene.remove(ring);
+              ring.geometry.dispose();
+              (ring.material as THREE.Material).dispose();
+            }
+          }
+          scene.remove(m.trail);
+          m.trail.geometry.dispose();
+          (m.trail.material as THREE.Material).dispose();
           disposeMolecule(m.group);
           docked.splice(i, 1);
         }
@@ -839,13 +1000,9 @@ export function ReceptorDocking3D() {
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVis);
       controls.dispose();
-      // Dispose any in-flight molecules (and their bursts).
+      // Dispose any in-flight molecules (with their bursts/shocks/trails).
       for (const m of docked) {
-        if (m.burst) {
-          scene.remove(m.burst.points);
-          m.burst.points.geometry.dispose();
-          (m.burst.points.material as THREE.Material).dispose();
-        }
+        disposeDockedExtras(m);
         disposeMolecule(m.group);
       }
       docked.length = 0;
@@ -857,6 +1014,9 @@ export function ReceptorDocking3D() {
           if (Array.isArray(mat)) mat.forEach((mm) => mm.dispose());
           else mat.dispose();
         } else if (obj instanceof THREE.Points) {
+          obj.geometry.dispose();
+          (obj.material as THREE.Material).dispose();
+        } else if (obj instanceof THREE.Line) {
           obj.geometry.dispose();
           (obj.material as THREE.Material).dispose();
         }

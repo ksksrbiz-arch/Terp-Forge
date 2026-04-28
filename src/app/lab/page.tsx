@@ -376,15 +376,37 @@ export default function LabPage() {
           className="absolute inset-0 bg-gradient-to-b from-[#0F1F3D]/60 via-[#0F1F3D]/30 to-[#0A1628] pointer-events-none"
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+          <p
+            className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4 line-rise scan-bar inline-block px-1"
+            style={{ animationDelay: "0ms" }}
+          >
             {"// SCIENCE & TRANSPARENCY"}
           </p>
           <h1
-            className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
+            className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-2 line-rise"
+            style={{ animationDelay: "120ms" }}
           >
             The Lab
           </h1>
-          <p className="text-[#64748B] font-mono text-sm max-w-2xl leading-relaxed">
+          {/* Glowing accent line under the title */}
+          <div
+            aria-hidden
+            className="line-rise mb-5 relative h-px max-w-md"
+            style={{ animationDelay: "320ms" }}
+          >
+            <span
+              className="block h-px w-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, #C9A84C 30%, #0D9488 70%, transparent)",
+                boxShadow: "0 0 12px rgba(201,168,76,0.55)",
+              }}
+            />
+          </div>
+          <p
+            className="text-[#64748B] font-mono text-sm max-w-2xl leading-relaxed line-rise"
+            style={{ animationDelay: "420ms" }}
+          >
             Molecular science, without the mystification. Every compound in
             every TerpForge product is selected on the basis of peer-reviewed
             research, then verified by independent third-party analysis.
@@ -400,11 +422,12 @@ export default function LabPage() {
               { href: "#profiles", label: "Compound Library" },
               { href: "#synergy", label: "Synergy Builder" },
               { href: "#coa", label: "COA Portal" },
-            ].map(({ href, label }) => (
+            ].map(({ href, label }, idx) => (
               <a
                 key={href}
                 href={href}
-                className="px-4 py-2 border border-[#0D9488]/40 text-[#0D9488] text-xs font-mono tracking-widest uppercase hover:border-[#0D9488] hover:bg-[#0D9488]/10 transition-all"
+                className="px-4 py-2 border border-[#0D9488]/40 text-[#0D9488] text-xs font-mono tracking-widest uppercase hover:border-[#0D9488] hover:bg-[#0D9488]/10 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(13,148,136,0.25)] transition-all duration-300 line-rise"
+                style={{ animationDelay: `${560 + idx * 60}ms` }}
               >
                 {label}
               </a>

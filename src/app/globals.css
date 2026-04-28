@@ -465,6 +465,85 @@ samp {
 }
 .animate-fade-in { animation: fade-in 0.3s ease-out both; }
 
+/* ── Lab visual upgrade utilities ───────────────────────────────────────────
+   Cinematic touches layered on top of the existing forge aesthetic:
+   - cell-cascade:   periodic-table style staggered entrance for grid items.
+                     Use `--i` (or inline transitionDelay) to phase delay.
+   - aura-pulse:     soft halo pulse around the active matrix cell.
+   - title-flicker:  brief power-on flicker for hero headlines.
+   - scan-bar:       horizontal gold scan line that slides under hero titles.
+   - tilt-hover:     slight 3D tilt + glow on hover for interactive cards.
+   ────────────────────────────────────────────────────────────────────────── */
+@keyframes cell-cascade {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.92);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+.cell-cascade {
+  opacity: 0;
+  animation: cell-cascade 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes aura-pulse {
+  0%, 100% { box-shadow: 0 0 18px var(--aura-color, rgba(13, 148, 136, 0.35)),
+                          inset 0 0 22px var(--aura-color-inner, rgba(13, 148, 136, 0.10)); }
+  50%      { box-shadow: 0 0 36px var(--aura-color, rgba(13, 148, 136, 0.55)),
+                          inset 0 0 30px var(--aura-color-inner, rgba(13, 148, 136, 0.18)); }
+}
+.aura-pulse { animation: aura-pulse 2.6s ease-in-out infinite; }
+
+@keyframes title-flicker {
+  0%   { opacity: 0; }
+  6%   { opacity: 0.85; }
+  8%   { opacity: 0.2; }
+  12%  { opacity: 0.95; }
+  16%  { opacity: 0.4; }
+  18%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+.title-flicker { animation: title-flicker 1.4s ease-out both; }
+
+@keyframes scan-bar-sweep {
+  0%   { transform: translateX(-110%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(110%); opacity: 0; }
+}
+.scan-bar {
+  position: relative;
+  overflow: hidden;
+}
+.scan-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(13, 148, 136, 0.0) 30%,
+    rgba(201, 168, 76, 0.65) 50%,
+    rgba(13, 148, 136, 0.0) 70%,
+    transparent 100%
+  );
+  animation: scan-bar-sweep 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Subtle idle bob for SVG molecule atoms — applied as transform-origin
+   center; works on <g> wrappers. */
+@keyframes atom-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1.5px); }
+}
+.atom-bob { animation: atom-bob 3.2s ease-in-out infinite; }
+
 /* Stagger fade-in — used by hero kinetic headline */
 @keyframes line-rise {
   from { opacity: 0; transform: translateY(28px); filter: blur(8px); }

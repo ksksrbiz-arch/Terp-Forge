@@ -456,7 +456,16 @@ export function PlantForge3D() {
       halo: THREE.Mesh;
       bobSeed: number;
       attached: boolean;
+      /** Streak trail behind the molecule during fly-in. */
+      trail: THREE.Line;
+      trailPositions: Float32Array;
+      trailHead: number;
+      /** Expanding ring shockwave that fires on burst. */
+      shock: THREE.Mesh;
     }
+
+    /** Number of trail samples kept per molecule. Lower on mobile. */
+    const TRAIL_LEN = isMobile ? 18 : 32;
 
     const buildMolecule = (
       compound: ForgeCompound,
@@ -467,6 +476,45 @@ export function PlantForge3D() {
       built.group.position.copy(origin);
       scene.add(built.group);
 
+      // Trail — a Line whose buffer is rotated as the head advances. Starts
+      // collapsed at the origin so the first frame doesn't draw a streak from
+      // (0,0,0). Additive blending sells the "molten" look.
+      const trailPositions = new Float32Array(TRAIL_LEN * 3);
+      for (let i = 0; i < TRAIL_LEN; i++) {
+        trailPositions[i * 3] = origin.x;
+        trailPositions[i * 3 + 1] = origin.y;
+        trailPositions[i * 3 + 2] = origin.z;
+      }
+      const trailGeo = new THREE.BufferGeometry();
+      trailGeo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(trailPositions, 3),
+      );
+      const trailMat = new THREE.LineBasicMaterial({
+        color: compound.color,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const trail = new THREE.Line(trailGeo, trailMat);
+      scene.add(trail);
+
+      // Shockwave ring — sits on the molecule's anchor, scales up + fades
+      // out across the burst phase. Disabled (scale 0) until burst begins.
+      const shockGeo = new THREE.RingGeometry(0.4, 0.55, 48);
+      const shockMat = new THREE.MeshBasicMaterial({
+        color: compound.color,
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const shock = new THREE.Mesh(shockGeo, shockMat);
+      shock.scale.setScalar(0.0001);
+      scene.add(shock);
+
       return {
         group: built.group,
         compound,
@@ -476,6 +524,10 @@ export function PlantForge3D() {
         halo: built.halo,
         bobSeed: Math.random() * Math.PI * 2,
         attached: false,
+        trail,
+        trailPositions,
+        trailHead: 0,
+        shock,
       };
     };
 
@@ -501,6 +553,13 @@ export function PlantForge3D() {
 
     const disposeMolecule = (m: MoleculeRuntime) => {
       disposeMoleculeShared(m.group);
+      // Free trail + shockwave that we own (not part of the shared molecule).
+      scene.remove(m.trail);
+      m.trail.geometry.dispose();
+      (m.trail.material as THREE.Material).dispose();
+      scene.remove(m.shock);
+      m.shock.geometry.dispose();
+      (m.shock.material as THREE.Material).dispose();
     };
 
     // ── Animation loop ──────────────────────────────────────────────────
@@ -609,18 +668,47 @@ export function PlantForge3D() {
           (m.halo.material as THREE.MeshBasicMaterial).opacity = 0.15 + t * 0.4;
           m.halo.scale.setScalar(0.6 + t * 0.6);
           m.halo.lookAt(camera.position);
+
+          // Trail: rotate the buffer so the head is at the molecule's current
+          // position; older samples drift away. Brightest at the head, fading
+          // toward the tail (line color is uniform — opacity is what we drive).
+          const trailMat = m.trail.material as THREE.LineBasicMaterial;
+          trailMat.opacity = 0.4 + t * 0.55;
+          const tp = m.trailPositions;
+          for (let i = 0; i < TRAIL_LEN - 1; i++) {
+            tp[i * 3] = tp[(i + 1) * 3];
+            tp[i * 3 + 1] = tp[(i + 1) * 3 + 1];
+            tp[i * 3 + 2] = tp[(i + 1) * 3 + 2];
+          }
+          tp[(TRAIL_LEN - 1) * 3] = m.group.position.x;
+          tp[(TRAIL_LEN - 1) * 3 + 1] = m.group.position.y;
+          tp[(TRAIL_LEN - 1) * 3 + 2] = m.group.position.z;
+          (m.trail.geometry.getAttribute("position") as THREE.BufferAttribute)
+            .needsUpdate = true;
         } else if (mt <= PHASE_FLY + PHASE_BURST) {
-          // Burst on contact: flash + ring expansion.
+          // Burst on contact: flash + halo expansion + shockwave ring + flash.
           const t = (mt - PHASE_FLY) / PHASE_BURST;
           m.group.position.copy(m.anchor);
-          m.glow.intensity = 4.0 * (1 - t) + 0.8;
+          m.glow.intensity = 5.5 * (1 - t) + 0.8;
           const haloMat = m.halo.material as THREE.MeshBasicMaterial;
           haloMat.opacity = 0.85 * (1 - t);
-          m.halo.scale.setScalar(1 + t * 2.4);
+          m.halo.scale.setScalar(1 + t * 2.6);
           m.halo.lookAt(camera.position);
           m.group.rotation.x += dt * 0.8;
           m.group.rotation.y += dt * 1.1;
           m.attached = true;
+
+          // Trail rapidly thins out during the burst.
+          const trailMat = m.trail.material as THREE.LineBasicMaterial;
+          trailMat.opacity = Math.max(0, 0.95 * (1 - t * 1.6));
+
+          // Shockwave: expand from anchor, fade as it grows.
+          m.shock.position.copy(m.anchor);
+          m.shock.lookAt(camera.position);
+          const shockScale = 0.5 + t * 4.5;
+          m.shock.scale.setScalar(shockScale);
+          (m.shock.material as THREE.MeshBasicMaterial).opacity =
+            0.85 * (1 - t);
         } else {
           // Settle: subtle bob + rotation while attached.
           const bobT = (mt - PHASE_FLY - PHASE_BURST + m.bobSeed) % 1000;
@@ -633,6 +721,9 @@ export function PlantForge3D() {
           m.group.rotation.y += dt * 0.6;
           m.glow.intensity = 0.9 + Math.sin(bobT * 2.0) * 0.25;
           (m.halo.material as THREE.MeshBasicMaterial).opacity = 0.0;
+          // Trail + shock are spent — make sure they're invisible.
+          (m.trail.material as THREE.LineBasicMaterial).opacity = 0;
+          (m.shock.material as THREE.MeshBasicMaterial).opacity = 0;
           m.attached = true;
         }
 
@@ -815,6 +906,9 @@ export function PlantForge3D() {
           if (Array.isArray(mat)) mat.forEach((mm) => mm.dispose());
           else mat.dispose();
         } else if (obj instanceof THREE.Points) {
+          obj.geometry.dispose();
+          (obj.material as THREE.Material).dispose();
+        } else if (obj instanceof THREE.Line) {
           obj.geometry.dispose();
           (obj.material as THREE.Material).dispose();
         }
