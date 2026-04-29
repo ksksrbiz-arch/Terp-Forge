@@ -1,5 +1,6 @@
 import { products } from "@/lib/products";
 import { terpenes } from "@/lib/compounds";
+import { editorials, editorialRoutes } from "@/lib/editorials";
 
 export const siteName = "TerpForge";
 export const siteUrl = "https://terpforge.com";
@@ -10,13 +11,15 @@ export const siteRoutes = [
   "/",
   "/shop",
   "/lab",
+  "/journal",
   "/story",
   "/contact",
-] as const;
+  ...editorialRoutes,
+];
 
 export type CommandEntry = {
   id: string;
-  kind: "Page" | "Section" | "Product" | "Compound";
+  kind: "Page" | "Section" | "Product" | "Compound" | "Editorial";
   title: string;
   description: string;
   href: string;
@@ -47,6 +50,14 @@ const sectionEntries: CommandEntry[] = [
     description: "Compound library and COA portal",
     href: "/lab",
     keywords: ["lab", "science", "coa"],
+  },
+  {
+    id: "page-journal",
+    kind: "Page",
+    title: "Journal",
+    description: "Editorial archive",
+    href: "/journal",
+    keywords: ["journal", "blog", "editorials", "hemp"],
   },
   {
     id: "page-story",
@@ -116,6 +127,14 @@ const sectionEntries: CommandEntry[] = [
 
 export const commandEntries: CommandEntry[] = [
   ...sectionEntries,
+  ...editorials.map((editorial) => ({
+    id: `editorial-${editorial.slug}`,
+    kind: "Editorial" as const,
+    title: editorial.title,
+    description: editorial.excerpt,
+    href: `/journal/${editorial.slug}`,
+    keywords: [editorial.eyebrow, editorial.readingTime, ...editorial.topics],
+  })),
   ...products.map((product) => ({
     id: `product-${product.id}`,
     kind: "Product" as const,

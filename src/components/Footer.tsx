@@ -14,6 +14,7 @@ const footerLinks = {
   ],
   Company: [
     { href: "/story", label: "Our Story" },
+    { href: "/journal", label: "Journal" },
     { href: "/contact", label: "Contact" },
     { href: "/lab#coa", label: "Lab Reports" },
   ],
