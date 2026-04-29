@@ -19,6 +19,12 @@ const footerLinks = {
   ],
 };
 
+const legalLinks = [
+  { href: "/privacy-policy", label: "Privacy" },
+  { href: "/terms-of-use", label: "Terms" },
+  { href: "/return-policy", label: "Returns" },
+];
+
 export default function Footer() {
   return (
     <footer className="bg-[#050E1A] border-t border-[#C9A84C]/20 mt-auto">
@@ -103,16 +109,17 @@ export default function Footer() {
           <p className="text-[#64748B] text-xs font-mono">
             © 2025 TerpForge™ — All specifications subject to batch variance.
           </p>
-          <div className="flex gap-4">
-            <a href="#" className="text-[#64748B] text-xs font-mono hover:text-[#C9A84C] transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="text-[#64748B] text-xs font-mono hover:text-[#C9A84C] transition-colors">
-              Terms
-            </a>
-            <a href="#" className="text-[#64748B] text-xs font-mono hover:text-[#C9A84C] transition-colors">
-              Lab Policy
-            </a>
+          <div className="flex gap-4 flex-wrap justify-center">
+            {legalLinks.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                prefetch={false}
+                className="text-[#64748B] text-xs font-mono hover:text-[#C9A84C] transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

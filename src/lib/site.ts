@@ -12,6 +12,9 @@ export const siteRoutes = [
   "/lab",
   "/story",
   "/contact",
+  "/privacy-policy",
+  "/return-policy",
+  "/terms-of-use",
 ] as const;
 
 export type CommandEntry = {
@@ -63,6 +66,30 @@ const sectionEntries: CommandEntry[] = [
     description: "Transmission form",
     href: "/contact",
     keywords: ["contact", "support", "message"],
+  },
+  {
+    id: "page-privacy-policy",
+    kind: "Page",
+    title: "Privacy Policy",
+    description: "How TerpForge handles customer data",
+    href: "/privacy-policy",
+    keywords: ["privacy", "policy", "data", "legal"],
+  },
+  {
+    id: "page-return-policy",
+    kind: "Page",
+    title: "Return Policy",
+    description: "Returns, refunds, and exchanges",
+    href: "/return-policy",
+    keywords: ["returns", "refunds", "exchanges", "legal"],
+  },
+  {
+    id: "page-terms-of-use",
+    kind: "Page",
+    title: "Terms of Use",
+    description: "Website and storefront usage terms",
+    href: "/terms-of-use",
+    keywords: ["terms", "legal", "usage", "policy"],
   },
   {
     id: "section-cathedral",
