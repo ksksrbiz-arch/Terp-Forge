@@ -27,6 +27,7 @@ TerpForge is a technical extraction-themed lifestyle brand at the intersection o
 | `/`        | The Forge         | Homepage: hero, Cathedral Principle, products     |
 | `/shop`    | The Inventory     | Product catalog (Apparel, Hardware, CBD Wellness) |
 | `/lab`     | The Lab           | Terpene science education + COA portal            |
+| `/journal` | Journal           | Long-form editorials on hemp growth and extraction |
 | `/story`   | The Foundry Story | Brand origin, timeline, engineering values        |
 | `/contact` | Contact           | Transmission form + The Registry email capture    |
 
