@@ -5,6 +5,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import { CompoundTrayProvider } from "@/components/CompoundTrayContext";
+import { CompoundTray } from "@/components/CompoundTray";
 import PageTransition from "@/components/PageTransition";
 import SiteShellEnhancements from "@/components/SiteShellEnhancements";
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
@@ -104,13 +106,16 @@ export default function RootLayout({
           Skip to content
         </a>
         <CartProvider>
-          <SiteShellEnhancements />
-          <Navigation />
-          <main id="main-content" className="flex-1">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <Footer />
-          <CartDrawer />
+          <CompoundTrayProvider>
+            <SiteShellEnhancements />
+            <Navigation />
+            <main id="main-content" className="flex-1">
+              <PageTransition>{children}</PageTransition>
+            </main>
+            <Footer />
+            <CartDrawer />
+            <CompoundTray />
+          </CompoundTrayProvider>
         </CartProvider>
         {/* Site-wide atmospheric overlays — film grain + radial vignette.
             Mounted last so they layer over every page surface but stay

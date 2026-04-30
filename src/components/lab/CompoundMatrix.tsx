@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { terpenes, type TerpeneCompound } from "@/lib/compounds";
+import { useCompoundTray } from "@/components/CompoundTrayContext";
 
 /** Periodic-table-style grid of TerpForge's compound library.
  *  Each cell shows symbol + atomic-number style header, formula footer,
@@ -14,23 +15,28 @@ export function CompoundMatrix({
   activeSlug?: string;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
+  const { pinned, toggle, isFull } = useCompoundTray();
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
       {terpenes.map((c) => {
         const isActive = c.slug === activeSlug;
         const isHover = hovered === c.slug;
+        const isPinned = pinned.includes(c.slug);
         return (
-          <button
-            type="button"
+          <div
             key={c.slug}
-            onClick={() => onSelect(c)}
+            className="relative"
             onMouseEnter={() => setHovered(c.slug)}
             onMouseLeave={() => setHovered(null)}
+          >
+          <button
+            type="button"
+            onClick={() => onSelect(c)}
             onFocus={() => setHovered(c.slug)}
             onBlur={() => setHovered(null)}
             aria-pressed={isActive}
-            className="group relative aspect-square overflow-hidden border bg-[#0A1628] transition-all duration-300 text-left"
+            className="group relative aspect-square overflow-hidden border bg-[#0A1628] transition-all duration-300 text-left w-full"
             style={{
               borderColor: isActive ? c.profileColor : `${c.profileColor}30`,
               boxShadow: isActive
@@ -114,6 +120,29 @@ export function CompoundMatrix({
               <span>{c.bp.split(" ")[0]}</span>
             </div>
           </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggle(c.slug);
+              }}
+              onFocus={() => setHovered(c.slug)}
+              onBlur={() => setHovered(null)}
+              disabled={!isPinned && isFull}
+              aria-label={isPinned ? `Unpin ${c.name}` : `Pin ${c.name} to tray`}
+              aria-pressed={isPinned}
+              className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 z-[1] text-[9px] font-mono tracking-widest uppercase border px-2 py-0.5 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed ${
+                isPinned || isHover ? "opacity-100" : "opacity-0"
+              }`}
+              style={{
+                color: isPinned ? "#0A1628" : c.profileColor,
+                background: isPinned ? c.profileColor : "rgba(10,22,40,0.92)",
+                borderColor: c.profileColor,
+              }}
+            >
+              {isPinned ? "✓ PINNED" : "+ PIN"}
+            </button>
+          </div>
         );
       })}
     </div>

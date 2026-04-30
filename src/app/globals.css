@@ -833,10 +833,27 @@ body[data-tf-dragging="CALM"] [data-profile="CALM"][data-tf-droppable="true"] {
   outline-offset: 2px;
 }
 
+/* Compound Tray dock */
+.tf-tray {
+  font-family: var(--font-tf-mono), monospace;
+}
+@keyframes tf-tray-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4); }
+  60%  { box-shadow: 0 -2px 0 0 rgba(201, 168, 76, 0.0), 0 0 24px rgba(201, 168, 76, 0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.0); }
+}
+.tf-tray--pulse > button {
+  animation: tf-tray-pulse 900ms ease-out;
+}
+/* Push body content up so the collapsed dock doesn't cover the footer. */
+body[data-tf-tray="true"] { padding-bottom: 3rem; }
+
 @media (prefers-reduced-motion: reduce) {
   .tf-slot { transition: none !important; }
   .tf-synergy-poly,
   .tf-synergy-hull { transition: none !important; }
   /* Stop the dashed-hull stroke from animating. */
   .tf-synergy-hull animate { display: none; }
+  .tf-tray { transition: none !important; }
+  .tf-tray--pulse > button { animation: none !important; }
 }
