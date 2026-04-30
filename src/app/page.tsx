@@ -10,6 +10,7 @@ import CountUp from "@/components/ui/CountUp";
 import OrbitSelector from "@/components/ui/OrbitSelector";
 import { HeroDropAccent } from "@/components/ui/HeroDropAccent";
 import KineticHeadline from "@/components/ui/KineticHeadline";
+import { findProduct, formatPrice, profileColors } from "@/lib/products";
 
 const pillars = [
   {
@@ -81,51 +82,42 @@ const terpeneProfiles = [
   },
 ];
 
-// Bento layout cells for the visual showcase. Spans are tuned for lg breakpoint.
-// Each entry uses a unique source image — duplicates were collapsed during the
-// visual optimization pass.
+// Bento layout for the visual showcase. Tuned for a 4-col lg grid where
+// auto-rows are 12rem; spans below produce a clean 3-row layout with no
+// empty cells:
+//   row 1-2 cols 1-2 → hero (2×2)
+//   row 1   col  3   → lab-molecular
+//   row 1   col  4   → terpene-science
+//   row 2   cols 3-4 → limonene compound (2×1)
+//   row 3   cols 1-4 → molecular-forge banner (4×1)
 const showcaseCells = [
   {
     src: "/images/forge-process.jpg",
     alt: "TerpForge extraction rig with teal cryo glow and brass pressure assembly",
     label: "FORGE // EXTRACTION RIG",
     span: "lg:col-span-2 lg:row-span-2",
-    height: "h-[26rem]",
+    height: "h-72 sm:h-80 lg:h-full",
   },
   {
     src: "/images/lab-molecular.jpg",
     alt: "Hooded figure wearing molecular-print TerpForge hoodie against forge backdrop",
     label: "APPAREL // FOIL SCHEMATIC",
     span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
+    height: "h-48 sm:h-56 lg:h-full",
   },
   {
     src: "/images/terpene-science.jpg",
     alt: "TERP-7 Elixir tincture bottle surrounded by emerald terpene crystals",
     label: "WELLNESS // TERP-7 ELIXIR",
     span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/tech-life-1.jpeg",
-    alt: "Limonene terpene oil drop suspended over molecular schematic backdrop",
-    label: "COMPOUND // LIMONENE",
-    span: "lg:col-span-2",
-    height: "h-48 sm:h-56",
-  },
-  {
-    src: "/images/product-showcase.jpg",
-    alt: "TerpForge production hall with extraction towers and operators",
-    label: "PRODUCTION // SCALE",
-    span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
+    height: "h-48 sm:h-56 lg:h-full",
   },
   {
     src: "/images/tech-life-2.jpeg",
     alt: "Limonene C₁₀H₁₆ molecular schematic with terpene oil cascade",
-    label: "ISOLATION // C₁₀H₁₆",
-    span: "lg:col-span-1",
-    height: "h-48 sm:h-56",
+    label: "COMPOUND // LIMONENE C₁₀H₁₆",
+    span: "lg:col-span-2",
+    height: "h-48 sm:h-56 lg:h-full",
   },
   {
     src: "/images/hero-extraction.jpg",
@@ -136,35 +128,25 @@ const showcaseCells = [
   },
 ];
 
-const featuredProducts = [
-  {
-    category: "APPAREL",
-    name: "Myrcene Structure Hoodie",
-    spec: "GSM-420 Cotton Fleece · Gold Foil Molecular Print",
-    price: "$89.00",
-    badge: "NEW DROP",
-    href: "/shop#apparel",
-    icon: "◈",
-  },
-  {
-    category: "HARDWARE",
-    name: "Terpene Vault — UV Series",
-    spec: "Borosilicate Glass · Airtight Seal System · UV-400 Shield",
-    price: "$64.00",
-    badge: "BESTSELLER",
-    href: "/shop#hardware",
-    icon: "⬡",
-  },
-  {
-    category: "CBD WELLNESS",
-    name: "Focus Protocol — Limonene Tincture",
-    spec: "1000mg CBD · Limonene-Dominant · COA Verified",
-    price: "$74.00",
-    badge: "COA VERIFIED",
-    href: "/shop#wellness",
-    icon: "◉",
-  },
-];
+// Featured trio sourced from the canonical catalog so the homepage cards
+// share imagery, pricing, and metadata with /shop. Each entry maps to a SKU
+// id; the card pulls the SVG schematic and spec sheet directly from the
+// Product record. Edit the id list to swap which SKUs feature.
+const featuredProducts = (["tf-ap-001", "tf-hw-001", "tf-wl-001"] as const)
+  .map((id) => findProduct(id))
+  .filter((p): p is NonNullable<ReturnType<typeof findProduct>> => Boolean(p))
+  .map((p) => ({
+    category: p.categoryLabel,
+    name: p.name,
+    spec: p.spec,
+    price: formatPrice(p.price),
+    badge: p.badge,
+    href: `/shop#${p.category}`,
+    icon: p.icon,
+    image: p.image,
+    alt: `${p.name} — ${p.spec}`,
+    profile: p.profile,
+  }));
 
 export default function Home() {
   return (
@@ -173,8 +155,15 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
         {/* Real WebGL-feel scene + drop-accent overlay. Drop a compound
             chip on the hero to tint the molecules toward that compound's
-            profile color (~1.5s decay) with a telemetry announce. */}
-        <HeroDropAccent />
+            profile color (~1.5s decay) with a telemetry announce.
+
+            On viewports < lg the headline takes the full width — so we
+            constrain the scene to the lower half of the hero to avoid the
+            molecules overlapping the title. On lg+ the scene fills the
+            whole section because the right column is intentionally empty. */}
+        <div className="absolute inset-x-0 top-[58%] bottom-0 lg:inset-0">
+          <HeroDropAccent />
+        </div>
 
         {/* Vignette to keep typography legible over the scene. The site-
             wide vignette is subtle; this layer is hero-specific so the
@@ -594,7 +583,7 @@ export default function Home() {
         </div>
       </Section>
 
-            {/* BRAND VIDEO */}
+      {/* BRAND VIDEO */}
       <Section
         eyebrow="TRANSMISSION"
         title="From The Foundry Floor"
@@ -602,11 +591,16 @@ export default function Home() {
         index={{ current: 5, total: 7 }}
         variant="navy"
         className="!border-t-0"
+        flatTop
       >
-        <div className="max-w-5xl mx-auto">
+        {/* Extra top margin keeps the inner video frame's corner brackets
+            clear of the section heading on tighter viewports. The frame's
+            brackets are inset *into* the box (not outside) so they cannot
+            collide with the title even on narrow widths. */}
+        <div className="max-w-5xl mx-auto mt-6">
           <Reveal variant="up">
             <div className="relative border border-[#C9A84C]/30 bg-[#0A1628] conic-ring">
-              <CornerBrackets size={14} color="#C9A84C" inset={-7} />
+              <CornerBrackets size={14} color="#C9A84C" inset={6} />
               <div className="absolute top-3 left-3 z-10 px-2 py-1 bg-[#0A1628]/80 backdrop-blur-sm border border-[#0D9488]/40">
                 <p className="text-[#0D9488] text-[10px] font-mono tracking-wider">FOUNDRY // BROADCAST</p>
               </div>
@@ -627,7 +621,7 @@ export default function Home() {
       <Section
         eyebrow="PRODUCT SYSTEMS"
         title="Current Inventory"
-        index={{ current: 5, total: 7 }}
+        index={{ current: 6, total: 7 }}
         variant="navy-light"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -638,16 +632,34 @@ export default function Home() {
                 prefetch={false}
                 className="group relative block border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 bg-[#0A1628] transition-all duration-300 overflow-hidden h-full"
               >
-                <div className="h-48 bg-[#0F1F3D] schematic-grid flex items-center justify-center border-b border-[#C9A84C]/20 relative overflow-hidden">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border border-[#C9A84C]/40 mx-auto flex items-center justify-center mb-2 group-hover:border-[#C9A84C] group-hover:rotate-12 transition-all duration-500">
-                      <span className="text-[#C9A84C]/60 text-2xl group-hover:text-[#C9A84C] transition-colors">{product.icon}</span>
+                <div className="h-48 bg-[#0F1F3D] schematic-grid border-b border-[#C9A84C]/20 relative overflow-hidden">
+                  <Image
+                    src={product.image}
+                    alt={product.alt}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover grayscale-[25%] saturate-[0.85] group-hover:grayscale-0 group-hover:saturate-100 group-hover:scale-[1.03] transition-all duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-[#0A1628]/15 to-transparent pointer-events-none" />
+                  <div className="absolute top-3 left-3 w-9 h-9 border border-[#C9A84C]/40 bg-[#0A1628]/70 backdrop-blur-sm flex items-center justify-center">
+                    <span className="text-[#C9A84C] text-base">{product.icon}</span>
+                  </div>
+                  {product.badge && (
+                    <div className="absolute top-3 right-3 px-2 py-1 bg-[#C9A84C] text-[#0A1628] text-[10px] font-bold tracking-widest">
+                      {product.badge}
                     </div>
-                    <p className="text-[#C9A84C]/50 text-xs font-mono">{product.category}</p>
-                  </div>
-                  <div className="absolute top-3 right-3 px-2 py-1 bg-[#C9A84C] text-[#0A1628] text-[10px] font-bold tracking-widest">
-                    {product.badge}
-                  </div>
+                  )}
+                  {product.profile && (
+                    <div
+                      className="absolute bottom-3 left-3 px-2 py-0.5 text-[9px] font-mono tracking-widest border rounded-sm bg-[#0A1628]/70 backdrop-blur-sm"
+                      style={{
+                        color: profileColors[product.profile],
+                        borderColor: `${profileColors[product.profile]}55`,
+                      }}
+                    >
+                      {product.profile}
+                    </div>
+                  )}
                 </div>
                 <div className="p-6">
                   <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.3em] uppercase mb-1">{product.category}</p>

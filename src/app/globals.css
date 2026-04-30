@@ -912,9 +912,12 @@ samp {
   }
   .reveal-init { opacity: 1 !important; transform: none !important; }
   .holo-gold {
-    background: var(--gold);
-    -webkit-text-fill-color: initial;
+    background: none;
+    background-clip: initial;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: currentColor;
     color: var(--gold);
+    animation: none;
   }
   .cursor-companion { display: none; }
   .forge-wash {
@@ -1109,4 +1112,15 @@ body[data-tf-tray="true"] { padding-bottom: 3rem; }
   .tf-synergy-hull animate { display: none; }
   .tf-tray { transition: none !important; }
   .tf-tray--pulse > button { animation: none !important; }
+}
+
+/* Touch vs hover-capable copy swap. Default = pointer can hover (desktop):
+   show .hover-only, hide .touch-only. On hover: none (touch devices) the
+   pair flips. Use as inline siblings:
+     <span class="hover-only">Hover</span><span class="touch-only">Tap</span>
+*/
+.touch-only { display: none; }
+@media (hover: none) {
+  .hover-only { display: none; }
+  .touch-only { display: inline; }
 }
