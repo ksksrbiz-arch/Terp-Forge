@@ -291,18 +291,15 @@ export function SynergyBuilder() {
           <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase mb-3">
             {"// Synergy summary"}
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {RADAR_AXES.map((axis) => {
               const v = synergy[axis.key as AxisKey];
               return (
-                <div
-                  key={axis.key}
-                  className="border border-[#1E293B] p-3 bg-[#0A1628]"
-                >
+                <div key={axis.key} className="border border-[#1E293B] p-2.5 sm:p-3 bg-[#0A1628]">
                   <p className="text-[#64748B] text-[9px] font-mono tracking-widest uppercase">
                     {axis.label}
                   </p>
-                  <p className="text-2xl font-black text-[#C9A84C] mt-1">
+                  <p className="text-xl sm:text-2xl font-black text-[#C9A84C] mt-1">
                     {Math.round(v)}
                   </p>
                 </div>
@@ -388,5 +385,54 @@ function Legend({
       />
       {label}
     </span>
+  );
+}
+
+function Selector({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled: string;
+}) {
+  return (
+    <div>
+      <p className="text-[#64748B] text-[10px] font-mono tracking-[0.4em] uppercase mb-2">
+        {label}
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {terpenes.map((t) => {
+          const isSelected = value === t.slug;
+          const isDisabled = disabled === t.slug;
+          return (
+            <button
+              type="button"
+              key={t.slug}
+              onClick={() => onChange(t.slug)}
+              disabled={isDisabled}
+              aria-pressed={isSelected}
+              className="border px-3 py-3 text-left transition-all"
+              style={{
+                borderColor: isSelected ? t.profileColor : `${t.profileColor}25`,
+                background: isSelected ? `${t.profileColor}18` : "transparent",
+                opacity: isDisabled ? 0.3 : 1,
+                cursor: isDisabled ? "not-allowed" : "pointer",
+              }}
+            >
+              <p className="text-[#E8EDF5] text-sm font-bold">
+                {t.name}
+              </p>
+              <p className="text-[10px] font-mono mt-0.5" style={{ color: t.profileColor }}>
+                {t.profile}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }

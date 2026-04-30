@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { terpenes } from "@/lib/compounds";
 import { useCompoundTray } from "@/components/CompoundTrayContext";
 import { CompoundMatrix } from "@/components/lab/CompoundMatrix";
@@ -12,18 +12,139 @@ import { SynergyBuilder } from "@/components/lab/SynergyBuilder";
 import { CoaCardGenerator } from "@/components/lab/CoaCardGenerator";
 import { FORGE_CANVAS_HEIGHT_CLASS } from "@/components/lab/forge3d";
 
-// 3D experiences are heavy (Three.js scene + procedural geometry). They
-// only run client-side and aren't needed for first paint, so split each
-// into its own chunk and skip SSR. A subtle skeleton holds the layout.
+// ── SceneSkeleton ─────────────────────────────────────────────────────────
+// Polished loading state displayed while the Three.js bundle downloads and
+// the WebGL scene initialises. Matches the forge aesthetic so the transition
+// from skeleton → live scene feels intentional rather than jarring.
 const SceneSkeleton = ({ label }: { label: string }) => (
   <div
-    className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#0D9488]/20 bg-[#05080F] flex items-center justify-center`}
+    className={`relative w-full ${FORGE_CANVAS_HEIGHT_CLASS} border border-[#C9A84C]/20 bg-[#05080F] overflow-hidden select-none`}
+    role="status"
+    aria-label={`Loading ${label}`}
   >
-    <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase">
-      {`// LOADING ${label.toUpperCase()}…`}
-    </p>
+    {/* Blueprint grid background */}
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(13,148,136,0.05) 1px, transparent 1px)," +
+          "linear-gradient(90deg, rgba(13,148,136,0.05) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }}
+    />
+
+    {/* Animated scan line */}
+    <div aria-hidden className="forge-scan" />
+
+    {/* Subtle vignette */}
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          "radial-gradient(ellipse at center, transparent 40%, rgba(5,8,15,0.75) 100%)",
+      }}
+    />
+
+    {/* Center indicator */}
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-5">
+      {/* Nested rotating diamonds */}
+      <div className="relative w-14 h-14" aria-hidden>
+        <span className="absolute inset-0 border border-[#C9A84C]/35 rotate-45 pulse-soft" />
+        <span
+          className="absolute inset-[5px] border border-[#0D9488]/45 rotate-[67.5deg] pulse-soft"
+          style={{ animationDelay: "0.55s" }}
+        />
+        <span className="absolute inset-[10px] bg-[#0D9488]/10 rotate-45" />
+      </div>
+
+      {/* Terminal text */}
+      <div className="text-center space-y-1.5">
+        <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase">
+          {`// INITIALIZING ${label.toUpperCase()}`}
+          <span className="cursor-blink ml-1 text-[#C9A84C]">_</span>
+        </p>
+        <p className="text-[#334155] text-[9px] font-mono tracking-[0.25em] uppercase skeleton-pulse">
+          building geometry · compiling shaders
+        </p>
+      </div>
+
+      {/* Progress sweep bar */}
+      <div className="w-40 sm:w-56 h-px bg-[#1E293B] overflow-hidden">
+        <div
+          aria-hidden
+          className="h-full"
+          style={{
+            width: "30%",
+            background: "linear-gradient(90deg, transparent, #0D9488 40%, #C9A84C 60%, transparent)",
+            animation: "skeleton-progress 1.8s ease-in-out infinite",
+          }}
+        />
+      </div>
+    </div>
+
+    {/* Corner bracket accents */}
+    {(
+      [
+        "top-3 left-3 border-l border-t",
+        "top-3 right-3 border-r border-t",
+        "bottom-3 left-3 border-l border-b",
+        "bottom-3 right-3 border-r border-b",
+      ] as const
+    ).map((cls, i) => (
+      <div
+        key={i}
+        aria-hidden
+        className={`absolute w-6 h-6 border-[#C9A84C]/25 ${cls}`}
+      />
+    ))}
   </div>
 );
+
+// ── Reveal ────────────────────────────────────────────────────────────────
+// Scroll-reveal wrapper. Applies .reveal-init on mount and adds
+// .reveal-shown when the element enters the viewport. Defined here rather
+// than as a separate file to keep it co-located with the only page that
+// currently uses it.
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+  variant,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  variant?: "left" | "right" | "scale";
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) setSeen(true);
+      },
+      { threshold: 0.1 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`reveal-init ${seen ? "reveal-shown" : ""} ${className}`}
+      data-variant={variant}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </div>
+  );
+}
 
 const PlantForge3D = dynamic(
   () =>
@@ -32,7 +153,7 @@ const PlantForge3D = dynamic(
     })),
   {
     ssr: false,
-    loading: () => <SceneSkeleton label="Plant Forge" />,
+    loading: () => <SceneSkeleton label="Compound Forge" />,
   },
 );
 
@@ -318,15 +439,37 @@ export default function LabPage() {
           className="absolute inset-0 bg-gradient-to-b from-[#0F1F3D]/60 via-[#0F1F3D]/30 to-[#0A1628] pointer-events-none"
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
+          <p
+            className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4 line-rise scan-bar inline-block px-1"
+            style={{ animationDelay: "0ms" }}
+          >
             {"// SCIENCE & TRANSPARENCY"}
           </p>
           <h1
-            className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-4"
+            className="text-5xl sm:text-6xl font-black tracking-tight uppercase text-[#E8EDF5] mb-2 line-rise"
+            style={{ animationDelay: "120ms" }}
           >
             The Lab
           </h1>
-          <p className="text-[#64748B] font-mono text-sm max-w-2xl leading-relaxed">
+          {/* Glowing accent line under the title */}
+          <div
+            aria-hidden
+            className="line-rise mb-5 relative h-px max-w-md"
+            style={{ animationDelay: "320ms" }}
+          >
+            <span
+              className="block h-px w-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, #C9A84C 30%, #0D9488 70%, transparent)",
+                boxShadow: "0 0 12px rgba(201,168,76,0.55)",
+              }}
+            />
+          </div>
+          <p
+            className="text-[#64748B] font-mono text-sm max-w-2xl leading-relaxed line-rise"
+            style={{ animationDelay: "420ms" }}
+          >
             Molecular science, without the mystification. Every compound in
             every TerpForge product is selected on the basis of peer-reviewed
             research, then verified by independent third-party analysis.
@@ -334,7 +477,7 @@ export default function LabPage() {
 
           <div className="mt-8 flex flex-wrap gap-2 sm:gap-3">
             {[
-              { href: "#plant-forge", label: "Plant Forge 3D" },
+              { href: "#compound-forge", label: "Compound Forge 3D" },
               { href: "#receptor-docking", label: "Receptor Docking" },
               { href: "#simulator", label: "Profile Simulator" },
               { href: "#matrix", label: "Compound Matrix" },
@@ -342,11 +485,12 @@ export default function LabPage() {
               { href: "#profiles", label: "Compound Library" },
               { href: "#synergy", label: "Synergy Builder" },
               { href: "#coa", label: "COA Portal" },
-            ].map(({ href, label }) => (
+            ].map(({ href, label }, idx) => (
               <a
                 key={href}
                 href={href}
-                className="px-4 py-2 border border-[#0D9488]/40 text-[#0D9488] text-xs font-mono tracking-widest uppercase hover:border-[#0D9488] hover:bg-[#0D9488]/10 transition-all"
+                className="px-4 py-3 sm:py-2 min-h-[44px] sm:min-h-0 flex items-center justify-center border border-[#0D9488]/40 text-[#0D9488] text-xs font-mono tracking-widest uppercase hover:border-[#0D9488] hover:bg-[#0D9488]/10 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(13,148,136,0.25)] transition-all duration-300 line-rise"
+                style={{ animationDelay: `${560 + idx * 60}ms` }}
               >
                 {label}
               </a>
@@ -356,32 +500,34 @@ export default function LabPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
-        {/* ── PLANT FORGE 3D ──────────────────────────────────────── */}
-        <section id="plant-forge" tabIndex={-1}>
-          <div className="mb-10">
+        {/* ── COMPOUND FORGE 3D ───────────────────────────────────── */}
+        <section id="compound-forge" tabIndex={-1}>
+          <Reveal className="mb-10">
             <p className="text-[#C9A84C] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE Ø · LIVE 3D"}
             </p>
             <h2
               className="text-4xl font-black uppercase text-[#E8EDF5] mb-3"
             >
-              The Plant Forge
+              The Compound Forge
             </h2>
             <p className="text-[#64748B] font-mono text-sm max-w-2xl">
-              A live, in-browser forge. Watch eight key cannabinoids and
-              terpenes — CBGA, THCA, THC, CBDA, CBD, Myrcene, Limonene,
-              Pinene — fly in and lock onto a stylized cannabis plant.
-              Drag to orbit, press <span className="text-[#E8EDF5]">SPACE</span> to
-              pause, <span className="text-[#E8EDF5]">R</span> to replay, or
+              A live in-browser molecular forge. Eight key compounds — CBGA,
+              THCA, THC, CBDA, CBD, Myrcene, Limonene, Pinene — fly in from
+              the surrounding darkness and fuse into a crystalline lattice at
+              the center of the forge. Each docked compound adds a permanent
+              scaffold node and bond. Drag to orbit, press{" "}
+              <span className="text-[#E8EDF5]">SPACE</span> to pause,{" "}
+              <span className="text-[#E8EDF5]">R</span> to replay, or
               tap the TF logo for a bonus molecule.
             </p>
-          </div>
+          </Reveal>
           <PlantForge3D />
         </section>
 
         {/* ── RECEPTOR DOCKING SIMULATOR ──────────────────────────── */}
         <section id="receptor-docking" tabIndex={-1}>
-          <div className="mb-10">
+          <Reveal className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE Ø·1 · LIVE 3D"}
             </p>
@@ -399,13 +545,13 @@ export default function LabPage() {
               Watch how the same compound docks differently depending on the
               receptor.
             </p>
-          </div>
+          </Reveal>
           <ReceptorDocking3D />
         </section>
 
         {/* ── PROFILE SIMULATOR ───────────────────────────────────── */}
         <section id="simulator">
-          <div className="mb-10">
+          <Reveal className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE 00 · INTERACTIVE"}
             </p>
@@ -418,7 +564,7 @@ export default function LabPage() {
               Select a terpene. Adjust purity. See how TerpForge specifications
               compare to commodity-grade aromatics.
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Selector */}
@@ -587,7 +733,7 @@ export default function LabPage() {
         {/* ── TERPENE SCIENCE ─────────────────────────────────────── */}
         <section id="science">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
+            <Reveal>
               <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
                 {"// MODULE 01"}
               </p>
@@ -626,9 +772,13 @@ export default function LabPage() {
                   verified terpene-CBD co-formulation alone.
                 </p>
               </div>
-            </div>
+            </Reveal>
 
-            <div className="relative p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] schematic-grid">
+            <Reveal
+              variant="right"
+              delay={150}
+              className="relative p-8 border border-[#C9A84C]/20 bg-[#0F1F3D] schematic-grid"
+            >
               <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-6">
                 ISOPRENE CLASSIFICATION SYSTEM
               </p>
@@ -682,13 +832,12 @@ export default function LabPage() {
                   only. Verified purity ≥99.7% per batch.
                 </p>
               </div>
-            </div>
+            </Reveal>
           </div>
         </section>
-
         {/* ── COMPOUND LIBRARY ────────────────────────────────────── */}
         <section id="matrix" tabIndex={-1}>
-          <div className="mb-10">
+          <Reveal className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE 01.5 · INTERACTIVE"}
             </p>
@@ -702,7 +851,7 @@ export default function LabPage() {
               cell for the structural sketch; click to load it into the
               ball-and-stick viewer with property telemetry.
             </p>
-          </div>
+          </Reveal>
 
           <div className="space-y-10">
             <CompoundMatrix
@@ -761,7 +910,7 @@ export default function LabPage() {
         </section>
 
         <section id="profiles" tabIndex={-1}>
-          <div className="mb-10">
+          <Reveal className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE 02"}
             </p>
@@ -774,7 +923,7 @@ export default function LabPage() {
               Six primary terpene compounds used across TerpForge product
               systems. All data reflects verified batch specifications.
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {terpenes.map((t) => (
@@ -905,7 +1054,7 @@ export default function LabPage() {
         </section>
 
         <section id="synergy" tabIndex={-1}>
-          <div className="mb-10">
+          <Reveal className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE 02.5 · INTERACTIVE"}
             </p>
@@ -920,13 +1069,13 @@ export default function LabPage() {
               synergy ceiling — per-axis maximum across the slots, with a
               small overlap bonus when two or more contributors clear 50%.
             </p>
-          </div>
+          </Reveal>
           <SynergyBuilder />
         </section>
 
         {/* ── COA PORTAL ──────────────────────────────────────────── */}
         <section id="coa" data-tf-print-section="coa">
-          <div className="mb-10">
+          <Reveal className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE 03"}
             </p>
@@ -939,7 +1088,7 @@ export default function LabPage() {
               Certificate of Analysis documents for every active wellness batch.
               Third-party lab verification, batch-specific, always current.
             </p>
-          </div>
+          </Reveal>
 
           <div className="mb-6 p-5 border border-[#0D9488]/30 bg-[#0D9488]/5 grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
@@ -958,7 +1107,66 @@ export default function LabPage() {
             ))}
           </div>
 
-          <div className="overflow-x-auto border border-[#1E293B]">
+          {/* Mobile fallback: stacked cards. The desktop table at sm+ is far
+              richer, but the equivalent data renders as a dense card list on
+              phones rather than forcing a 7-column horizontal scroll. */}
+          <ul className="sm:hidden space-y-3">
+            {coaEntries.map((entry) => (
+              <li
+                key={entry.id}
+                className="border border-[#1E293B] bg-[#0F1F3D]/40 p-4"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0">
+                    <p className="text-[#E8EDF5] text-xs font-mono font-bold truncate">
+                      {entry.id}
+                    </p>
+                    <p className="text-[#64748B] text-[11px] font-mono mt-0.5 leading-snug">
+                      {entry.product}
+                    </p>
+                  </div>
+                  <span className="shrink-0 px-2 py-1 bg-[#0D9488]/20 text-[#0D9488] text-[10px] font-mono tracking-widest border border-[#0D9488]/30">
+                    {entry.status}
+                  </span>
+                </div>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] font-mono mb-3">
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      CBD
+                    </dt>
+                    <dd className="text-[#C9A84C]">{entry.cbd}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      THC
+                    </dt>
+                    <dd className="text-[#0D9488]">{entry.thc}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      Date
+                    </dt>
+                    <dd className="text-[#94A3B8]">{entry.date}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#64748B] text-[9px] tracking-[0.25em] uppercase">
+                      Lab
+                    </dt>
+                    <dd className="text-[#94A3B8] truncate">{entry.lab}</dd>
+                  </div>
+                </dl>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadCoa(entry)}
+                  className="w-full min-h-[44px] px-3 py-3 border border-[#C9A84C]/40 text-[#C9A84C] text-[11px] font-mono tracking-widest uppercase hover:bg-[#C9A84C]/10 transition-colors"
+                >
+                  {downloaded === entry.id ? "✓ DOWNLOADED" : "↓ Download COA"}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden sm:block overflow-x-auto border border-[#1E293B]">
             <table className="w-full text-sm font-mono">
               <thead>
                 <tr className="border-b border-[#C9A84C]/20 bg-[#0F1F3D]">

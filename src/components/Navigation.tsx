@@ -10,6 +10,7 @@ import { openCommandPalette } from "./SiteShellEnhancements";
 const navLinks = [
   { href: "/shop", label: "Shop" },
   { href: "/lab", label: "The Lab" },
+  { href: "/journal", label: "Journal" },
   { href: "/story", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];

@@ -27,11 +27,18 @@ export interface BuiltMolecule {
  * branch atoms colored to the compound, a glowing halo billboard, and a
  * small point light. Geometries/materials are owned by the returned group
  * and freed by `disposeMolecule`.
+ *
+ * Visual quality targets:
+ *  - Larger atoms + strong emissive so UnrealBloomPass picks them up.
+ *  - Thicker bonds with a slight emissive tint.
+ *  - Outer halo ring sized to create a visible corona even before bloom.
+ *  - 3-D branch positions so the molecule reads as a real structure, not
+ *    a flat disc.
  */
 export function buildMolecule(compound: ForgeCompound): BuiltMolecule {
   const group = new THREE.Group();
 
-  // Glowing shell halo (sprite-like billboard ring).
+  // ── Halo (double-ring corona billboard) ───────────────────────────────
   const haloMat = new THREE.MeshBasicMaterial({
     color: compound.color,
     transparent: true,
@@ -40,73 +47,99 @@ export function buildMolecule(compound: ForgeCompound): BuiltMolecule {
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
-  const halo = new THREE.Mesh(new THREE.RingGeometry(0.5, 0.8, 32), haloMat);
+  // Outer ring (larger for dramatic corona during fly-in and burst)
+  const halo = new THREE.Mesh(new THREE.RingGeometry(0.65, 1.05, 48), haloMat);
   group.add(halo);
+  // Tight inner ring — always slightly visible once attached
+  const haloInnerMat = new THREE.MeshBasicMaterial({
+    color: compound.color,
+    transparent: true,
+    opacity: 0.0,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const haloInner = new THREE.Mesh(
+    new THREE.RingGeometry(0.3, 0.46, 48),
+    haloInnerMat,
+  );
+  group.add(haloInner);
 
-  // Atom cluster: small spheres in a tight 3D arrangement.
-  const atomGeo = new THREE.SphereGeometry(0.12, 14, 12);
+  // ── Atom cluster ──────────────────────────────────────────────────────
+  // Slightly larger radius + high emissive so UnrealBloom picks them up.
+  const atomGeo = new THREE.SphereGeometry(0.15, 16, 14);
   const atomMatPrimary = new THREE.MeshStandardMaterial({
     color: compound.color,
     emissive: compound.color,
-    emissiveIntensity: 0.55,
-    roughness: 0.3,
-    metalness: 0.4,
+    emissiveIntensity: 1.8,   // bloom trigger
+    roughness: 0.2,
+    metalness: 0.55,
   });
   const atomMatCarbon = new THREE.MeshStandardMaterial({
-    color: 0xe8edf5,
-    roughness: 0.45,
-    metalness: 0.25,
+    color: 0xd0dcea,
+    emissive: 0x3a4a5c,
+    emissiveIntensity: 0.35,
+    roughness: 0.35,
+    metalness: 0.45,
   });
 
   const positions: THREE.Vector3[] = [];
-  // Hex-ring backbone + a few branches to suggest an organic compound.
-  for (let i = 0; i < compound.atoms; i++) {
-    if (i < 6) {
-      const a = (i / 6) * Math.PI * 2;
-      positions.push(
-        new THREE.Vector3(Math.cos(a) * 0.32, Math.sin(a) * 0.32, 0),
-      );
-    } else {
-      const parent = positions[i % 6];
-      const dir = parent.clone().normalize();
-      positions.push(
-        parent
-          .clone()
-          .add(dir.multiplyScalar(0.32))
-          .add(
-            new THREE.Vector3(
-              (Math.random() - 0.5) * 0.18,
-              (Math.random() - 0.5) * 0.18,
-              (Math.random() - 0.5) * 0.32,
-            ),
-          ),
-      );
-    }
+  // Hex-ring backbone — placed in a slightly tilted plane for a 3-D read.
+  const RING_R = 0.38;
+  const TILT = 0.22; // radians of X-tilt on the ring plane
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    positions.push(
+      new THREE.Vector3(
+        Math.cos(a) * RING_R,
+        Math.sin(a) * RING_R * Math.cos(TILT),
+        Math.sin(a) * RING_R * Math.sin(TILT),
+      ),
+    );
   }
+
+  // Branch atoms — spread more in Z so the molecule has genuine depth.
+  // Guard: only iterate if the compound has atoms beyond the 6-ring base.
+  for (let i = 6; i < compound.atoms; i++) {
+    const parent = positions[i % 6];
+    if (!parent) continue;
+    const dir = parent.clone().normalize();
+    const offset = new THREE.Vector3(
+      (Math.random() - 0.5) * 0.22,
+      (Math.random() - 0.5) * 0.22,
+      (Math.random() - 0.5) * 0.44,
+    );
+    positions.push(parent.clone().add(dir.multiplyScalar(0.38)).add(offset));
+  }
+
   positions.forEach((p, i) => {
-    const isCarbon = i < 6 || i % 3 !== 0;
+    const isBranch = i >= 6 && i % 3 === 0;
     const atom = new THREE.Mesh(
       atomGeo,
-      isCarbon ? atomMatCarbon : atomMatPrimary,
+      isBranch ? atomMatPrimary : atomMatCarbon,
     );
     atom.position.copy(p);
-    atom.scale.setScalar(isCarbon ? 0.85 : 1.05);
+    atom.scale.setScalar(isBranch ? 1.15 : 0.88);
     group.add(atom);
   });
 
-  // Bonds along the ring.
+  // ── Bonds ──────────────────────────────────────────────────────────────
+  // Thicker cylinders + slight emissive so they read well under bloom.
   const bondMat = new THREE.MeshStandardMaterial({
-    color: 0x9fb0c8,
-    roughness: 0.4,
-    metalness: 0.3,
+    color: 0xb8cce0,
+    emissive: 0x1a2a3c,
+    emissiveIntensity: 0.4,
+    roughness: 0.3,
+    metalness: 0.6,
   });
   for (let i = 0; i < 6; i++) {
     const a = positions[i];
     const b = positions[(i + 1) % 6];
+    if (!a || !b) continue;
     const mid = a.clone().add(b).multiplyScalar(0.5);
     const len = a.distanceTo(b);
     const bond = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.035, 0.035, len, 8),
+      new THREE.CylinderGeometry(0.048, 0.048, len, 10),
       bondMat,
     );
     bond.position.copy(mid);
@@ -115,7 +148,9 @@ export function buildMolecule(compound: ForgeCompound): BuiltMolecule {
     group.add(bond);
   }
 
-  const glow = new THREE.PointLight(compound.color, 0, 6, 2);
+  // ── Glow point light ───────────────────────────────────────────────────
+  // Wider range and higher decay so it illuminates nearby plant geometry.
+  const glow = new THREE.PointLight(compound.color, 0, 9, 1.8);
   group.add(glow);
 
   return { group, glow, halo };

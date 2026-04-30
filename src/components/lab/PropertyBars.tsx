@@ -39,6 +39,9 @@ function PropertyRow({
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [seen, setSeen] = useState(false);
+  // Animated numeric readout that counts up from 0 to `value` once visible.
+  // Re-runs whenever value changes (e.g., user picks a different compound).
+  const [displayed, setDisplayed] = useState(0);
 
   useEffect(() => {
     const el = ref.current;
@@ -51,9 +54,35 @@ function PropertyRow({
     return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!seen) return;
+    // Honor reduced-motion: snap straight to the final value.
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const duration = reduce ? 0 : 1100;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = duration === 0 ? 1 : Math.min(1, (now - start) / duration);
+      // easeOutCubic — matches the 1.1s ease-out bar fill timing.
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplayed(value * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [seen, value]);
+
   return (
-    <div ref={ref} className="grid grid-cols-[110px_1fr_50px] items-center gap-3">
-      <p className="text-[10px] font-mono tracking-[0.25em] uppercase" style={{ color }}>
+    <div
+      ref={ref}
+      className="grid grid-cols-[88px_1fr_44px] sm:grid-cols-[110px_1fr_50px] items-center gap-2 sm:gap-3"
+    >
+      <p
+        className="text-[9px] sm:text-[10px] font-mono tracking-[0.18em] sm:tracking-[0.25em] uppercase truncate"
+        style={{ color }}
+      >
         {row.label}
       </p>
       <div className="relative h-2 bg-[#0A1628] border border-[#1E293B] overflow-hidden">
@@ -66,6 +95,20 @@ function PropertyRow({
             transitionDuration: "1100ms",
           }}
         />
+        {/* Sweeping highlight that rides the leading edge of the bar */}
+        {seen && (
+          <div
+            aria-hidden
+            className="absolute inset-y-0 w-12 pointer-events-none"
+            style={{
+              left: `calc(${value}% - 3rem)`,
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 60%, rgba(255,255,255,0) 100%)",
+              transition: "left 1100ms ease-out",
+              mixBlendMode: "screen",
+            }}
+          />
+        )}
         <div className="absolute inset-0 flex justify-between pointer-events-none opacity-30">
           {Array.from({ length: 11 }).map((_, i) => (
             <span
@@ -77,7 +120,7 @@ function PropertyRow({
         </div>
       </div>
       <p className="text-right text-[11px] font-mono text-[#E8EDF5] tabular-nums">
-        {value}
+        {Math.round(displayed)}
         <span className="text-[#64748B] text-[9px] ml-1">{row.unit}</span>
       </p>
     </div>

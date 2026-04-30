@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { terpenes, type TerpeneCompound } from "@/lib/compounds";
 import { useCompoundTray } from "@/components/CompoundTrayContext";
 
@@ -16,10 +16,28 @@ export function CompoundMatrix({
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const { pinned, toggle, isFull } = useCompoundTray();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) setSeen(true);
+      },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
-      {terpenes.map((c) => {
+    <div
+      ref={containerRef}
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3"
+    >
+      {terpenes.map((c, idx) => {
         const isActive = c.slug === activeSlug;
         const isHover = hovered === c.slug;
         const isPinned = pinned.includes(c.slug);
@@ -36,16 +54,32 @@ export function CompoundMatrix({
             onFocus={() => setHovered(c.slug)}
             onBlur={() => setHovered(null)}
             aria-pressed={isActive}
-            className="group relative aspect-square overflow-hidden border bg-[#0A1628] transition-all duration-300 text-left w-full"
+            className={`group relative aspect-square overflow-hidden border bg-[#0A1628] transition-all duration-300 text-left w-full ${
+              seen ? "cell-cascade" : "opacity-0"
+            } ${isActive ? "aura-pulse" : ""}`}
             style={{
               borderColor: isActive ? c.profileColor : `${c.profileColor}30`,
-              boxShadow: isActive
-                ? `0 0 24px ${c.profileColor}55, inset 0 0 30px ${c.profileColor}15`
-                : isHover
-                ? `0 0 16px ${c.profileColor}33`
-                : undefined,
+              boxShadow:
+                !isActive && isHover
+                  ? `0 0 16px ${c.profileColor}33`
+                  : undefined,
+              animationDelay: seen ? `${idx * 70}ms` : undefined,
+              // CSS custom properties consumed by `.aura-pulse`
+              ["--aura-color" as string]: `${c.profileColor}88`,
+              ["--aura-color-inner" as string]: `${c.profileColor}28`,
             }}
           >
+            {/* Animated diagonal sweep on hover */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: `linear-gradient(135deg, transparent 40%, ${c.profileColor}22 50%, transparent 60%)`,
+                backgroundSize: "200% 200%",
+                animation: isHover ? "shimmer 2.4s linear infinite" : undefined,
+              }}
+            />
+
             {/* atomic-number style header */}
             <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
               <span
@@ -65,7 +99,14 @@ export function CompoundMatrix({
             {/* big symbol */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p
-                className="text-3xl sm:text-4xl font-black uppercase tracking-tight transition-transform duration-500 group-hover:-translate-y-1 text-[#E8EDF5]"
+                className="text-3xl sm:text-4xl font-black uppercase tracking-tight transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110 text-[#E8EDF5]"
+                style={
+                  isActive
+                    ? {
+                        textShadow: `0 0 18px ${c.profileColor}88, 0 0 4px ${c.profileColor}`,
+                      }
+                    : undefined
+                }
               >
                 {c.symbol}
               </p>

@@ -189,6 +189,52 @@ export default function Home() {
           <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0D9488]/40 to-transparent" />
         </div>
 
+        {/* HUD frame — corner brackets + tick rulers framing the hero. Reads
+            as a foundry viewport readout overlaid on the WebGL-feel scene. */}
+        <div aria-hidden="true" className="absolute inset-4 sm:inset-6 lg:inset-8 pointer-events-none">
+          {/* Corner brackets */}
+          <span className="absolute top-0 left-0 w-8 h-8 border-l border-t border-[#C9A84C]/60" />
+          <span className="absolute top-0 right-0 w-8 h-8 border-r border-t border-[#C9A84C]/60" />
+          <span className="absolute bottom-0 left-0 w-8 h-8 border-l border-b border-[#C9A84C]/60" />
+          <span className="absolute bottom-0 right-0 w-8 h-8 border-r border-b border-[#C9A84C]/60" />
+
+          {/* Top edge — pulsing teal segment + identifier */}
+          <span className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-[#0D9488]/40 to-transparent" />
+          <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-[#0A1628] border border-[#C9A84C]/40 text-[#C9A84C] text-[9px] font-mono tracking-[0.4em] uppercase pulse-soft">
+            TF-FOUNDRY // VIEWPORT 01
+          </span>
+
+          {/* Tick rulers — left edge */}
+          <div className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 flex-col gap-3">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <span
+                key={i}
+                className={`block h-px ${i === 4 ? "w-4 bg-[#C9A84C]/70" : "w-2 bg-[#0D9488]/50"}`}
+              />
+            ))}
+          </div>
+          {/* Tick rulers — right edge */}
+          <div className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 flex-col gap-3 items-end">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <span
+                key={i}
+                className={`block h-px ${i === 4 ? "w-4 bg-[#C9A84C]/70" : "w-2 bg-[#0D9488]/50"}`}
+              />
+            ))}
+          </div>
+
+          {/* Bottom edge — bracketed coordinate readout. Coordinates point at
+              College Park, MD (Terrapin home turf) — flavor text, not a real
+              foundry location. */}
+          <span className="absolute bottom-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-[#C9A84C]/40 to-transparent" />
+          <span className="absolute -bottom-2 left-6 px-2 py-0.5 bg-[#0A1628] border border-[#0D9488]/40 text-[#0D9488] text-[9px] font-mono tracking-[0.3em] uppercase">
+            LAT 38.99°N
+          </span>
+          <span className="absolute -bottom-2 right-6 px-2 py-0.5 bg-[#0A1628] border border-[#0D9488]/40 text-[#0D9488] text-[9px] font-mono tracking-[0.3em] uppercase">
+            LON 76.94°W
+          </span>
+        </div>
+
         {/* Vertical schematic readouts — desktop only */}
         <div className="hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 flex-col items-center gap-3 pointer-events-none">
           <span className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] [writing-mode:vertical-rl] rotate-180">
@@ -323,13 +369,13 @@ export default function Home() {
           {pillars.map((pillar, i) => (
             <Reveal key={pillar.id} variant="up" delay={i * 120}>
               <TiltCard
-                className="conic-ring relative h-full p-8 border border-[#C9A84C]/20 bg-[#0A1628] hover:border-[#C9A84C]/50 transition-colors duration-300 group overflow-hidden"
+                className="conic-ring relative h-full p-5 sm:p-8 border border-[#C9A84C]/20 bg-[#0A1628] hover:border-[#C9A84C]/50 transition-colors duration-300 group overflow-hidden"
                 glowColor={`${pillar.accent}26`}
               >
                 <CornerBrackets size={12} color="rgba(201,168,76,0.5)" inset={4} />
                 <div
                   aria-hidden
-                  className="text-[#C9A84C]/15 text-8xl font-black font-mono absolute top-4 right-6 leading-none select-none group-hover:text-[#C9A84C]/25 transition-colors"
+                  className="text-[#C9A84C]/15 text-6xl sm:text-8xl font-black font-mono absolute top-3 right-4 sm:top-4 sm:right-6 leading-none select-none group-hover:text-[#C9A84C]/25 transition-colors"
                 >
                   {pillar.id}
                 </div>
