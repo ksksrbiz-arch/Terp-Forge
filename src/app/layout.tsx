@@ -7,6 +7,7 @@ import { CartProvider } from "@/components/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import { CompoundTrayProvider } from "@/components/CompoundTrayContext";
 import { CompoundTray } from "@/components/CompoundTray";
+import { CompoundActionsBridge } from "@/components/CompoundActionsBridge";
 import { MoleculeDialogProvider } from "@/components/lab/MoleculeDialogContext";
 import PageTransition from "@/components/PageTransition";
 import SiteShellEnhancements from "@/components/SiteShellEnhancements";
@@ -117,6 +118,7 @@ export default function RootLayout({
               <Footer />
               <CartDrawer />
               <CompoundTray />
+              <CompoundActionsBridge />
             </MoleculeDialogProvider>
           </CompoundTrayProvider>
         </CartProvider>

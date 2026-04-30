@@ -833,6 +833,24 @@ body[data-tf-dragging="CALM"] [data-profile="CALM"][data-tf-droppable="true"] {
   outline-offset: 2px;
 }
 
+/* Hero drop accent zone */
+.tf-hero-dropzone {
+  outline: 1px dashed transparent;
+  outline-offset: -10px;
+  transition: outline-color 200ms ease, box-shadow 200ms ease;
+}
+.tf-hero-dropzone--hover {
+  outline-color: rgba(201, 168, 76, 0.6);
+  box-shadow: inset 0 0 80px rgba(201, 168, 76, 0.18);
+}
+@keyframes tf-hero-telemetry-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tf-hero-telemetry {
+  animation: tf-hero-telemetry-in 200ms ease-out both;
+}
+
 /* Shop filter-strip drop zone */
 .tf-shop-filterbar[data-tf-hover="true"] {
   box-shadow: inset 0 0 0 1px var(--gold);
