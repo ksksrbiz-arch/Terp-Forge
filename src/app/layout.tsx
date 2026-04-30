@@ -7,6 +7,7 @@ import { CartProvider } from "@/components/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import { CompoundTrayProvider } from "@/components/CompoundTrayContext";
 import { CompoundTray } from "@/components/CompoundTray";
+import { MoleculeDialogProvider } from "@/components/lab/MoleculeDialogContext";
 import PageTransition from "@/components/PageTransition";
 import SiteShellEnhancements from "@/components/SiteShellEnhancements";
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
@@ -107,14 +108,16 @@ export default function RootLayout({
         </a>
         <CartProvider>
           <CompoundTrayProvider>
-            <SiteShellEnhancements />
-            <Navigation />
-            <main id="main-content" className="flex-1">
-              <PageTransition>{children}</PageTransition>
-            </main>
-            <Footer />
-            <CartDrawer />
-            <CompoundTray />
+            <MoleculeDialogProvider>
+              <SiteShellEnhancements />
+              <Navigation />
+              <main id="main-content" className="flex-1">
+                <PageTransition>{children}</PageTransition>
+              </main>
+              <Footer />
+              <CartDrawer />
+              <CompoundTray />
+            </MoleculeDialogProvider>
           </CompoundTrayProvider>
         </CartProvider>
         {/* Site-wide atmospheric overlays — film grain + radial vignette.

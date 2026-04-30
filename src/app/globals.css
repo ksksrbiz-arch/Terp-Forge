@@ -833,6 +833,30 @@ body[data-tf-dragging="CALM"] [data-profile="CALM"][data-tf-droppable="true"] {
   outline-offset: 2px;
 }
 
+/* MoleculeDialog modal */
+@keyframes tf-mol-dialog-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes tf-mol-dialog-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes tf-mol-dialog-flash {
+  0%   { opacity: 0; }
+  20%  { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+.tf-mol-dialog__panel {
+  animation: tf-mol-dialog-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.tf-mol-dialog__backdrop {
+  animation: tf-mol-dialog-fade 180ms ease-out both;
+}
+.tf-mol-dialog__flash {
+  animation: tf-mol-dialog-flash 280ms ease-out both;
+}
+
 /* Compound Tray dock */
 .tf-tray {
   font-family: var(--font-tf-mono), monospace;

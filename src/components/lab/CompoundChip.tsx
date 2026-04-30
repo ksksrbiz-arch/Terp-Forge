@@ -8,12 +8,14 @@ import {
   setBodyDragging,
   useTouchDrag,
 } from "@/lib/dnd";
+import { useOpenMolecule } from "@/components/lab/MoleculeDialogContext";
 
 type Variant = "chip" | "tile";
 
 interface CompoundChipProps {
   slug: string;
   variant?: Variant;
+  /** When provided, overrides the default "open molecule dialog" behavior. */
   onClick?: (compound: TerpeneCompound) => void;
   className?: string;
 }
@@ -29,6 +31,7 @@ export function CompoundChip({
   className,
 }: CompoundChipProps) {
   const compound = terpenes.find((t) => t.slug === slug);
+  const { openMolecule } = useOpenMolecule();
   const touchHandlers = useTouchDrag(
     { slug, profile: compound?.profile ?? "" },
     compound?.name ?? slug,
@@ -60,7 +63,7 @@ export function CompoundChip({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onClick={() => onClick?.(compound)}
+      onClick={() => (onClick ? onClick(compound) : openMolecule(slug))}
       data-profile={compound.profile}
       data-tf-chip={slug}
       aria-label={`${compound.name} · ${compound.profile} · drag to a slot or click to inspect`}

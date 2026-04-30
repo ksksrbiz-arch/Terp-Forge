@@ -1,7 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { Atom3D, Bond, TerpeneCompound } from "@/lib/compounds";
+
+export type AxisLock = "free" | "horizontal" | "vertical";
+export interface MoleculeViewerHandle {
+  snapshot: () => Promise<Blob | null>;
+  setAutoRotate: (on: boolean) => void;
+  setAxisLock: (lock: AxisLock) => void;
+}
+
+interface MoleculeViewerProps {
+  compound: TerpeneCompound;
+  /** Default true. When false, idle drift is suppressed. */
+  autoRotate?: boolean;
+  /** Default "free". Constrains drag/momentum to one axis. */
+  axisLock?: AxisLock;
+}
 
 const ELEMENT_COLOR: Record<Atom3D["el"], string> = {
   C: "#E8EDF5",
@@ -42,12 +64,30 @@ type Projected = { sx: number; sy: number; depth: number; persp: number };
  *  - Click an atom to pin it; the inspector panel locks to that atom and
  *    its neighbors. Hovering a bond previews it.
  */
-export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
+export const MoleculeViewer = forwardRef<MoleculeViewerHandle, MoleculeViewerProps>(
+  function MoleculeViewer(
+    { compound, autoRotate = true, axisLock = "free" }: MoleculeViewerProps,
+    forwardedRef,
+  ) {
   const [theta, setTheta] = useState(0);
   const [phi, setPhi] = useState(-0.25);
   const [scale, setScale] = useState(38);
   const [pinned, setPinned] = useState<number | null>(null);
   const [hoverBond, setHoverBond] = useState<number | null>(null);
+  const [autoRotateState, setAutoRotateState] = useState(autoRotate);
+  const [axisLockState, setAxisLockState] = useState<AxisLock>(axisLock);
+  // Sync local state with prop changes during render (avoids cascading-render
+  // warning fired by react-hooks/set-state-in-effect for setState-in-effect).
+  const [prevAutoRotate, setPrevAutoRotate] = useState(autoRotate);
+  if (prevAutoRotate !== autoRotate) {
+    setPrevAutoRotate(autoRotate);
+    setAutoRotateState(autoRotate);
+  }
+  const [prevAxisLock, setPrevAxisLock] = useState(axisLock);
+  if (prevAxisLock !== axisLock) {
+    setPrevAxisLock(axisLock);
+    setAxisLockState(axisLock);
+  }
   // Track the slug we last rendered against so we can reset selection state
   // when the parent swaps compounds. This is the React-recommended pattern
   // for "reset state on prop change" — adjusting state during render avoids
@@ -90,7 +130,7 @@ export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
             theta: v.theta * decay,
             phi: v.phi * decay,
           };
-        } else if (!reducedMotionRef.current && pinned === null) {
+        } else if (!reducedMotionRef.current && pinned === null && autoRotateState) {
           setTheta((t) => t + dt * IDLE_SPIN);
         }
       }
@@ -100,7 +140,7 @@ export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [pinned]);
+  }, [pinned, autoRotateState]);
 
   // Wheel zoom must be non-passive so we can keep the page from scrolling
   // while the user is dollying through the viewer.
@@ -206,8 +246,10 @@ export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
     const dt = Math.max(0.008, (now - lastRef.current.t) / 1000);
     const dx = e.clientX - lastRef.current.x;
     const dy = e.clientY - lastRef.current.y;
-    const dTheta = dx * 0.012;
-    const dPhi = dy * 0.012;
+    // axisLock: "horizontal" allows only horizontal swing (theta);
+    // "vertical" allows only vertical tilt (phi); "free" allows both.
+    const dTheta = axisLockState === "vertical" ? 0 : dx * 0.012;
+    const dPhi = axisLockState === "horizontal" ? 0 : dy * 0.012;
     setTheta((t) => t + dTheta);
     setPhi((p) => clampPhi(p + dPhi));
     velocityRef.current = {
@@ -276,6 +318,20 @@ export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
   }, [pinned, hoverBond, compound]);
 
   const pinnedAtom = pinned !== null ? projected[pinned] : null;
+
+  useImperativeHandle(
+    forwardedRef,
+    () => ({
+      snapshot: async () => {
+        const svg = svgRef.current;
+        if (!svg) return null;
+        return rasterizeSvg(svg, W, H);
+      },
+      setAutoRotate: setAutoRotateState,
+      setAxisLock: setAxisLockState,
+    }),
+    [],
+  );
 
   return (
     <div className="relative">
@@ -599,6 +655,44 @@ export function MoleculeViewer({ compound }: { compound: TerpeneCompound }) {
       />
     </div>
   );
+});
+
+/**
+ * Serialize an SVG to a PNG Blob via the canvas <image> path. The viewer's
+ * SVG is fully self-contained (inline styles, internal <defs>) so this works
+ * without inlining external stylesheets.
+ */
+function rasterizeSvg(
+  svg: SVGSVGElement,
+  width: number,
+  height: number,
+): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    try {
+      const clone = svg.cloneNode(true) as SVGSVGElement;
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      clone.setAttribute("width", String(width));
+      clone.setAttribute("height", String(height));
+      const xml = new XMLSerializer().serializeToString(clone);
+      const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = width * 2;
+        canvas.height = height * 2;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(null);
+        ctx.fillStyle = "#0A1628";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => resolve(blob), "image/png");
+      };
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    } catch {
+      resolve(null);
+    }
+  });
 }
 
 function bondLength(b: Bond, atoms: Atom3D[]): number {
