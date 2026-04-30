@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/*
+ * z-index ladder (single source of truth)
+ * ────────────────────────────────────────
+ * atmosphere overlays    z 0      (vignette, grain — pointer-events: none)
+ * page content           auto
+ * tf-tray (collapsed)    z 40
+ * navigation header      z 50
+ * tf-tray (expanded)     z 55
+ * cart drawer            z 60
+ * mol-dialog modal       z 65
+ * cursor companion       z 70
+ * forge-wash overlay     z 80
+ * command palette        z 85
+ * boot screen            z 90
+ * skip-to-content link   z 95
+ *
+ * Anything new should slot into this ladder rather than introducing
+ * arbitrary values. Cross-checked across Navigation, CartDrawer,
+ * SiteShellEnhancements, CompoundTray, MoleculeDialog.
+ */
+
 :root {
   /* TerpForge Brand Palette */
   --navy: #0A1628;
@@ -793,6 +814,19 @@ samp {
   padding: 6px 10px;
   transform: translate(-50%, -120%);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* While a compound is being dragged, give text-selection a gold tint so the
+   visual treatment of "pickup mode" is consistent with the chip outline. */
+body[data-tf-dragging] *::selection {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+/* Hide the cursor companion during a drag — the drag image is the focal
+   element, and a second floating dot adds noise. */
+body[data-tf-dragging] .cursor-companion {
+  opacity: 0 !important;
 }
 
 .tf-slot {

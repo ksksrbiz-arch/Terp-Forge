@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "./CartContext";
+import { useCompoundTray } from "./CompoundTrayContext";
 import { openCommandPalette } from "./SiteShellEnhancements";
 
 const navLinks = [
@@ -18,11 +19,15 @@ export default function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { itemCount, openCart, hydrated } = useCart();
+  const { pinned: trayPinned, hydrated: trayHydrated, toggleOpen: toggleTray } =
+    useCompoundTray();
 
   // Avoid showing a stale "0" badge before localStorage hydrates.
   const showBadge = hydrated && itemCount > 0;
   const cartLabel = `Open cart${showBadge ? ` (${itemCount} items)` : ""}`;
   const badgeText = itemCount > 99 ? "99+" : String(itemCount);
+  const showTrayPill = trayHydrated && trayPinned.length > 0;
+  const trayLabel = `Open compound tray (${trayPinned.length} pinned)`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -114,6 +119,22 @@ export default function Navigation() {
           >
             The Inventory
           </Link>
+          {showTrayPill && (
+            <button
+              type="button"
+              onClick={toggleTray}
+              aria-label={trayLabel}
+              className="relative inline-flex items-center justify-center w-10 h-10 border border-[#0D9488]/40 text-[#0D9488] hover:border-[#0D9488] hover:bg-[#0D9488]/10 transition-colors"
+            >
+              <span aria-hidden className="text-sm font-bold leading-none">{"⌬"}</span>
+              <span
+                aria-hidden
+                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-[#0D9488] text-[#0A1628] text-[10px] font-black font-mono rounded-full flex items-center justify-center border border-[#0A1628]"
+              >
+                {trayPinned.length}
+              </span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {
