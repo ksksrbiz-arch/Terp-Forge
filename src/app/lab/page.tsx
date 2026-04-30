@@ -847,8 +847,11 @@ export default function LabPage() {
               Compound Matrix
             </h2>
             <p className="text-[#64748B] font-mono text-sm max-w-xl">
-              Periodic-style index of TerpForge&apos;s compound library. Hover any
-              cell for the structural sketch; click to load it into the
+              Periodic-style index of TerpForge&apos;s compound library.{" "}
+              <span className="hover-only">Hover</span>
+              <span className="touch-only">Tap</span> any cell for the
+              structural sketch; <span className="hover-only">click</span>
+              <span className="touch-only">tap again</span> to load it into the
               ball-and-stick viewer with property telemetry.
             </p>
           </Reveal>

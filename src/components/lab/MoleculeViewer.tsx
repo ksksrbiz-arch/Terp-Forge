@@ -756,8 +756,13 @@ function Inspector({
 
       {data.kind === "idle" && (
         <p className="text-[#64748B] leading-relaxed">
-          Hover a bond to inspect its order and length. Click an atom to pin
-          it and reveal its neighbor map. Scroll to dolly in.
+          <span className="hover-only">Hover</span>
+          <span className="touch-only">Tap</span> a bond to inspect its order
+          and length. <span className="hover-only">Click</span>
+          <span className="touch-only">Tap</span> an atom to pin it and reveal
+          its neighbor map.{" "}
+          <span className="hover-only">Scroll to dolly in.</span>
+          <span className="touch-only">Pinch to dolly in.</span>
         </p>
       )}
 

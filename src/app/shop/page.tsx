@@ -261,8 +261,10 @@ export default function ShopPage() {
             The Inventory
           </h1>
           <p className="text-[#94A3B8] font-mono text-sm max-w-xl leading-relaxed">
-            Three product verticals. One engineering standard. Hover any card
-            for the spec-sheet schematic. Tap{" "}
+            Three product verticals. One engineering standard.{" "}
+            <span className="hover-only">Hover</span>
+            <span className="touch-only">Tap</span>{" "}
+            any card for the spec-sheet schematic. Tap{" "}
             <span className="text-[#C9A84C]">+ COMPARE</span> on up to four
             SKUs to open the matrix drawer.
           </p>
