@@ -34,7 +34,15 @@ function dataStamp(seed: string, size = 21) {
   return cells;
 }
 
-export function CoaCardGenerator({ defaultEntry }: { defaultEntry?: CoaInput }) {
+export function CoaCardGenerator({
+  defaultEntry,
+  trayPrefills,
+}: {
+  defaultEntry?: CoaInput;
+  /** When populated, renders a "From Tray" selector that swaps the
+   *  entire CoaInput to one of the supplied prefills. */
+  trayPrefills?: CoaInput[];
+}) {
   const [entry, setEntry] = useState<CoaInput>(
     defaultEntry ?? {
       batchId: "TF-2026-04-001",
@@ -191,6 +199,25 @@ export function CoaCardGenerator({ defaultEntry }: { defaultEntry?: CoaInput }) 
         <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase">
           {"// Schematic builder"}
         </p>
+        {trayPrefills && trayPrefills.length > 0 && (
+          <div className="border border-[#0D9488]/40 p-2 bg-[#0D9488]/5">
+            <p className="text-[9px] font-mono tracking-[0.3em] uppercase text-[#0D9488] mb-1.5">
+              {"// From tray"}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {trayPrefills.map((p) => (
+                <button
+                  key={p.batchId}
+                  type="button"
+                  onClick={() => setEntry(p)}
+                  className="px-2 py-1 text-[10px] font-mono tracking-widest uppercase border border-[#0D9488]/40 text-[#0D9488] hover:bg-[#0D9488]/10"
+                >
+                  ↑ {p.batchId}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {(
           [
             ["batchId", "Batch ID"],

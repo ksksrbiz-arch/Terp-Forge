@@ -20,13 +20,51 @@ import { terpenes } from "@/lib/compounds";
  * not "hero animation". Cool-side teal cryo glow on atoms, warm-side gold
  * sodium-lamp shafts cutting through ambient haze.
  */
+interface HeroForgeSceneProps {
+  className?: string;
+  /** When set, the scene tints toward the accent compound's profile color
+   *  for ~1.5s, then decays. Re-setting (or changing) the slug retriggers. */
+  accentSlug?: string;
+}
+
+const ACCENT_DECAY_MS = 1500;
+
+function hexToRgb(hex: string): [number, number, number] {
+  const m = hex.replace("#", "");
+  const v = m.length === 3 ? m.split("").map((c) => c + c).join("") : m;
+  return [
+    parseInt(v.slice(0, 2), 16),
+    parseInt(v.slice(2, 4), 16),
+    parseInt(v.slice(4, 6), 16),
+  ];
+}
+function rgbStr(r: number, g: number, b: number): string {
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+}
+function lerpHex(a: string, b: string, t: number): string {
+  const [ar, ag, ab] = hexToRgb(a);
+  const [br, bg, bb] = hexToRgb(b);
+  return rgbStr(ar + (br - ar) * t, ag + (bg - ag) * t, ab + (bb - ab) * t);
+}
+
 export default function HeroForgeScene({
   className = "",
-}: {
-  className?: string;
-}) {
+  accentSlug,
+}: HeroForgeSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // Mutable accent state read by the RAF closure each frame.
+  const accentRef = useRef<{ color: string; setAt: number } | null>(null);
+
+  useEffect(() => {
+    if (!accentSlug) return;
+    const c = terpenes.find((t) => t.slug === accentSlug);
+    if (!c) return;
+    accentRef.current = {
+      color: c.profileColor,
+      setAt: performance.now(),
+    };
+  }, [accentSlug]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -173,6 +211,20 @@ export default function HeroForgeScene({
       profileColor: string,
       time: number,
     ) => {
+      // Optional accent: lerp the molecule's profile color toward the active
+      // accent for ~1.5s after the user drops a compound on the hero.
+      let renderedProfile = profileColor;
+      const accent = accentRef.current;
+      if (accent) {
+        const dt = performance.now() - accent.setAt;
+        if (dt < ACCENT_DECAY_MS) {
+          const t = 1 - dt / ACCENT_DECAY_MS; // 1 → 0
+          // Blend up to 70% toward the accent at peak.
+          renderedProfile = lerpHex(profileColor, accent.color, t * 0.7);
+        } else {
+          accentRef.current = null;
+        }
+      }
       // Camera = mouse parallax (2–3°) baked into the rotation.
       const parallaxY = mouseX * 0.06;
       const parallaxX = mouseY * 0.04;
@@ -274,7 +326,7 @@ export default function HeroForgeScene({
         ctx.arc(p.sx, p.sy, baseR, 0, Math.PI * 2);
         ctx.fill();
         // Profile-color outline (very thin) — anchors the molecule to its compound.
-        ctx.strokeStyle = profileColor;
+        ctx.strokeStyle = renderedProfile;
         ctx.globalAlpha = opacity * 0.4;
         ctx.lineWidth = 0.6;
         ctx.stroke();

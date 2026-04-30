@@ -33,6 +33,15 @@ export const profileColors: Record<NonNullable<TerpeneProfile>, string> = {
   CALM: "#2563EB",
 };
 
+/** Maps each commercial profile to the dominant terpene slug in
+ *  TerpForge's compound library. Used by shop "pin to tray" buttons and
+ *  the COA tray-bundle filter. */
+export const profileDominantTerpene: Record<NonNullable<TerpeneProfile>, string> = {
+  RECOVERY: "myrcene",
+  FOCUS: "limonene",
+  CALM: "linalool",
+};
+
 export const products: Product[] = [
   // ── APPAREL ───────────────────────────────────────────────────────────────
   {

@@ -8,7 +8,7 @@ import Section from "@/components/ui/Section";
 import TiltCard from "@/components/ui/TiltCard";
 import CountUp from "@/components/ui/CountUp";
 import OrbitSelector from "@/components/ui/OrbitSelector";
-import HeroForgeScene from "@/components/ui/HeroForgeScene";
+import { HeroDropAccent } from "@/components/ui/HeroDropAccent";
 import KineticHeadline from "@/components/ui/KineticHeadline";
 
 const pillars = [
@@ -171,12 +171,10 @@ export default function Home() {
     <>
       {/* HERO — full-bleed industrial-foundry scene */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
-        {/* Real WebGL-feel scene: depth-sorted ball-and-stick molecules,
-            drifting fog, gold sodium-lamp shafts, scan-gate sweep. The
-            canvas pauses RAF when offscreen and on tab-hidden. */}
-        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
-          <HeroForgeScene />
-        </div>
+        {/* Real WebGL-feel scene + drop-accent overlay. Drop a compound
+            chip on the hero to tint the molecules toward that compound's
+            profile color (~1.5s decay) with a telemetry announce. */}
+        <HeroDropAccent />
 
         {/* Vignette to keep typography legible over the scene. The site-
             wide vignette is subtle; this layer is hero-specific so the

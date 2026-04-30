@@ -19,12 +19,17 @@ export const siteRoutes = [
 
 export type CommandEntry = {
   id: string;
-  kind: "Page" | "Section" | "Product" | "Compound" | "Editorial";
+  kind: "Page" | "Section" | "Product" | "Compound" | "Action" | "Editorial";
   title: string;
   description: string;
+  /** For "Action" kind, this is a `tf:action/<id>` URI dispatched as an
+   *  event instead of a router push. Otherwise a route href. */
   href: string;
   keywords: string[];
 };
+
+/** Action ids dispatched via the tf:action CustomEvent. */
+export const ACTION_PREFIX = "tf:action/";
 
 const sectionEntries: CommandEntry[] = [
   {
@@ -125,6 +130,27 @@ const sectionEntries: CommandEntry[] = [
   },
 ];
 
+const actionEntries: CommandEntry[] = [
+  ...terpenes.map(
+    (compound): CommandEntry => ({
+      id: `action-pin-${compound.slug}`,
+      kind: "Action",
+      title: `Pin ${compound.name} to tray`,
+      description: `${compound.profile} · adds to compound tray`,
+      href: `${ACTION_PREFIX}pin/${compound.slug}`,
+      keywords: ["pin", "tray", compound.slug, compound.profile, compound.name],
+    }),
+  ),
+  {
+    id: "action-open-synergy",
+    kind: "Action",
+    title: "Open Synergy Mixer with current tray",
+    description: "Jumps to /lab#synergy",
+    href: `${ACTION_PREFIX}open-synergy`,
+    keywords: ["synergy", "mixer", "tray", "blend"],
+  },
+];
+
 export const commandEntries: CommandEntry[] = [
   ...sectionEntries,
   ...editorials.map((editorial) => ({
@@ -135,26 +161,31 @@ export const commandEntries: CommandEntry[] = [
     href: `/journal/${editorial.slug}`,
     keywords: [editorial.eyebrow, editorial.readingTime, ...editorial.topics],
   })),
-  ...products.map((product) => ({
-    id: `product-${product.id}`,
-    kind: "Product" as const,
-    title: product.name,
-    description: `${product.categoryLabel} · ${product.spec}`,
-    href: `/shop#product=${product.id}`,
-    keywords: [
-      product.id,
-      product.category,
-      product.categoryLabel,
-      product.profile ?? "",
-      product.spec,
-    ],
-  })),
-  ...terpenes.map((compound) => ({
-    id: `compound-${compound.name.toLowerCase()}`,
-    kind: "Compound" as const,
-    title: compound.name,
-    description: `${compound.profile} · ${compound.formula}`,
-    href: `/lab#compound=${compound.name.toLowerCase()}`,
-    keywords: [compound.formula, compound.profile, compound.aroma],
-  })),
+  ...products.map(
+    (product): CommandEntry => ({
+      id: `product-${product.id}`,
+      kind: "Product",
+      title: product.name,
+      description: `${product.categoryLabel} · ${product.spec}`,
+      href: `/shop#product=${product.id}`,
+      keywords: [
+        product.id,
+        product.category,
+        product.categoryLabel,
+        product.profile ?? "",
+        product.spec,
+      ],
+    }),
+  ),
+  ...terpenes.map(
+    (compound): CommandEntry => ({
+      id: `compound-${compound.name.toLowerCase()}`,
+      kind: "Compound",
+      title: compound.name,
+      description: `${compound.profile} · ${compound.formula}`,
+      href: `/lab#compound=${compound.name.toLowerCase()}`,
+      keywords: [compound.formula, compound.profile, compound.aroma],
+    }),
+  ),
+  ...actionEntries,
 ];

@@ -1,36 +1,143 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { terpenes, RADAR_AXES, type RadarVector } from "@/lib/compounds";
+import { useEffect, useMemo, useReducer } from "react";
+import {
+  RADAR_AXES,
+  terpenes,
+  type RadarVector,
+  type TerpeneCompound,
+} from "@/lib/compounds";
+import { CompoundChip } from "@/components/lab/CompoundChip";
+import { CompoundDropZone } from "@/components/lab/CompoundDropZone";
 
 type AxisKey = (typeof RADAR_AXES)[number]["key"];
 
-/** Pick two terpenes and visualize the combined effect profile as an
- *  overlapping radar chart. The synergy polygon is the per-axis maximum
- *  of the two contributors with a +6 boost on overlapping axes (caps 100). */
-export function SynergyBuilder() {
-  const [aSlug, setASlug] = useState(terpenes[0].slug);
-  const [bSlug, setBSlug] = useState(terpenes[2].slug);
+const SLOT_COUNT = 4;
+const STORAGE_KEY = "terpforge.synergy.v1";
 
-  const a = terpenes.find((t) => t.slug === aSlug) ?? terpenes[0];
-  const b = terpenes.find((t) => t.slug === bSlug) ?? terpenes[1];
+type Slots = (string | null)[];
 
-  const synergy: RadarVector = useMemo(() => {
-    const out: Partial<RadarVector> = {};
-    for (const axis of RADAR_AXES) {
-      const k = axis.key as AxisKey;
-      const va = a.radar[k];
-      const vb = b.radar[k];
-      const max = Math.max(va, vb);
-      const overlap = Math.min(va, vb) > 50 ? 6 : 0;
-      out[k] = Math.min(100, max + overlap);
+type SlotsAction =
+  | { type: "hydrate"; slots: Slots }
+  | { type: "set"; index: number; slug: string | null }
+  | { type: "clear" };
+
+function emptySlots(): Slots {
+  return Array(SLOT_COUNT).fill(null);
+}
+
+function slotsReducer(
+  state: { slots: Slots; hydrated: boolean },
+  action: SlotsAction,
+) {
+  switch (action.type) {
+    case "hydrate":
+      return { slots: action.slots, hydrated: true };
+    case "set": {
+      const next = [...state.slots];
+      // Prevent the same compound occupying two slots.
+      if (action.slug !== null) {
+        for (let i = 0; i < next.length; i++) {
+          if (next[i] === action.slug) next[i] = null;
+        }
+      }
+      next[action.index] = action.slug;
+      return { ...state, slots: next };
     }
-    return out as RadarVector;
-  }, [a, b]);
+    case "clear":
+      return { ...state, slots: emptySlots() };
+  }
+}
+
+function readSlots(): Slots {
+  if (typeof window === "undefined") return emptySlots();
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return emptySlots();
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return emptySlots();
+    const out: Slots = emptySlots();
+    for (let i = 0; i < SLOT_COUNT; i++) {
+      const slug = parsed[i];
+      if (typeof slug === "string" && terpenes.some((t) => t.slug === slug)) {
+        out[i] = slug;
+      }
+    }
+    return out;
+  } catch {
+    return emptySlots();
+  }
+}
+
+/**
+ * N-way synergy: per-axis max across contributors, +6 bonus when ≥2 contributors
+ * clear 50% on that axis (cap 100). With exactly 2 active slots this matches
+ * the V1 formula. With 0 or 1 the synergy hull collapses to 0 / the lone vector.
+ */
+function computeSynergy(active: TerpeneCompound[]): RadarVector {
+  const out: Partial<RadarVector> = {};
+  for (const axis of RADAR_AXES) {
+    const k = axis.key as AxisKey;
+    if (active.length === 0) {
+      out[k] = 0;
+      continue;
+    }
+    let max = 0;
+    let highCount = 0;
+    for (const c of active) {
+      const v = c.radar[k];
+      if (v > max) max = v;
+      if (v > 50) highCount += 1;
+    }
+    const bonus = highCount >= 2 ? 6 : 0;
+    out[k] = Math.min(100, max + bonus);
+  }
+  return out as RadarVector;
+}
+
+export function SynergyBuilder() {
+  const [state, dispatch] = useReducer(slotsReducer, {
+    slots: emptySlots(),
+    hydrated: false,
+  });
+  const { slots, hydrated } = state;
+
+  useEffect(() => {
+    dispatch({ type: "hydrate", slots: readSlots() });
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(slots));
+    } catch {
+      // localStorage may be disabled; ignore.
+    }
+  }, [slots, hydrated]);
+
+  const activeCompounds = useMemo(() => {
+    return slots
+      .map((slug) =>
+        slug ? terpenes.find((t) => t.slug === slug) ?? null : null,
+      )
+      .filter((c): c is TerpeneCompound => c !== null);
+  }, [slots]);
+
+  const synergy = useMemo(
+    () => computeSynergy(activeCompounds),
+    [activeCompounds],
+  );
+
+  const setSlot = (index: number, slug: string | null) =>
+    dispatch({ type: "set", index, slug });
+
+  const clearAll = () => dispatch({ type: "clear" });
 
   // Geometry
-  const W = 360, H = 360;
-  const cx = W / 2, cy = H / 2;
+  const W = 360,
+    H = 360;
+  const cx = W / 2,
+    cy = H / 2;
   const R = 130;
   const N = RADAR_AXES.length;
   const pointFor = (idx: number, value: number) => {
@@ -48,7 +155,6 @@ export function SynergyBuilder() {
     <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8 items-start">
       <div className="bg-[#0A1628] border border-[#1E293B] p-4">
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
-          {/* concentric grid rings */}
           {[0.25, 0.5, 0.75, 1].map((k) => (
             <polygon
               key={k}
@@ -61,43 +167,49 @@ export function SynergyBuilder() {
               strokeWidth="1"
             />
           ))}
-          {/* axes */}
           {RADAR_AXES.map((_, i) => {
             const p = pointFor(i, 100);
-            return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#1E293B" strokeWidth="1" />;
+            return (
+              <line
+                key={i}
+                x1={cx}
+                y1={cy}
+                x2={p.x}
+                y2={p.y}
+                stroke="#1E293B"
+                strokeWidth="1"
+              />
+            );
           })}
-          {/* compound A */}
-          <polygon
-            points={polygonOf(a.radar)}
-            fill={`${a.profileColor}33`}
-            stroke={a.profileColor}
-            strokeWidth="1.5"
-          />
-          {/* compound B */}
-          <polygon
-            points={polygonOf(b.radar)}
-            fill={`${b.profileColor}33`}
-            stroke={b.profileColor}
-            strokeWidth="1.5"
-          />
-          {/* synergy hull */}
-          <polygon
-            points={polygonOf(synergy)}
-            fill="none"
-            stroke="#C9A84C"
-            strokeWidth="2.5"
-            strokeDasharray="6 4"
-            opacity="0.95"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="0"
-              to="20"
-              dur="1.4s"
-              repeatCount="indefinite"
+          {activeCompounds.map((c) => (
+            <polygon
+              key={c.slug}
+              points={polygonOf(c.radar)}
+              fill={`${c.profileColor}33`}
+              stroke={c.profileColor}
+              strokeWidth="1.5"
+              className="tf-synergy-poly"
             />
-          </polygon>
-          {/* axis labels */}
+          ))}
+          {activeCompounds.length > 0 && (
+            <polygon
+              points={polygonOf(synergy)}
+              fill="none"
+              stroke="#C9A84C"
+              strokeWidth="2.5"
+              strokeDasharray="6 4"
+              opacity="0.95"
+              className="tf-synergy-hull"
+            >
+              <animate
+                attributeName="stroke-dashoffset"
+                from="0"
+                to="20"
+                dur="1.4s"
+                repeatCount="indefinite"
+              />
+            </polygon>
+          )}
           {RADAR_AXES.map((axis, i) => {
             const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
             const lx = cx + Math.cos(angle) * (R + 22);
@@ -119,16 +231,61 @@ export function SynergyBuilder() {
             );
           })}
         </svg>
-        <div className="flex justify-between text-[10px] font-mono tracking-widest pt-2">
-          <Legend color={a.profileColor} label={`A · ${a.name}`} />
-          <Legend color={b.profileColor} label={`B · ${b.name}`} />
-          <Legend color="#C9A84C" label="SYNERGY" dashed />
+        <div className="flex flex-wrap gap-x-4 gap-y-1 justify-between text-[10px] font-mono tracking-widest pt-3">
+          {activeCompounds.map((c) => (
+            <Legend
+              key={c.slug}
+              color={c.profileColor}
+              label={c.name.toUpperCase()}
+            />
+          ))}
+          {activeCompounds.length > 0 && (
+            <Legend color="#C9A84C" label="SYNERGY" dashed />
+          )}
+          {activeCompounds.length === 0 && (
+            <span className="text-[#475569]">{"// DROP COMPOUNDS TO BEGIN"}</span>
+          )}
         </div>
       </div>
 
       <div className="space-y-6">
-        <Selector label="Compound A" value={aSlug} onChange={setASlug} disabled={bSlug} />
-        <Selector label="Compound B" value={bSlug} onChange={setBSlug} disabled={aSlug} />
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[#64748B] text-[10px] font-mono tracking-[0.4em] uppercase">
+              {"// Slots · drag a compound or tap to fill"}
+            </p>
+            <button
+              type="button"
+              onClick={clearAll}
+              disabled={activeCompounds.length === 0}
+              className="text-[10px] font-mono tracking-widest uppercase text-[#64748B] hover:text-[#C9A84C] disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              CLEAR
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {slots.map((slug, i) => (
+              <SlotZone
+                key={i}
+                index={i}
+                slug={slug}
+                onDrop={(payload) => setSlot(i, payload.slug)}
+                onClear={() => setSlot(i, null)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[#64748B] text-[10px] font-mono tracking-[0.4em] uppercase mb-3">
+            {"// Palette"}
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {terpenes.map((t) => (
+              <CompoundChip key={t.slug} slug={t.slug} variant="tile" />
+            ))}
+          </div>
+        </div>
 
         <div className="border-t border-[#1E293B] pt-5">
           <p className="text-[#0D9488] text-[10px] font-mono tracking-[0.4em] uppercase mb-3">
@@ -155,14 +312,74 @@ export function SynergyBuilder() {
   );
 }
 
-function Legend({ color, label, dashed = false }: { color: string; label: string; dashed?: boolean }) {
+function SlotZone({
+  index,
+  slug,
+  onDrop,
+  onClear,
+}: {
+  index: number;
+  slug: string | null;
+  onDrop: (payload: { slug: string; profile: string }) => void;
+  onClear: () => void;
+}) {
+  const compound = slug ? terpenes.find((t) => t.slug === slug) : null;
+  return (
+    <CompoundDropZone
+      onDrop={onDrop}
+      ariaLabel={`Synergy slot ${index + 1}`}
+      className="tf-slot"
+    >
+      <div className="tf-slot__inner">
+        <span className="tf-slot__label">SLOT {String(index + 1).padStart(2, "0")}</span>
+        {compound ? (
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <div>
+              <p className="text-[#E8EDF5] text-sm font-bold">{compound.name}</p>
+              <p
+                className="text-[10px] font-mono mt-0.5"
+                style={{ color: compound.profileColor }}
+              >
+                {compound.profile}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClear}
+              className="text-[#64748B] hover:text-[#C9A84C] text-xs font-mono px-2 py-1 border border-[#1E293B]"
+              aria-label={`Clear slot ${index + 1}`}
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <p className="text-[#475569] text-[10px] font-mono tracking-widest mt-2 uppercase">
+            empty · drop here
+          </p>
+        )}
+      </div>
+    </CompoundDropZone>
+  );
+}
+
+function Legend({
+  color,
+  label,
+  dashed = false,
+}: {
+  color: string;
+  label: string;
+  dashed?: boolean;
+}) {
   return (
     <span className="flex items-center gap-2 text-[#64748B]">
       <span
         className="block w-5 h-0.5"
         style={{
           background: color,
-          backgroundImage: dashed ? `linear-gradient(90deg, ${color} 50%, transparent 50%)` : undefined,
+          backgroundImage: dashed
+            ? `linear-gradient(90deg, ${color} 50%, transparent 50%)`
+            : undefined,
           backgroundSize: dashed ? "6px 100%" : undefined,
         }}
       />

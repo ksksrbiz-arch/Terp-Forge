@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { commandEntries } from "@/lib/site";
+import { ACTION_PREFIX, commandEntries } from "@/lib/site";
 
 const COMMAND_EVENT = "terpforge:command-palette:open";
 const FORGE_SEQUENCE = "forge";
@@ -193,6 +193,13 @@ export default function SiteShellEnhancements() {
   const handleSelect = (href: string) => {
     setOpen(false);
     setQuery("");
+    if (href.startsWith(ACTION_PREFIX)) {
+      const action = href.slice(ACTION_PREFIX.length);
+      window.dispatchEvent(
+        new CustomEvent("tf:action", { detail: { action } }),
+      );
+      return;
+    }
     router.push(href);
   };
 

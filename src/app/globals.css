@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/*
+ * z-index ladder (single source of truth)
+ * ────────────────────────────────────────
+ * atmosphere overlays    z 0      (vignette, grain — pointer-events: none)
+ * page content           auto
+ * tf-tray (collapsed)    z 40
+ * navigation header      z 50
+ * tf-tray (expanded)     z 55
+ * cart drawer            z 60
+ * mol-dialog modal       z 65
+ * cursor companion       z 70
+ * forge-wash overlay     z 80
+ * command palette        z 85
+ * boot screen            z 90
+ * skip-to-content link   z 95
+ *
+ * Anything new should slot into this ladder rather than introducing
+ * arbitrary values. Cross-checked across Navigation, CartDrawer,
+ * SiteShellEnhancements, CompoundTray, MoleculeDialog.
+ */
+
 :root {
   /* TerpForge Brand Palette */
   --navy: #0A1628;
@@ -907,4 +928,185 @@ samp {
      the global animation-duration override above. */
   .page-scan-sweep { display: none !important; }
   .boot-progress::after { display: none !important; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   WOW PASS V2 — Compound DnD system
+   z-index ladder: atmosphere 0 · content auto · tray-collapsed 50 ·
+   cursor-companion 70 · tray-expanded 75 · command-palette 85 · boot 90.
+   ────────────────────────────────────────────────────────────────────── */
+
+.tf-drag-image {
+  font-family: var(--font-tf-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--off-white);
+  background: rgba(10, 22, 40, 0.92);
+  border: 1px solid var(--gold);
+  padding: 6px 10px;
+  transform: translate(-50%, -120%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* While a compound is being dragged, give text-selection a gold tint so the
+   visual treatment of "pickup mode" is consistent with the chip outline. */
+body[data-tf-dragging] *::selection {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+/* Hide the cursor companion during a drag — the drag image is the focal
+   element, and a second floating dot adds noise. */
+body[data-tf-dragging] .cursor-companion {
+  opacity: 0 !important;
+}
+
+.tf-slot {
+  position: relative;
+  border: 1px dashed rgba(201, 168, 76, 0.35);
+  background: rgba(10, 22, 40, 0.6);
+  min-height: 80px;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.tf-slot[data-tf-hover="true"] {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, 0.08);
+  border-style: solid;
+}
+.tf-slot__inner {
+  padding: 10px 12px;
+}
+.tf-slot__label {
+  display: block;
+  font-family: var(--font-tf-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: #475569;
+  text-transform: uppercase;
+}
+
+.tf-synergy-poly,
+.tf-synergy-hull {
+  transition: opacity 280ms ease;
+}
+
+/* Cross-page profile highlight: while a compound is being dragged, any
+   element marked with a matching data-profile lights up. */
+body[data-tf-dragging="RECOVERY"] [data-profile="RECOVERY"][data-tf-droppable="true"],
+body[data-tf-dragging="FOCUS"] [data-profile="FOCUS"][data-tf-droppable="true"],
+body[data-tf-dragging="CALM"] [data-profile="CALM"][data-tf-droppable="true"] {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Print mode — gated behind body[data-tf-print-mode="coa"] so users who
+   hit Cmd+P on other pages get default browser behavior. */
+@media print {
+  body[data-tf-print-mode="coa"] {
+    background: #ffffff !important;
+    color: #0A1628 !important;
+  }
+  body[data-tf-print-mode="coa"] * { visibility: hidden !important; }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"],
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] * {
+    visibility: visible !important;
+  }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    color: #0A1628 !important;
+    background: #ffffff !important;
+  }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] * {
+    color: #0A1628 !important;
+    background: transparent !important;
+    border-color: #0A1628 !important;
+    box-shadow: none !important;
+  }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] table,
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] tr {
+    page-break-inside: avoid;
+  }
+}
+
+/* Hero drop accent zone */
+.tf-hero-dropzone {
+  outline: 1px dashed transparent;
+  outline-offset: -10px;
+  transition: outline-color 200ms ease, box-shadow 200ms ease;
+}
+.tf-hero-dropzone--hover {
+  outline-color: rgba(201, 168, 76, 0.6);
+  box-shadow: inset 0 0 80px rgba(201, 168, 76, 0.18);
+}
+@keyframes tf-hero-telemetry-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tf-hero-telemetry {
+  animation: tf-hero-telemetry-in 200ms ease-out both;
+}
+
+/* Shop filter-strip drop zone */
+.tf-shop-filterbar[data-tf-hover="true"] {
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+@keyframes tf-shop-toast-in {
+  from { opacity: 0; transform: translateY(-6px) translateX(-50%); }
+  to   { opacity: 1; transform: translateY(0)   translateX(-50%); }
+}
+.tf-shop-toast {
+  animation: tf-shop-toast-in 200ms ease-out both;
+}
+
+/* MoleculeDialog modal */
+@keyframes tf-mol-dialog-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes tf-mol-dialog-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes tf-mol-dialog-flash {
+  0%   { opacity: 0; }
+  20%  { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+.tf-mol-dialog__panel {
+  animation: tf-mol-dialog-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.tf-mol-dialog__backdrop {
+  animation: tf-mol-dialog-fade 180ms ease-out both;
+}
+.tf-mol-dialog__flash {
+  animation: tf-mol-dialog-flash 280ms ease-out both;
+}
+
+/* Compound Tray dock */
+.tf-tray {
+  font-family: var(--font-tf-mono), monospace;
+}
+@keyframes tf-tray-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4); }
+  60%  { box-shadow: 0 -2px 0 0 rgba(201, 168, 76, 0.0), 0 0 24px rgba(201, 168, 76, 0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.0); }
+}
+.tf-tray--pulse > button {
+  animation: tf-tray-pulse 900ms ease-out;
+}
+/* Push body content up so the collapsed dock doesn't cover the footer. */
+body[data-tf-tray="true"] { padding-bottom: 3rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tf-slot { transition: none !important; }
+  .tf-synergy-poly,
+  .tf-synergy-hull { transition: none !important; }
+  /* Stop the dashed-hull stroke from animating. */
+  .tf-synergy-hull animate { display: none; }
+  .tf-tray { transition: none !important; }
+  .tf-tray--pulse > button { animation: none !important; }
 }
