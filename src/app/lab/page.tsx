@@ -4,6 +4,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { terpenes } from "@/lib/compounds";
+import { useCompoundTray } from "@/components/CompoundTrayContext";
 import { CompoundMatrix } from "@/components/lab/CompoundMatrix";
 import { MoleculeViewer } from "@/components/lab/MoleculeViewer";
 import { PropertyBars } from "@/components/lab/PropertyBars";
@@ -57,6 +58,8 @@ interface CoaEntry {
   lab: string;
   status: "PASS";
   terpenes: { name: string; pct: string }[];
+  /** Commercial profile this COA represents — used by the tray bundle filter. */
+  profile?: "FOCUS" | "RECOVERY" | "CALM";
 }
 
 const coaEntries: CoaEntry[] = [
@@ -73,6 +76,7 @@ const coaEntries: CoaEntry[] = [
       { name: "Pinene", pct: "21.7%" },
       { name: "Terpinolene", pct: "8.9%" },
     ],
+    profile: "FOCUS",
   },
   {
     id: "TF-2025-002",
@@ -87,6 +91,7 @@ const coaEntries: CoaEntry[] = [
       { name: "Caryophyllene", pct: "27.6%" },
       { name: "Linalool", pct: "6.3%" },
     ],
+    profile: "RECOVERY",
   },
   {
     id: "TF-2025-003",
@@ -101,6 +106,7 @@ const coaEntries: CoaEntry[] = [
       { name: "Myrcene", pct: "18.2%" },
       { name: "Caryophyllene", pct: "9.4%" },
     ],
+    profile: "CALM",
   },
   {
     id: "TF-2025-004",
@@ -178,6 +184,7 @@ export default function LabPage() {
   );
   const [purity, setPurity] = useState<number>(99.7);
   const [downloaded, setDownloaded] = useState<string | null>(null);
+  const { pinned: trayPinned } = useCompoundTray();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -239,6 +246,62 @@ export default function LabPage() {
     downloadText("TerpForge-COA-Bundle.txt", text);
     setDownloaded("ALL");
     window.setTimeout(() => setDownloaded(null), 2500);
+  };
+
+  const trayProfiles = useMemo(() => {
+    const set = new Set<NonNullable<CoaEntry["profile"]>>();
+    for (const slug of trayPinned) {
+      const compound = terpenes.find((t) => t.slug === slug);
+      if (!compound) continue;
+      if (
+        compound.profile === "FOCUS" ||
+        compound.profile === "RECOVERY" ||
+        compound.profile === "CALM"
+      ) {
+        set.add(compound.profile);
+      }
+    }
+    return set;
+  }, [trayPinned]);
+
+  const trayCoaEntries = useMemo(
+    () => coaEntries.filter((e) => e.profile && trayProfiles.has(e.profile)),
+    [trayProfiles],
+  );
+
+  const trayCoaPrefills = useMemo(
+    () =>
+      trayCoaEntries.map((e) => ({
+        batchId: e.id,
+        product: e.product,
+        cbd: e.cbd,
+        thc: e.thc,
+        date: e.date,
+        lab: e.lab,
+        status: "VERIFIED",
+      })),
+    [trayCoaEntries],
+  );
+
+  const handleDownloadTrayBundle = () => {
+    if (trayCoaEntries.length === 0) return;
+    const text = trayCoaEntries
+      .map((e) => buildCoaText(e))
+      .join("\n\n══════════════════════════════════════════════════════════════\n\n");
+    downloadText("TerpForge-COA-TrayBundle.txt", text);
+    setDownloaded("TRAY");
+    window.setTimeout(() => setDownloaded(null), 2500);
+  };
+
+  const handlePrintCoa = () => {
+    if (typeof document === "undefined") return;
+    document.body.dataset.tfPrintMode = "coa";
+    const onAfter = () => {
+      delete document.body.dataset.tfPrintMode;
+      window.removeEventListener("afterprint", onAfter);
+    };
+    window.addEventListener("afterprint", onAfter);
+    window.print();
   };
 
   return (
@@ -862,7 +925,7 @@ export default function LabPage() {
         </section>
 
         {/* ── COA PORTAL ──────────────────────────────────────────── */}
-        <section id="coa">
+        <section id="coa" data-tf-print-section="coa">
           <div className="mb-10">
             <p className="text-[#0D9488] text-xs font-mono tracking-[0.4em] uppercase mb-4">
               {"// MODULE 03"}
@@ -959,7 +1022,7 @@ export default function LabPage() {
             </table>
           </div>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-4">
             <button
               type="button"
               onClick={handleDownloadAll}
@@ -968,6 +1031,23 @@ export default function LabPage() {
               {downloaded === "ALL"
                 ? "✓ BUNDLE DOWNLOADED"
                 : "↓ Download Full COA Bundle"}
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadTrayBundle}
+              disabled={trayCoaEntries.length === 0}
+              className="flex-1 px-6 py-4 border border-[#0D9488] text-[#0D9488] text-xs font-mono tracking-widest uppercase hover:bg-[#0D9488]/10 transition-colors text-center disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              {downloaded === "TRAY"
+                ? "✓ TRAY BUNDLE DOWNLOADED"
+                : `↓ Tray Bundle (${trayCoaEntries.length})`}
+            </button>
+            <button
+              type="button"
+              onClick={handlePrintCoa}
+              className="flex-1 px-6 py-4 border border-[#1E293B] text-[#64748B] text-xs font-mono tracking-widest uppercase hover:text-[#C9A84C] hover:border-[#C9A84C] transition-colors text-center"
+            >
+              ⎙ Open as Document
             </button>
             <Link
               href="/shop?cat=wellness#wellness"
@@ -990,7 +1070,7 @@ export default function LabPage() {
               schematic-style PNG. The datamatrix stamp on the card is
               deterministic per batch ID.
             </p>
-            <CoaCardGenerator />
+            <CoaCardGenerator trayPrefills={trayCoaPrefills} />
           </div>
         </section>
       </div>

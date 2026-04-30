@@ -833,6 +833,38 @@ body[data-tf-dragging="CALM"] [data-profile="CALM"][data-tf-droppable="true"] {
   outline-offset: 2px;
 }
 
+/* Print mode — gated behind body[data-tf-print-mode="coa"] so users who
+   hit Cmd+P on other pages get default browser behavior. */
+@media print {
+  body[data-tf-print-mode="coa"] {
+    background: #ffffff !important;
+    color: #0A1628 !important;
+  }
+  body[data-tf-print-mode="coa"] * { visibility: hidden !important; }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"],
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] * {
+    visibility: visible !important;
+  }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    color: #0A1628 !important;
+    background: #ffffff !important;
+  }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] * {
+    color: #0A1628 !important;
+    background: transparent !important;
+    border-color: #0A1628 !important;
+    box-shadow: none !important;
+  }
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] table,
+  body[data-tf-print-mode="coa"] [data-tf-print-section="coa"] tr {
+    page-break-inside: avoid;
+  }
+}
+
 /* Hero drop accent zone */
 .tf-hero-dropzone {
   outline: 1px dashed transparent;
