@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/components/CartContext";
+import { useCompoundTray } from "@/components/CompoundTrayContext";
 import CornerBrackets from "@/components/ui/CornerBrackets";
 import Reveal from "@/components/ui/Reveal";
 import FlipCard from "@/components/ui/FlipCard";
@@ -13,11 +14,14 @@ import {
   formatPrice,
   products,
   profileColors,
+  profileDominantTerpene,
   type Product,
   type ProductCategory,
   type TerpeneProfile,
 } from "@/lib/products";
 import { siteName, siteUrl } from "@/lib/site";
+import { terpenes } from "@/lib/compounds";
+import { useDropZone } from "@/lib/dnd";
 
 type CategoryFilter = "all" | ProductCategory;
 type ProfileFilter = "all" | NonNullable<TerpeneProfile>;
@@ -53,7 +57,31 @@ export default function ShopPage() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("featured");
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [filterToast, setFilterToast] = useState<string>("");
   const { addItem, openCart } = useCart();
+
+  // Compound drop on the filter strip: filter to that profile and announce.
+  const { ref: filterDropRef, hovering: filterDropHover } = useDropZone(
+    (payload) => {
+      const compound = terpenes.find((t) => t.slug === payload.slug);
+      if (!compound) return;
+      const next = compound.profile as ProfileFilter;
+      if (!["FOCUS", "RECOVERY", "CALM"].includes(next as string)) return;
+      setProfile(next);
+      setCategory("all");
+      setQuery("");
+      const matchCount = products.filter((p) => p.profile === next).length;
+      setFilterToast(
+        `Filtered by ${compound.name} → ${next} · ${matchCount} SKUs`,
+      );
+    },
+  );
+
+  useEffect(() => {
+    if (!filterToast) return;
+    const t = window.setTimeout(() => setFilterToast(""), 3200);
+    return () => window.clearTimeout(t);
+  }, [filterToast]);
 
   // Honor legacy deep-links: /shop#apparel, /shop#hardware, /shop#wellness,
   // /shop#cbdwellness. Run once on mount + on hashchange.
@@ -242,7 +270,14 @@ export default function ShopPage() {
       </div>
 
       {/* Filters / search / sort */}
-      <div className="sticky top-16 z-30 bg-[#0A1628]/95 backdrop-blur-sm border-b border-[#C9A84C]/20">
+      <div
+        ref={filterDropRef}
+        data-tf-drop="compound"
+        data-tf-hover={filterDropHover ? "true" : undefined}
+        className={`tf-shop-filterbar sticky top-16 z-30 bg-[#0A1628]/95 backdrop-blur-sm border-b transition-colors ${
+          filterDropHover ? "border-[#C9A84C]" : "border-[#C9A84C]/20"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-3">
             {CATEGORY_TABS.map((tab) => {
@@ -445,6 +480,19 @@ export default function ShopPage() {
         onAddToCart={handleAddFromCompare}
         max={COMPARE_MAX}
       />
+
+      {/* Filter toast — announces compound-drop filtering. */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="fixed top-20 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+      >
+        {filterToast && (
+          <div className="tf-shop-toast bg-[#0A1628]/95 border border-[#C9A84C] backdrop-blur-sm px-4 py-2 text-[10px] font-mono tracking-[0.3em] uppercase text-[#C9A84C]">
+            {`// ${filterToast}`}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -461,9 +509,14 @@ function ProductCard({
   compareDisabled: boolean;
 }) {
   const { addItem, openCart } = useCart();
+  const { pin, pinned, isFull } = useCompoundTray();
   const [added, setAdded] = useState(false);
   const profileColor = product.profile ? profileColors[product.profile] : null;
   const accent = profileColor ?? "#C9A84C";
+  const dominantSlug = product.profile
+    ? profileDominantTerpene[product.profile]
+    : null;
+  const dominantPinned = dominantSlug ? pinned.includes(dominantSlug) : false;
 
   const handleAdd = () => {
     addItem(product.id, 1);
@@ -472,9 +525,16 @@ function ProductCard({
     window.setTimeout(() => setAdded(false), 1500);
   };
 
+  const handlePinDominant = () => {
+    if (!dominantSlug || dominantPinned) return;
+    pin(dominantSlug);
+  };
+
   return (
     <div
       className="relative group h-[26rem] flex flex-col"
+      data-profile={product.profile ?? undefined}
+      data-tf-droppable={product.profile ? "true" : undefined}
       style={{ ["--accent" as string]: accent }}
     >
       {/* Compare toggle floats above the flip card */}
@@ -502,6 +562,32 @@ function ProductCard({
       >
         {compared ? "✓ COMPARING" : "+ COMPARE"}
       </button>
+
+      {/* Pin-dominant-terpene to tray — only on profile-bearing SKUs */}
+      {dominantSlug && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePinDominant();
+          }}
+          disabled={!dominantPinned && isFull}
+          aria-pressed={dominantPinned}
+          aria-label={
+            dominantPinned
+              ? `${dominantSlug} already pinned to tray`
+              : `Pin ${dominantSlug} to tray (${product.profile} dominant)`
+          }
+          className="absolute top-2 right-2 z-20 px-2 py-1 text-[9px] font-mono tracking-widest uppercase border transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          style={{
+            color: dominantPinned ? "#0A1628" : accent,
+            background: dominantPinned ? accent : "rgba(10,22,40,0.85)",
+            borderColor: accent,
+          }}
+        >
+          {dominantPinned ? "✓ TRAY" : "+ TRAY"}
+        </button>
+      )}
 
       <FlipCard
         ariaLabel={`${product.name} — flip for spec sheet`}

@@ -833,6 +833,18 @@ body[data-tf-dragging="CALM"] [data-profile="CALM"][data-tf-droppable="true"] {
   outline-offset: 2px;
 }
 
+/* Shop filter-strip drop zone */
+.tf-shop-filterbar[data-tf-hover="true"] {
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+@keyframes tf-shop-toast-in {
+  from { opacity: 0; transform: translateY(-6px) translateX(-50%); }
+  to   { opacity: 1; transform: translateY(0)   translateX(-50%); }
+}
+.tf-shop-toast {
+  animation: tf-shop-toast-in 200ms ease-out both;
+}
+
 /* MoleculeDialog modal */
 @keyframes tf-mol-dialog-in {
   from { opacity: 0; transform: scale(0.96); }
