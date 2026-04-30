@@ -775,3 +775,68 @@ samp {
   .page-scan-sweep { display: none !important; }
   .boot-progress::after { display: none !important; }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   WOW PASS V2 — Compound DnD system
+   z-index ladder: atmosphere 0 · content auto · tray-collapsed 50 ·
+   cursor-companion 70 · tray-expanded 75 · command-palette 85 · boot 90.
+   ────────────────────────────────────────────────────────────────────── */
+
+.tf-drag-image {
+  font-family: var(--font-tf-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--off-white);
+  background: rgba(10, 22, 40, 0.92);
+  border: 1px solid var(--gold);
+  padding: 6px 10px;
+  transform: translate(-50%, -120%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+}
+
+.tf-slot {
+  position: relative;
+  border: 1px dashed rgba(201, 168, 76, 0.35);
+  background: rgba(10, 22, 40, 0.6);
+  min-height: 80px;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.tf-slot[data-tf-hover="true"] {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, 0.08);
+  border-style: solid;
+}
+.tf-slot__inner {
+  padding: 10px 12px;
+}
+.tf-slot__label {
+  display: block;
+  font-family: var(--font-tf-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: #475569;
+  text-transform: uppercase;
+}
+
+.tf-synergy-poly,
+.tf-synergy-hull {
+  transition: opacity 280ms ease;
+}
+
+/* Cross-page profile highlight: while a compound is being dragged, any
+   element marked with a matching data-profile lights up. */
+body[data-tf-dragging="RECOVERY"] [data-profile="RECOVERY"][data-tf-droppable="true"],
+body[data-tf-dragging="FOCUS"] [data-profile="FOCUS"][data-tf-droppable="true"],
+body[data-tf-dragging="CALM"] [data-profile="CALM"][data-tf-droppable="true"] {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tf-slot { transition: none !important; }
+  .tf-synergy-poly,
+  .tf-synergy-hull { transition: none !important; }
+  /* Stop the dashed-hull stroke from animating. */
+  .tf-synergy-hull animate { display: none; }
+}

@@ -852,10 +852,10 @@ export default function LabPage() {
               Synergy Builder
             </h2>
             <p className="text-[#64748B] font-mono text-sm max-w-xl">
-              Pick two compounds and see the combined effect profile as an
-              overlapping radar — the dashed gold hull marks the synergy
-              ceiling, capped at 100% per axis with a small overlap bonus
-              when both contributors clear 50%.
+              Drag any compound from the palette into one of four slots. The
+              radar overlays each contributor; the dashed gold hull marks the
+              synergy ceiling — per-axis maximum across the slots, with a
+              small overlap bonus when two or more contributors clear 50%.
             </p>
           </div>
           <SynergyBuilder />
