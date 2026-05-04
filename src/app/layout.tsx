@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import {
+  ClerkProvider,
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -101,27 +108,38 @@ export default function RootLayout({
       className={`${tfSans.variable} ${tfMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0A1628] text-[#E8EDF5]">
-        <a
-          href="#main-content"
-          className="skip-link fixed left-4 top-4 z-[95] -translate-y-24 px-4 py-2 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-[0.3em] uppercase transition-transform focus:translate-y-0"
-        >
-          Skip to content
-        </a>
-        <CartProvider>
-          <CompoundTrayProvider>
-            <MoleculeDialogProvider>
-              <SiteShellEnhancements />
-              <Navigation />
-              <main id="main-content" className="flex-1">
-                <PageTransition>{children}</PageTransition>
-              </main>
-              <Footer />
-              <CartDrawer />
-              <CompoundTray />
-              <CompoundActionsBridge />
-            </MoleculeDialogProvider>
-          </CompoundTrayProvider>
-        </CartProvider>
+        <ClerkProvider>
+          <a
+            href="#main-content"
+            className="skip-link fixed left-4 top-4 z-[95] -translate-y-24 px-4 py-2 bg-[#C9A84C] text-[#0A1628] text-xs font-bold tracking-[0.3em] uppercase transition-transform focus:translate-y-0"
+          >
+            Skip to content
+          </a>
+          <header className="flex items-center justify-end gap-3 px-6 py-3">
+            <Show when="signed-out">
+              <SignInButton />
+              <SignUpButton />
+            </Show>
+            <Show when="signed-in">
+              <UserButton />
+            </Show>
+          </header>
+          <CartProvider>
+            <CompoundTrayProvider>
+              <MoleculeDialogProvider>
+                <SiteShellEnhancements />
+                <Navigation />
+                <main id="main-content" className="flex-1">
+                  <PageTransition>{children}</PageTransition>
+                </main>
+                <Footer />
+                <CartDrawer />
+                <CompoundTray />
+                <CompoundActionsBridge />
+              </MoleculeDialogProvider>
+            </CompoundTrayProvider>
+          </CartProvider>
+        </ClerkProvider>
         {/* Site-wide atmospheric overlays — film grain + radial vignette.
             Mounted last so they layer over every page surface but stay
             below the navigation, drawers, and command palette (z 70+). */}
